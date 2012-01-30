@@ -16,27 +16,32 @@ URLFAVORITES = 'http://www.ted.com/profiles/favorites/id/'
 URLADDFAV ='http://www.ted.com/profiles/addfavorites?id=%s&modulename=talks'
 URLREMFAV ='http://www.ted.com/profiles/removefavorites?id=%s&modulename=talks'
 
+# Ugly hack until I understand how to do this properly
+if hasattr(sys.modules['__main__'], "__plugin__"):
+    pluginName = sys.modules['__main__'].__plugin__
+else:
+    pluginName = "TedTests"
+
+def getNavItems(html):
+    """self.navItems={'next':url, 'previous':url, 'selected':pagenumberasaninteger}"""
+    navItems = {'next':None, 'previous':None, 'selected':1}
+    paginationContainer = SoupStrainer(attrs = {'class':re.compile('pagination')})
+    for liTag in BeautifulSoup(html, parseOnlyThese = paginationContainer).findAll('li'):
+        if liTag.has_key('class'):
+            if liTag['class'] == 'next':
+                navItems['next'] = URLTED+liTag.a['href']
+            elif liTag['class'] == 'prev':
+                navItems['previous'] = URLTED+liTag.a['href']
+            elif liTag['class'] == 'selected':
+                navItems['selected'] = int(liTag.a.string)
+        else: #no class attrib found.
+            print '[%s] %s no pagination found.' % (pluginName, __name__)
+    return navItems
 
 class TedTalks:
 
     def __init__(self, fetcher):
         self.fetcher = fetcher
-
-    def getNavItems(self, html):
-        """self.navItems={'next':url, 'previous':url, 'selected':pagenumberasaninteger}"""
-        navItems = {'next':None, 'previous':None, 'selected':1}
-        paginationContainer = SoupStrainer(attrs = {'class':re.compile('pagination')})
-        for liTag in BeautifulSoup(html, parseOnlyThese = paginationContainer).findAll('li'):
-            if liTag.has_key('class'):
-                if liTag['class'] == 'next':
-                    navItems['next'] = URLTED+liTag.a['href']
-                elif liTag['class'] == 'prev':
-                    navItems['previous'] = URLTED+liTag.a['href']
-                elif liTag['class'] == 'selected':
-                    navItems['selected'] = int(liTag.a.string)
-            else: #no class attrib found.
-                print '[%s] %s no pagination found.' % (pluginName, __name__)
-        return navItems
 
     def getVideoDetails(self, url):
         """self.videoDetails={Title, Director, Genre, Plot, id, url}"""
@@ -111,11 +116,12 @@ class TedTalks:
     class NewTalks:
         """self.videos=[{'link':link,'Title':title,'pic':pic},...]"""
 
-        def __init__(self, url=None):
+        def __init__(self, fetcher, url=None):
             if url is None:
                 url = URLNEW
+            self.fetcher = fetcher
             self.html = self.fetcher.getHTML(url)
-            self.navItems = TedTalks().getNavItems(self.html)
+            self.navItems = getNavItems(self.html)
 
         def getNewTalks(self):
             talkContainers = SoupStrainer(attrs = {'class':re.compile('talkMedallion')})
@@ -127,14 +133,15 @@ class TedTalks:
 
     class Speakers:
 
-        def __init__(self, url=None):
+        def __init__(self, fetcher, url=None):
             # adding 9999 to the url takes the script to the very last page of the list, providing the total # of pages.
             if url == None:
                 url = URLSPEAKERS+'9999'
+            self.fetcher = fetcher
             self.html = self.fetcher.getHTML(url)
             # only bother with navItems where they have a chance to appear.
             if URLSPEAKERS in url:
-                self.navItems = TedTalks().getNavItems(self.html)
+                self.navItems = getNavItems(self.html)
 
         def getSpeakers(self):
             # use getAllSpeakers instead... just leaving this function here for educational purposes.
@@ -167,9 +174,10 @@ class TedTalks:
 
     class Themes:
 
-        def __init__(self, url=None):
+        def __init__(self, fetcher, url=None):
             if url == None:
                 url = URLTHEMES
+            self.fetcher = fetcher
             self.html = self.fetcher.getHTML(url)
             # a-z themes don't yet have navItems, so the check can be skipped for now.
             # self.navItems = TedTalks().getNavItems(html)
@@ -199,6 +207,9 @@ class TedTalks:
 
     class Favorites:
 
+        def __init__(self, fetcher):
+            self.fetcher = fetcher
+
         def getFavoriteTalks(self, user, url = URLFAVORITES):
             """user must be TedTalks().User object with .id attribute"""
             if user.id is not None:
@@ -215,7 +226,7 @@ class TedTalks:
         def addToFavorites(self, user, url):
             """user must be TedTalks().User object with .id attribute"""
             if user.id is not None:
-                id = TedTalks().getVideoDetails(url)['id']
+                id = TedTalks(self.fetcher).getVideoDetails(url)['id']
                 print id
                 response = self.fetcher.getHTML(URLADDFAV % (id))
                 if response:
@@ -227,7 +238,7 @@ class TedTalks:
         def removeFromFavorites(self, user, url):
             """user must be TedTalks().User object with .id attribute"""
             if user.id is not None:
-                id = TedTalks().getVideoDetails(url)['id']
+                id = TedTalks(self.fetcher).getVideoDetails(url)['id']
                 print id
                 response = self.fetcher.getHTML(URLREMFAV % (id))
                 if response:

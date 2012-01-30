@@ -2,6 +2,9 @@ import urllib2
 import cookielib
 import os.path
 import xbmc
+import sys
+
+pluginName = sys.modules['__main__'].__plugin__
 
 class Fetcher:
 

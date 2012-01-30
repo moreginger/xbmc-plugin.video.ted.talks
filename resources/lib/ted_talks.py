@@ -6,12 +6,14 @@ import xbmcplugin
 import xbmcgui
 from talkDownloader import Download
 import xbmcaddon
+import fetcher
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.ted.talks')
 getLS = __settings__.getLocalizedString
 
 #getLS = xbmc.getLocalizedString
-TedTalks = ted_talks_scraper.TedTalks()
+Fetcher = fetcher.Fetcher()
+TedTalks = ted_talks_scraper.TedTalks(Fetcher)
 
 
 class updateArgs:
@@ -111,7 +113,7 @@ class UI:
 
     def newTalks(self):
         newMode = 'playVideo'
-        newTalks = TedTalks.NewTalks(self.main.args.url)
+        newTalks = TedTalks.NewTalks(Fetcher, self.main.args.url)
         #add talks to the list
         for talk in newTalks.getNewTalks():
             talk['mode'] = newMode
@@ -123,7 +125,7 @@ class UI:
 
     def speakers(self):
         newMode = 'speakerVids'
-        speakers = TedTalks.Speakers(self.main.args.url)
+        speakers = TedTalks.Speakers(Fetcher, self.main.args.url)
         #add speakers to the list
         for speaker in speakers.getAllSpeakers():
             speaker['mode'] = newMode
@@ -135,7 +137,7 @@ class UI:
 
     def speakerVids(self):
         newMode = 'playVideo'
-        speakers = TedTalks.Speakers(self.main.args.url)
+        speakers = TedTalks.Speakers(Fetcher, self.main.args.url)
         for talk in speakers.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -144,7 +146,7 @@ class UI:
 
     def themes(self):
         newMode = 'themeVids'
-        themes = TedTalks.Themes(self.main.args.url)
+        themes = TedTalks.Themes(Fetcher, self.main.args.url)
         #add themes to the list
         for theme in themes.getThemes():
             theme['mode'] = newMode
@@ -154,7 +156,7 @@ class UI:
 
     def themeVids(self):
         newMode = 'playVideo'
-        themes = TedTalks.Themes(self.main.args.url)
+        themes = TedTalks.Themes(Fetcher, self.main.args.url)
         for talk in themes.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -164,7 +166,7 @@ class UI:
         newMode = 'playVideo'
         #attempt to login
         if self.main.isValidUser():
-            favorites = TedTalks.Favorites()
+            favorites = TedTalks.Favorites(Fetcher)
             for talk in favorites.getFavoriteTalks(self.main.user):
                 talk['mode'] = newMode
                 self.addItem(talk, isFolder = False)
@@ -207,7 +209,7 @@ class Main:
 
     def addToFavorites(self, url):
         if self.isValidUser():
-            successful = TedTalks.Favorites().addToFavorites(self.user, url)
+            successful = TedTalks.Favorites(Fetcher).addToFavorites(self.user, url)
             if successful:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30091)))
             else:
@@ -215,7 +217,7 @@ class Main:
 
     def removeFromFavorites(self, url):
         if self.isValidUser():
-            successful = TedTalks.Favorites().removeFromFavorites(self.user, url)
+            successful = TedTalks.Favorites(Fetcher).removeFromFavorites(self.user, url)
             if successful:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30094)))
             else:

@@ -1,7 +1,7 @@
 import re
 import sys
 from ClientForm import ParseResponse
-from util import getHTML, getUrllib2ResponseObject, cleanHTML, resizeImage
+from util import getUrllib2ResponseObject, cleanHTML, resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 
 #MAIN URLS
@@ -16,10 +16,11 @@ URLFAVORITES = 'http://www.ted.com/profiles/favorites/id/'
 URLADDFAV ='http://www.ted.com/profiles/addfavorites?id=%s&modulename=talks'
 URLREMFAV ='http://www.ted.com/profiles/removefavorites?id=%s&modulename=talks'
 
-pluginName = sys.modules['__main__'].__plugin__
-
 
 class TedTalks:
+
+    def __init__(self, fetcher):
+        self.fetcher = fetcher
 
     def getNavItems(self, html):
         """self.navItems={'next':url, 'previous':url, 'selected':pagenumberasaninteger}"""
@@ -40,7 +41,7 @@ class TedTalks:
     def getVideoDetails(self, url):
         """self.videoDetails={Title, Director, Genre, Plot, id, url}"""
         #TODO: get 'related tags' and list them under genre
-        html = getHTML(url)
+        html = self.fetcher.getHTML(url)
         url = ""
         soup = BeautifulSoup(html)
         #get title
@@ -55,7 +56,7 @@ class TedTalks:
             lambda l: re.compile('High-res video \(MP4\)').match(str(l.string)),
             lambda l: re.compile('http://download.ted.com/talks/.+.mp4').match(str(l['href'])),
         ]
-        for link in soup.findAll('a'):
+        for link in soup.findAll('a', href=True):
             for detector in linkDetectors:
                 if detector(link):
                     url = link['href']
@@ -105,7 +106,7 @@ class TedTalks:
             form["users[password]"] = self.password
             form["users[rememberme]"] = ["on"]
             #click submit
-            return getHTML(form.click())
+            return self.fetcher.getHTML(form.click())
 
     class NewTalks:
         """self.videos=[{'link':link,'Title':title,'pic':pic},...]"""
@@ -113,7 +114,7 @@ class TedTalks:
         def __init__(self, url=None):
             if url is None:
                 url = URLNEW
-            self.html = getHTML(url)
+            self.html = self.fetcher.getHTML(url)
             self.navItems = TedTalks().getNavItems(self.html)
 
         def getNewTalks(self):
@@ -130,7 +131,7 @@ class TedTalks:
             # adding 9999 to the url takes the script to the very last page of the list, providing the total # of pages.
             if url == None:
                 url = URLSPEAKERS+'9999'
-            self.html = getHTML(url)
+            self.html = self.fetcher.getHTML(url)
             # only bother with navItems where they have a chance to appear.
             if URLSPEAKERS in url:
                 self.navItems = TedTalks().getNavItems(self.html)
@@ -148,7 +149,7 @@ class TedTalks:
             for i in range(self.navItems['selected']):
                 # don't parse the last page twice.
                 if i is not 8:
-                    html = getHTML(URLSPEAKERS+str(i+1))
+                    html = self.fetcher.getHTML(URLSPEAKERS+str(i+1))
                 else:
                     html = self.html
                 for speaker in BeautifulSoup(html, parseOnlyThese = speakerContainers):
@@ -169,7 +170,7 @@ class TedTalks:
         def __init__(self, url=None):
             if url == None:
                 url = URLTHEMES
-            self.html = getHTML(url)
+            self.html = self.fetcher.getHTML(url)
             # a-z themes don't yet have navItems, so the check can be skipped for now.
             # self.navItems = TedTalks().getNavItems(html)
 
@@ -187,7 +188,7 @@ class TedTalks:
             # search HTML for the link to tedtalk's "api".  It is easier to use regex here than BS.
             jsonUrl = URLTED+re.findall('DataSource\("(.+?)"', self.html)[0]
             # make a dict from the json formatted string from above url
-            talksMarkup = loads(getHTML(jsonUrl))
+            talksMarkup = loads(self.fetcher.getHTML(jsonUrl))
             # parse through said dict for all the metadata
             for markup in talksMarkup['resultSet']['result']:
                 talk = BeautifulSoup(markup['markup'])
@@ -201,7 +202,7 @@ class TedTalks:
         def getFavoriteTalks(self, user, url = URLFAVORITES):
             """user must be TedTalks().User object with .id attribute"""
             if user.id is not None:
-                html = getHTML(url+user.id)
+                html = self.fetcher.getHTML(url+user.id)
                 talkContainer = SoupStrainer(attrs = {'class':re.compile('box clearfix')})
                 for talk in BeautifulSoup(html, parseOnlyThese = talkContainer):
                     title = talk.ul.a.string
@@ -216,7 +217,7 @@ class TedTalks:
             if user.id is not None:
                 id = TedTalks().getVideoDetails(url)['id']
                 print id
-                response = getHTML(URLADDFAV % (id))
+                response = self.fetcher.getHTML(URLADDFAV % (id))
                 if response:
                     print '[%s] %s addToFavorites success' % (pluginName, __name__)
                     return True
@@ -228,7 +229,7 @@ class TedTalks:
             if user.id is not None:
                 id = TedTalks().getVideoDetails(url)['id']
                 print id
-                response = getHTML(URLREMFAV % (id))
+                response = self.fetcher.getHTML(URLREMFAV % (id))
                 if response:
                     print '[%s] %s removeFromFavorites success' % (pluginName, __name__)
                     return True

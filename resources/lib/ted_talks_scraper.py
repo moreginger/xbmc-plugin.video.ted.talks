@@ -16,11 +16,7 @@ URLFAVORITES = 'http://www.ted.com/profiles/favorites/id/'
 URLADDFAV ='http://www.ted.com/profiles/addfavorites?id=%s&modulename=talks'
 URLREMFAV ='http://www.ted.com/profiles/removefavorites?id=%s&modulename=talks'
 
-# Ugly hack until I understand how to do this properly
-if hasattr(sys.modules['__main__'], "__plugin__"):
-    pluginName = sys.modules['__main__'].__plugin__
-else:
-    pluginName = "TedTests"
+pluginName = sys.modules['__main__'].__plugin__
 
 def getNavItems(html):
     """self.navItems={'next':url, 'previous':url, 'selected':pagenumberasaninteger}"""

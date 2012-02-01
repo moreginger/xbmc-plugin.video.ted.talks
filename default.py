@@ -3,17 +3,10 @@
     rwparris2
 """
 import sys
-
-#plugin constants
-__plugin__ = "TED Talks"
-__author__ = "rwparris2"
-__url__ = "http://code.google.com/p/xbmc-addons/"
-__svn_url__ = "http://xbmc-addons.googlecode.com/svn/trunk/plugins/video/TED%20Talks"
-__version__ = "2.2.2"
-
-print "[PLUGIN] '%s: version %s' initialized!" % (__plugin__, __version__)
+import resources.lib.plugin as plugin
 
 if __name__ == "__main__":
+    plugin.init()
     import resources.lib.ted_talks as ted_talks
     if not sys.argv[2]:
         ted_talks.Main()

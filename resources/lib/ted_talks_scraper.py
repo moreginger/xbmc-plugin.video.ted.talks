@@ -1,5 +1,5 @@
 import re
-import sys
+import plugin
 from ClientForm import ParseResponse
 from util import getUrllib2ResponseObject, cleanHTML, resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
@@ -16,8 +16,6 @@ URLFAVORITES = 'http://www.ted.com/profiles/favorites/id/'
 URLADDFAV ='http://www.ted.com/profiles/addfavorites?id=%s&modulename=talks'
 URLREMFAV ='http://www.ted.com/profiles/removefavorites?id=%s&modulename=talks'
 
-pluginName = sys.modules['__main__'].__plugin__
-
 def getNavItems(html):
     """self.navItems={'next':url, 'previous':url, 'selected':pagenumberasaninteger}"""
     navItems = {'next':None, 'previous':None, 'selected':1}
@@ -31,7 +29,7 @@ def getNavItems(html):
             elif liTag['class'] == 'selected':
                 navItems['selected'] = int(liTag.a.string)
         else: #no class attrib found.
-            print '[%s] %s no pagination found.' % (pluginName, __name__)
+            print '[%s] %s no pagination found.' % (plugin.__plugin__, __name__)
     return navItems
 
 class TedTalks:
@@ -217,7 +215,7 @@ class TedTalks:
                     pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
                     yield {'url':link, 'Title':title, 'Thumb':pic}
             else:
-                print '[%s] %s invalid user object' % (pluginName, __name__)
+                print '[%s] %s invalid user object' % (plugin.__plugin__, __name__)
 
         def addToFavorites(self, user, url):
             """user must be TedTalks().User object with .id attribute"""
@@ -226,10 +224,10 @@ class TedTalks:
                 print id
                 response = self.fetcher.getHTML(URLADDFAV % (id))
                 if response:
-                    print '[%s] %s addToFavorites success' % (pluginName, __name__)
+                    print '[%s] %s addToFavorites success' % (plugin.__plugin__, __name__)
                     return True
             else:
-                print '[%s] %s invalid user object' % (pluginName, __name__)
+                print '[%s] %s invalid user object' % (plugin.__plugin__, __name__)
 
         def removeFromFavorites(self, user, url):
             """user must be TedTalks().User object with .id attribute"""
@@ -238,10 +236,10 @@ class TedTalks:
                 print id
                 response = self.fetcher.getHTML(URLREMFAV % (id))
                 if response:
-                    print '[%s] %s removeFromFavorites success' % (pluginName, __name__)
+                    print '[%s] %s removeFromFavorites success' % (plugin.__plugin__, __name__)
                     return True
             else:
-                print '[%s] %s invalid user object' % (pluginName, __name__)
+                print '[%s] %s invalid user object' % (plugin.__plugin__, __name__)
 
     class Search:
         pass

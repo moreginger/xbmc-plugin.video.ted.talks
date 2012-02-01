@@ -1,9 +1,5 @@
 import unittest
 import urllib2
-
-# Provide expected attrs on main module.
-import sys
-setattr(sys.modules['__main__'], '__plugin__', 'TedTests')
 import ted_talks_scraper
 
 class MockFetcher:

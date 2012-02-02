@@ -1,3 +1,6 @@
+[B]Version 2.2.6[/B]
+Fix for problem introduced in 2.2.5 where certain talks could not be played.
+
 [B]Version 2.2.5[/B]
 Fixed playback of certain videos would fail (thanks to moreginger)
 

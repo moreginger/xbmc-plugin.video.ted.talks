@@ -2,21 +2,18 @@ import unittest
 import urllib2
 import ted_talks_scraper
 
-class MockFetcher:
-
-    def getHTML(self, url):
-        usock = urllib2.urlopen(url)
-        try:
-            return usock.read()
-        finally:
-            usock.close()
+def getHTML(url):
+    usock = urllib2.urlopen(url)
+    try:
+        return usock.read()
+    finally:
+        usock.close()
 
 
 class TestTedTalks(unittest.TestCase):
     
     def setUp(self):
-        self.fetcher = MockFetcher()
-        self.tedTalks = ted_talks_scraper.TedTalks(self.fetcher)
+        self.tedTalks = ted_talks_scraper.TedTalks(getHTML)
 
     def test_smoke(self):
         self.tedTalks.getVideoDetails("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")
@@ -26,8 +23,11 @@ class TestTedTalks(unittest.TestCase):
 class TestNewTalks(unittest.TestCase):
 
     def setUp(self):
-        self.fetcher = MockFetcher()
-        self.newTalks = ted_talks_scraper.TedTalks.NewTalks(self.fetcher)
+        self.newTalks = ted_talks_scraper.NewTalks(getHTML, lambda code: "%s" % code)
 
     def test_smoke(self):
-        self.newTalks.getNewTalks()
+        newTalks = list(self.newTalks.getNewTalks())
+        nextPage = newTalks[0]
+        self.assertTrue(nextPage[0])
+        firstTalk = newTalks[1]
+        self.assertFalse(firstTalk[0])

@@ -13,7 +13,7 @@ getLS = __settings__.getLocalizedString
 
 #getLS = xbmc.getLocalizedString
 Fetcher = fetcher.Fetcher()
-TedTalks = ted_talks_scraper.TedTalks(Fetcher)
+TedTalks = ted_talks_scraper.TedTalks(Fetcher.getHTML)
 
 
 class updateArgs:
@@ -49,7 +49,7 @@ class UI:
         #let xbmc know the script is done adding items to the list.
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]), updateListing = dontAddToHierarchy)
 
-    def addItem(self, info, isFolder=True):
+    def addItem(self, info, isFolder = True):
         #Defaults in dict. Use 'None' instead of None so it is compatible for quote_plus in parseArgs
         info.setdefault('url', 'None')
         info.setdefault('Thumb', 'None')
@@ -62,11 +62,11 @@ class UI:
             '&icon='+urllib.quote_plus(info['Thumb'])            
         #create list item
         if info['Title'].startswith(" "):
-          title = info['Title'][1:]
+            title = info['Title'][1:]
         else:
-          title = info['Title']  
-        li=xbmcgui.ListItem(label = title, iconImage = info['Icon'], thumbnailImage = info['Thumb'])
-        li.setInfo(type='Video', infoLabels=info)
+            title = info['Title']  
+        li = xbmcgui.ListItem(label = title, iconImage = info['Icon'], thumbnailImage = info['Thumb'])
+        li.setInfo(type='Video', infoLabels = info)
         #for videos, replace context menu with queue and add to favorites
         if not isFolder:
             li.setProperty("IsPlayable", "true")#let xbmc know this can be played, unlike a folder.
@@ -80,12 +80,21 @@ class UI:
                 else:
                     contextmenu += [(getLS(30090), 'RunPlugin(%s?addToFavorites=%s)' % (sys.argv[0], info['url']))]
             #replaceItems=True replaces the useless one with the two defined above.
-            li.addContextMenuItems(contextmenu, replaceItems=True)
-        #for folders, completely remove contextmenu, as it is totally useless.
+            li.addContextMenuItems(contextmenu, replaceItems = True)
         else:
-            li.addContextMenuItems([], replaceItems=True)
+            #for folders, completely remove contextmenu, as it is totally useless.
+            li.addContextMenuItems([], replaceItems = True)
         #add item to list
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=li, isFolder=isFolder)
+        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=li, isFolder=isFolder)
+
+    def addItems(self, items):
+        """
+        items Iterable of 2-tuples, first value is whether this is a folder, second is a string->string dict of attributes
+        """
+        for item in items:
+            self.addItem(item[1], isFolder = item[0])
+        #end the list
+        self.endofdirectory(sortMethod = 'date')
 
     def playVideo(self):
         video = TedTalks.getVideoDetails(self.main.args.url)
@@ -112,16 +121,9 @@ class UI:
         self.endofdirectory()
 
     def newTalks(self):
-        newMode = 'playVideo'
-        newTalks = TedTalks.NewTalks(Fetcher, self.main.args.url)
-        #add talks to the list
-        for talk in newTalks.getNewTalks():
-            talk['mode'] = newMode
-            self.addItem(talk, isFolder = False)
-        #add nav items to the list
-        self.navItems(newTalks.navItems, self.main.args.mode)
-        #end the list
-        self.endofdirectory(sortMethod = 'date')
+        newTalks = ted_talks_scraper.NewTalks(Fetcher.getHTML, getLS)
+        talks = list(newTalks.getNewTalks(self.main.args.url))
+        self.addItems(talks)
 
     def speakers(self):
         newMode = 'speakerVids'

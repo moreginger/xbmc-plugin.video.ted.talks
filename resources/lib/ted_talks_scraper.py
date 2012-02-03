@@ -8,7 +8,6 @@ from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 URLTED = 'http://www.ted.com'
 URLTHEMES = 'http://www.ted.com/themes/atoz/page/'
 URLSPEAKERS = 'http://www.ted.com/speakers/atoz/page/'
-URLNEW = 'http://www.ted.com/talks/list/page/'
 URLSEARCH = 'http://www.ted.com/search?q=%s/page/'
 URLLOGIN = 'http://www.ted.com/users/signin/'
 URLPROFILE = 'http://www.ted.com/profiles/'
@@ -32,15 +31,51 @@ def getNavItems(html):
             print '[%s] %s no pagination found.' % (plugin.__plugin__, __name__)
     return navItems
 
+class NewTalks:
+    """
+    Fetches new talks!
+    """
+    
+    def __init__(self, getHTML, getLS):
+        """
+        getHTML method to getHTML from a URL
+        getLS method to get localized string from an integer code
+        """
+        self.getHTML = getHTML
+        self.getLS = getLS
+ 
+    def getNewTalks(self, url = None):
+        """
+        Returns 2-tuples, first value is whether this is a folder, second is attributes dict
+        """
+        if url == None:
+            url = 'http://www.ted.com/talks/list/page/'
+        html = self.getHTML(url)
+
+        # Forward/backwards        
+        navItems = getNavItems(html)
+        if navItems['next']:
+            yield True, {'mode':'newTalks', 'Title': self.getLS(30020), 'url':navItems['next']}
+        if navItems['previous']:
+            yield True, {'mode':'newTalks', 'Title': self.getLS(30021), 'url':navItems['previous']}
+        
+        talkContainers = SoupStrainer(attrs = {'class':re.compile('talkMedallion')})
+        for talk in BeautifulSoup(html, parseOnlyThese = talkContainers):
+            link = URLTED+talk.dt.a['href']
+            title = cleanHTML(talk.dt.a['title'])
+            pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
+            yield False, {'mode':'playVideo', 'url':link, 'Title':title, 'Thumb':pic}
+
+
 class TedTalks:
 
-    def __init__(self, fetcher):
-        self.fetcher = fetcher
+    def __init__(self, getHTML):
+        self.getHTML = getHTML
 
     def getVideoDetails(self, url):
         """self.videoDetails={Title, Director, Genre, Plot, id, url}"""
         #TODO: get 'related tags' and list them under genre
-        html = self.fetcher.getHTML(url)
+        html = self.getHTML(url)
         url = ""
         soup = BeautifulSoup(html)
         #get title
@@ -107,23 +142,6 @@ class TedTalks:
             #click submit
             return self.fetcher.getHTML(form.click())
 
-    class NewTalks:
-        """self.videos=[{'link':link,'Title':title,'pic':pic},...]"""
-
-        def __init__(self, fetcher, url=None):
-            if url is None:
-                url = URLNEW
-            self.fetcher = fetcher
-            self.html = self.fetcher.getHTML(url)
-            self.navItems = getNavItems(self.html)
-
-        def getNewTalks(self):
-            talkContainers = SoupStrainer(attrs = {'class':re.compile('talkMedallion')})
-            for talk in BeautifulSoup(self.html, parseOnlyThese = talkContainers):
-                link = URLTED+talk.dt.a['href']
-                title = cleanHTML(talk.dt.a['title'])
-                pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
-                yield {'url':link, 'Title':title, 'Thumb':pic}
 
     class Speakers:
 

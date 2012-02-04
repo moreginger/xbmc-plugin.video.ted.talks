@@ -27,8 +27,6 @@ def getNavItems(html):
                 navItems['previous'] = URLTED+liTag.a['href']
             elif liTag['class'] == 'selected':
                 navItems['selected'] = int(liTag.a.string)
-        else: #no class attrib found.
-            print '[%s] %s no pagination found.' % (plugin.__plugin__, __name__)
     return navItems
 
 class NewTalks:

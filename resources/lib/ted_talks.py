@@ -128,8 +128,8 @@ class UI:
         self.addItems(talks)
         
     def newTalksRss(self):
-        newTalks = ted_talks_rss.NewTalksRss(getLS)
-        for talk in newTalks.getNewTalks():         
+        newTalks = ted_talks_rss.NewTalksRss()
+        for talk in newTalks.getNewTalks():
             li = xbmcgui.ListItem(label = talk['title'], iconImage = talk['thumb'], thumbnailImage = talk['thumb'])
             li.setProperty("IsPlayable", "true")
             if (talk['date'] != None):

@@ -1,6 +1,7 @@
 import sys
 import urllib
 import ted_talks_scraper
+import ted_talks_rss
 import xbmc
 import xbmcplugin
 import xbmcgui
@@ -113,6 +114,7 @@ class UI:
 
     def showCategories(self):
         self.addItem({'Title':getLS(30001), 'mode':'newTalks', 'Plot':getLS(30031)})#new
+        self.addItem({'Title':'New Talks RSS', 'mode':'newTalksRss', 'Plot':getLS(30031)})#new RSS
         self.addItem({'Title':getLS(30002), 'mode':'speakers', 'Plot':getLS(30032)})#speakers
         self.addItem({'Title':getLS(30003), 'mode':'themes', 'Plot':getLS(30033)})#themes
         #self.addItem({'Title':getLS(30004), 'mode':'search', 'Plot':getLS(30034)})#search
@@ -122,8 +124,18 @@ class UI:
 
     def newTalks(self):
         newTalks = ted_talks_scraper.NewTalks(Fetcher.getHTML, getLS)
-        talks = list(newTalks.getNewTalks(self.main.args.url))
+        talks = newTalks.getNewTalks(self.main.args.url)
         self.addItems(talks)
+        
+    def newTalksRss(self):
+        newTalks = ted_talks_rss.NewTalksRss(getLS)
+        for talk in newTalks.getNewTalks():         
+            li = xbmcgui.ListItem(label = talk['title'], iconImage = talk['thumb'], thumbnailImage = talk['thumb'])
+            li.setProperty("IsPlayable", "true")
+            if (talk['date'] != None):
+                li.setInfo('video', {'date':talk['date']})
+            xbmcplugin.addDirectoryItem(handle = int(sys.argv[1]), url = talk['link'], listitem = li)
+        self.endofdirectory(sortMethod = 'date')
 
     def speakers(self):
         newMode = 'speakerVids'
@@ -242,6 +254,8 @@ class Main:
             UI().playVideo()
         elif mode == 'newTalks':
             UI().newTalks()
+        elif mode == 'newTalksRss':
+            UI().newTalksRss()
         elif mode == 'speakers':
             UI().speakers()
         elif mode == 'speakerVids':

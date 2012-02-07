@@ -132,8 +132,7 @@ class UI:
         for talk in newTalks.getNewTalks():
             li = xbmcgui.ListItem(label = talk['title'], iconImage = talk['thumb'], thumbnailImage = talk['thumb'])
             li.setProperty("IsPlayable", "true")
-            if (talk['date'] != None):
-                li.setInfo('video', {'date':talk['date']})
+            li.setInfo('video', {'date':talk['date'], 'duration':talk['duration'], 'plot':talk['plot']})
             xbmcplugin.addDirectoryItem(handle = int(sys.argv[1]), url = talk['link'], listitem = li)
         self.endofdirectory(sortMethod = 'date')
 

@@ -13,6 +13,8 @@ class TestGetTalkDetails(unittest.TestCase):
 <item xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:media="http://search.yahoo.com/mrss/">
   <itunes:author>Dovahkiin</itunes:author>
   <itunes:subtitle>fus ro dah</itunes:subtitle>
+  <itunes:summary>Unrelenting Force</itunes:summary>
+  <itunes:duration>00:30</itunes:duration>
   <pubDate>Sat, 04 Feb 2012 08:14:00 +0000</pubDate>
   <media:thumbnail url="invalid://nowhere/nothing.jpg" width="42" height="42" />
   <enclosure url="invalid://nowhere/nothing.mp4" length="42" type="video/mp4" />
@@ -24,15 +26,22 @@ class TestGetTalkDetails(unittest.TestCase):
             'date':'04.02.2012',
             'link':u'invalid://nowhere/nothing.mp4',
             'thumb':u'invalid://nowhere/nothing.jpg',
-            'title':u'fus ro dah'
+            'title':u'fus ro dah',
+            'plot':u'Unrelenting Force',
+            'duration':u'00:30'
         }
         self.assertEqual(expectedDetails, details)
         
     def test_broken_date(self):
+        """
+        It just seems likely this will break sooner or later, check that we handle gracefully.
+        """
         item = """
 <item xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:media="http://search.yahoo.com/mrss/">
   <itunes:author>Dovahkiin</itunes:author>
   <itunes:subtitle>fus ro dah</itunes:subtitle>
+  <itunes:summary>Unrelenting Force</itunes:summary>
+  <itunes:duration>00:30</itunes:duration>
   <pubDate>Sat, 04 02 2012 08:14:00</pubDate>
   <media:thumbnail url="invalid://nowhere/nothing.jpg" width="42" height="42" />
   <enclosure url="invalid://nowhere/nothing.mp4" length="42" type="video/mp4" />
@@ -44,7 +53,9 @@ class TestGetTalkDetails(unittest.TestCase):
             'date':datetime.strftime(datetime.now(), "%d.%m.%Y"), # Using now() kind of stinks so don't run at midnight!
             'link':u'invalid://nowhere/nothing.mp4',
             'thumb':u'invalid://nowhere/nothing.jpg',
-            'title':u'fus ro dah'
+            'title':u'fus ro dah',
+            'plot':u'Unrelenting Force',
+            'duration':u'00:30'
         }
         self.assertEqual(expectedDetails, details)
 

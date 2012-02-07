@@ -1,6 +1,13 @@
+"""
+Grab new talks from RSS feed. Yes we can just add an rss: source in XBMC,
+but this allows us a little more power to tweak things how we want them,
+so keep it for now.
+"""
+
 import urllib2
 import time
 import plugin
+from urllib2 import URLError
 try:    
     from elementtree.ElementTree import fromstring
 except ImportError:
@@ -22,8 +29,13 @@ def getTalkDetails(item):
     """
     title = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}subtitle').text # <title> tag has unecessary padding strings
     author = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}author').text
+    pic = item.find('./{http://search.yahoo.com/mrss/}thumbnail').get('url')
+    duration = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}duration').text
+    plot = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}summary').text
+    link = item.find('./enclosure').get('url')
+    
     # Get date as XBMC wants it
-    pub_date = item.find('./pubDate').text[:-6]
+    pub_date = item.find('./pubDate').text[:-6] # strptime can't handle timezone info.
     try:
         date = time.strptime(pub_date, "%a, %d %b %Y %H:%M:%S")
     except ValueError, e:
@@ -32,9 +44,7 @@ def getTalkDetails(item):
         date = time.localtime()
     date = time.strftime("%d.%m.%Y", date)
         
-    pic = item.find('./{http://search.yahoo.com/mrss/}thumbnail').get('url')
-    link = item.find('./enclosure').get('url')
-    return {'title':title, 'author':author, 'thumb':pic, 'date':date, 'link':link}
+    return {'title':title, 'author':author, 'thumb':pic, 'plot':plot, 'duration':duration, 'date':date, 'link':link}
 
 
 class NewTalksRss:
@@ -44,11 +54,22 @@ class NewTalksRss:
  
     def getNewTalks(self):
         """
-        Returns talks as dicts {title:, author:, thumb:, date:, link:}.
+        Returns talks as dicts {title:, author:, thumb:, date:, duration:, link:}.
         """
         
-        rss_url = "http://feeds.feedburner.com/tedtalks_video"
-        rss = getDocument(rss_url)
+        sd_rss_url = "http://feeds.feedburner.com/tedtalks_video"
+        hd_rss_url = "http://feeds.feedburner.com/TedtalksHD"
         
-        for item in fromstring(rss).findall('channel/item'):
-            yield getTalkDetails(item)
+        talksByTitle = {}
+        for url in [sd_rss_url, hd_rss_url]: # Prefer HD, but get SD if that's all there is
+            try:
+                rss = getDocument(url)
+            except URLError, e:
+                print '[%s] %s Could not fetch document: %s' % (plugin.__plugin__, __name__, url)
+                print e
+            
+            for item in fromstring(rss).findall('channel/item'):
+                talk = getTalkDetails(item)
+                talksByTitle[talk['title']] = talk
+        
+        return talksByTitle.itervalues()

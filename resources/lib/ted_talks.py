@@ -8,12 +8,13 @@ import xbmcgui
 from talkDownloader import Download
 import xbmcaddon
 import fetcher
+import user
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.ted.talks')
 getLS = __settings__.getLocalizedString
 
 #getLS = xbmc.getLocalizedString
-Fetcher = fetcher.Fetcher()
+Fetcher = fetcher.Fetcher(xbmc.translatePath)
 TedTalks = ted_talks_scraper.TedTalks(Fetcher.getHTML)
 
 
@@ -213,7 +214,7 @@ class Main:
         self.settings['downloadPath'] = __settings__.getSetting('downloadPath')
 
     def isValidUser(self):
-        self.user = TedTalks.User(self.settings['username'], self.settings['password'])
+        self.user = user.User(Fetcher.getHTML, self.settings['username'], self.settings['password'])
         if self.user:
             return True
         else:

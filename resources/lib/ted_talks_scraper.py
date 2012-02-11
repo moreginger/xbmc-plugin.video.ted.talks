@@ -1,7 +1,6 @@
 import re
 import plugin
-from ClientForm import ParseResponse
-from util import getUrllib2ResponseObject, cleanHTML, resizeImage
+from util import cleanHTML, resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 
 #MAIN URLS
@@ -9,8 +8,6 @@ URLTED = 'http://www.ted.com'
 URLTHEMES = 'http://www.ted.com/themes/atoz/page/'
 URLSPEAKERS = 'http://www.ted.com/speakers/atoz/page/'
 URLSEARCH = 'http://www.ted.com/search?q=%s/page/'
-URLLOGIN = 'http://www.ted.com/users/signin/'
-URLPROFILE = 'http://www.ted.com/profiles/'
 URLFAVORITES = 'http://www.ted.com/profiles/favorites/id/'
 URLADDFAV ='http://www.ted.com/profiles/addfavorites?id=%s&modulename=talks'
 URLREMFAV ='http://www.ted.com/profiles/removefavorites?id=%s&modulename=talks'
@@ -28,6 +25,7 @@ def getNavItems(html):
             elif liTag['class'] == 'selected':
                 navItems['selected'] = int(liTag.a.string)
     return navItems
+
 
 class NewTalks:
     """
@@ -103,42 +101,6 @@ class TedTalks:
         #get id from url
         id = url.split('/')[-1]
         return {'Title':title, 'Director':speaker, 'Genre':'TED', 'Plot':plot, 'PlotOutline':plot, 'id':id, 'url':url}
-
-    class User:
-        """makes a user object"""
-
-        def __init__(self, username = None, password = None):
-            self.username = username
-            self.password = password
-            if username and password:
-                self.id, self.realName = self.getUserDetails()
-            else:
-                self.id = self.realName = None
-
-        def getUserDetails(self):
-            html = self.getLoginResponse()
-            userContainer = SoupStrainer(attrs = {'class':re.compile('notices')})
-            for aTag in BeautifulSoup(html, parseOnlyThese = userContainer).findAll('a'):
-                if aTag['href'].startswith(URLPROFILE):
-                    id = aTag['href'].split('/')[-1]
-                    realName = aTag.string.strip()
-                    break
-                else:
-                    id = realName = None
-            return id, realName
-
-        def getLoginResponse(self, url = URLLOGIN):
-            #clientform doesn't like HTML, and I don't want to monkey patch it, so getUrllib2ResponseObject was born.
-            response = getUrllib2ResponseObject(url)
-            forms = ParseResponse(response, backwards_compat=False)
-            response.close()
-            #set username & password in the signin form
-            form = forms[1]
-            form["users[username]"] = self.username
-            form["users[password]"] = self.password
-            form["users[rememberme]"] = ["on"]
-            #click submit
-            return self.fetcher.getHTML(form.click())
 
 
     class Speakers:
@@ -222,8 +184,8 @@ class TedTalks:
 
         def getFavoriteTalks(self, user, url = URLFAVORITES):
             """user must be TedTalks().User object with .id attribute"""
-            if user.id is not None:
-                html = self.fetcher.getHTML(url+user.id)
+            if user.userID is not None:
+                html = self.fetcher.getHTML(url+user.userID)
                 talkContainer = SoupStrainer(attrs = {'class':re.compile('box clearfix')})
                 for talk in BeautifulSoup(html, parseOnlyThese = talkContainer):
                     title = talk.ul.a.string
@@ -235,7 +197,7 @@ class TedTalks:
 
         def addToFavorites(self, user, url):
             """user must be TedTalks().User object with .id attribute"""
-            if user.id is not None:
+            if user.userID is not None:
                 id = TedTalks(self.fetcher).getVideoDetails(url)['id']
                 print id
                 response = self.fetcher.getHTML(URLADDFAV % (id))
@@ -247,7 +209,7 @@ class TedTalks:
 
         def removeFromFavorites(self, user, url):
             """user must be TedTalks().User object with .id attribute"""
-            if user.id is not None:
+            if user.userID is not None:
                 id = TedTalks(self.fetcher).getVideoDetails(url)['id']
                 print id
                 response = self.fetcher.getHTML(URLREMFAV % (id))

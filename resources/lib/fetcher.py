@@ -1,12 +1,14 @@
 import urllib2
 import cookielib
 import os.path
-import xbmc
 import plugin
 
 class Fetcher:
 
-    def getHTML(self, url, cookiefile = xbmc.translatePath('special://temp/ted-cookies.lwp'), headers = [('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')]):
+    def __init__(self, getTranslatedPath):
+        self.getTranslatedPath = getTranslatedPath
+
+    def getHTML(self, url, headers = [('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')]):
         """Returns HTML from a given URL"""
         try:
             print '[%s] %s attempting to open %s with data' % (plugin.__plugin__, __name__, url.get_full_url())
@@ -14,6 +16,7 @@ class Fetcher:
             print '[%s] %s attempting to open %s' % (plugin.__plugin__, __name__, url)
         #create cookiejar
         cj = cookielib.LWPCookieJar()
+        cookiefile = self.getTranslatedPath('special://temp/ted-cookies.lwp')
         #load any existing cookies
         if os.path.isfile(cookiefile):
             cj.load(cookiefile)

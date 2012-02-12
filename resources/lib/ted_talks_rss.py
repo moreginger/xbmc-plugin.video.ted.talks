@@ -6,8 +6,15 @@ so keep it for now.
 
 import urllib2
 import time
+try:
+    # >=Eden
+    from multiprocessing import Pool
+    do_multi_threading = True
+except ImportError:
+    # < Eden
+    do_multi_threading = False
+
 import plugin
-from urllib2 import URLError
 try:    
     from elementtree.ElementTree import fromstring
 except ImportError:
@@ -59,17 +66,28 @@ class NewTalksRss:
         
         sd_rss_url = "http://feeds.feedburner.com/tedtalks_video"
         hd_rss_url = "http://feeds.feedburner.com/TedtalksHD"
+        rss_urls = [sd_rss_url, hd_rss_url] # Prefer HD, but get SD if that's all there is (my friends)
         
+        document_fetchers = []
+        if do_multi_threading:
+            pool = Pool(processes=1) # Maybe it would be better to fetch them simultaneously?
+            for url in rss_urls:
+                result = pool.apply_async(getDocument, [url])
+                document_fetchers.append(lambda x: result.get(30))
+            pool.close()
+        else:
+            for url in rss_urls:
+                document_fetchers.append(lambda x: getDocument(url))
+
         talksByTitle = {}
-        for url in [sd_rss_url, hd_rss_url]: # Prefer HD, but get SD if that's all there is
-            try:
-                rss = getDocument(url)
-            except URLError, e:
-                print '[%s] %s Could not fetch document: %s' % (plugin.__plugin__, __name__, url)
-                print e
-            
+        for documentFetcher in document_fetchers:
+            rss = documentFetcher(None) # Is this evil? We have to pass something into the lambda.
             for item in fromstring(rss).findall('channel/item'):
                 talk = getTalkDetails(item)
                 talksByTitle[talk['title']] = talk
         
+        if do_multi_threading:
+            pool.join()
+        
         return talksByTitle.itervalues()
+

@@ -114,7 +114,7 @@ class UI:
             self.addItem({'Title': getLS(30021), 'url':navItems['previous'], 'mode':mode})
 
     def showCategories(self):
-        self.addItem({'Title':getLS(30001) + ' (deprecated)', 'mode':'newTalks', 'Plot':getLS(30031)})#new
+        self.addItem({'Title':getLS(30001) + ' (deprecated old style)', 'mode':'newTalks', 'Plot':getLS(30031)})#new
         self.addItem({'Title':getLS(30001), 'mode':'newTalksRss', 'Plot':getLS(30031)})#new RSS
         self.addItem({'Title':getLS(30002), 'mode':'speakers', 'Plot':getLS(30032)})#speakers
         self.addItem({'Title':getLS(30003), 'mode':'themes', 'Plot':getLS(30033)})#themes

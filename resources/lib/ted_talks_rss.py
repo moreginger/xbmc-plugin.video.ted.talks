@@ -40,6 +40,7 @@ def getTalkDetails(item):
     duration = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}duration').text
     plot = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}summary').text
     link = item.find('./enclosure').get('url')
+    talkID = item.find('./guid').text.split(':')[-1]
     
     # Get date as XBMC wants it
     pub_date = item.find('./pubDate').text[:-6] # strptime can't handle timezone info.
@@ -51,7 +52,7 @@ def getTalkDetails(item):
         date = time.localtime()
     date = time.strftime("%d.%m.%Y", date)
         
-    return {'title':title, 'author':author, 'thumb':pic, 'plot':plot, 'duration':duration, 'date':date, 'link':link}
+    return {'title':title, 'author':author, 'thumb':pic, 'plot':plot, 'duration':duration, 'date':date, 'link':link, 'id':talkID}
 
 
 class NewTalksRss:

@@ -9,6 +9,7 @@ from talkDownloader import Download
 import xbmcaddon
 import fetcher
 import user
+import menu_util
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.ted.talks')
 getLS = __settings__.getLocalizedString
@@ -72,17 +73,8 @@ class UI:
         #for videos, replace context menu with queue and add to favorites
         if not isFolder:
             li.setProperty("IsPlayable", "true")#let xbmc know this can be played, unlike a folder.
-            #add context menu items to non-folder items.
-            contextmenu = [(getLS(13347), 'Action(Queue)')]
-            contextmenu += [(getLS(30096), 'RunPlugin(%s?downloadVideo=%s)' % (sys.argv[0], info['url']))]
-            #only add add to favorites context menu if the user has a username & isn't already looking at favorites.
-            if self.main.settings['username']:
-                if self.main.args.mode == 'favorites':
-                    contextmenu += [(getLS(30093), 'RunPlugin(%s?removeFromFavorites=%s)' % (sys.argv[0], info['url']))]
-                else:
-                    contextmenu += [(getLS(30090), 'RunPlugin(%s?addToFavorites=%s)' % (sys.argv[0], info['url']))]
-            #replaceItems=True replaces the useless one with the two defined above.
-            li.addContextMenuItems(contextmenu, replaceItems = True)
+            context_menu = menu_util.create_context_menu(getLS = getLS)
+            li.addContextMenuItems(context_menu, replaceItems = True)
         else:
             #for folders, completely remove contextmenu, as it is totally useless.
             li.addContextMenuItems([], replaceItems = True)
@@ -134,6 +126,11 @@ class UI:
             li = xbmcgui.ListItem(label = talk['title'], iconImage = talk['thumb'], thumbnailImage = talk['thumb'])
             li.setProperty("IsPlayable", "true")
             li.setInfo('video', {'date':talk['date'], 'duration':talk['duration'], 'plot':talk['plot']})
+            favorites_action = None
+            if self.main.settings['username'] != None:
+                favorites_action = "add"
+            context_menu = menu_util.create_context_menu(getLS = getLS, url = talk['link'], favorites_action = favorites_action, talkID = talk['id'])
+            li.addContextMenuItems(context_menu, replaceItems = True)
             xbmcplugin.addDirectoryItem(handle = int(sys.argv[1]), url = talk['link'], listitem = li)
         self.endofdirectory(sortMethod = 'date')
 

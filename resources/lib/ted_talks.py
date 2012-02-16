@@ -45,13 +45,8 @@ class UI:
             sortMethod = xbmcplugin.SORT_METHOD_DATE
         #Sort methods are required in library mode.
         xbmcplugin.addSortMethod(int(sys.argv[1]), sortMethod)
-        #If name is next or previous, then the script arrived here from a navItem, and won't to add to the heirarchy
-        if self.args.name in [getLS(30020), getLS(30021)]:
-            dontAddToHierarchy = True
-        else:
-            dontAddToHierarchy = False
         #let xbmc know the script is done adding items to the list.
-        xbmcplugin.endOfDirectory(handle = int(sys.argv[1]), updateListing = dontAddToHierarchy)
+        xbmcplugin.endOfDirectory(handle = int(sys.argv[1]), updateListing = True)
 
     def addItem(self, info, isFolder = True):
         #Defaults in dict. Use 'None' instead of None so it is compatible for quote_plus in parseArgs
@@ -186,25 +181,11 @@ class UI:
 
 class Main:
 
-    def __init__(self, logger, checkMode):
+    def __init__(self, logger, args_map):
         self.logger = logger
+        self.args_map = args_map
         self.user = None
-        self.parseArgs()
         self.getSettings()
-        if checkMode:
-            self.checkMode()
-
-    def parseArgs(self):
-        # call updateArgs() with our formatted argv to create the self.args object
-        print "parsing args"
-        print sys.argv[2]
-        if (sys.argv[2]):
-            exec "self.args = updateArgs(%s')" % (sys.argv[2][1:].replace('&', "',").replace('=', "='"))
-        else:
-            # updateArgs will turn the 'None' into None.
-            # Don't simply define it as None because unquote_plus in updateArgs will throw an exception.
-            # This is a pretty ugly solution, but fuck it :(
-            self.args = updateArgs(mode = 'None', url = 'None', name = 'None')
 
     def getSettings(self):
         self.settings = dict()
@@ -221,17 +202,17 @@ class Main:
             xbmcgui.Dialog().ok(getLS(30050), getLS(30051))
             return False
 
-    def addToFavorites(self, url):
+    def addToFavorites(self, talkID):
         if self.isValidUser():
-            successful = TedTalks.Favorites(Fetcher, self.logger).addToFavorites(self.user, url)
+            successful = TedTalks.Favorites(Fetcher, self.logger).addToFavorites(self.user, talkID)
             if successful:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30091)))
             else:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30092)))
 
-    def removeFromFavorites(self, url):
+    def removeFromFavorites(self, talkID):
         if self.isValidUser():
-            successful = TedTalks.Favorites(Fetcher, self.logger).removeFromFavorites(self.user, url)
+            successful = TedTalks.Favorites(Fetcher, self.logger).removeFromFavorites(self.user, talkID)
             if successful:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30094)))
             else:
@@ -246,24 +227,36 @@ class Main:
         if downloadPath:
             Download(video['Title'], video['url'], downloadPath)
 
-    def checkMode(self):
-        mode = self.args.mode
-        ui = UI(self.settings, self.args)
-        if mode is None:
+    def run(self):
+        print sys.argv[2]
+        print "Map"
+        print self.args_map
+        
+        if 'addToFavorites' in self.args_map:
+            self.addToFavorites(self.args_map['addToFavorites'])
+        if 'removeFromFavorites' in self.args_map:
+            self.removeFromFavorites(self.args_map['removeFromFavorites'])
+        if 'downloadVideo' in self.args_map:
+            self.downloadVid(self.args_map('downloadVideo'))
+        
+        ui = UI(self.settings, self.args_map)
+        if 'mode' not in self.args_map:
             ui.showCategories()
-        elif mode == 'playVideo':
-            ui.playVideo()
-        elif mode == 'newTalks':
-            ui.newTalks()
-        elif mode == 'newTalksRss':
-            ui.newTalksRss()
-        elif mode == 'speakers':
-            ui.speakers()
-        elif mode == 'speakerVids':
-            ui.speakerVids()
-        elif mode == 'themes':
-            ui.themes()
-        elif mode == 'themeVids':
-            ui.themeVids()
-        elif mode == 'favorites':
-            ui.favorites()
+        else:
+            mode = self.args_map['mode']
+            if mode == 'playVideo':
+                ui.playVideo()
+            elif mode == 'newTalks':
+                ui.newTalks()
+            elif mode == 'newTalksRss':
+                ui.newTalksRss()
+            elif mode == 'speakers':
+                ui.speakers()
+            elif mode == 'speakerVids':
+                ui.speakerVids()
+            elif mode == 'themes':
+                ui.themes()
+            elif mode == 'themeVids':
+                ui.themeVids()
+            elif mode == 'favorites':
+                ui.favorites()

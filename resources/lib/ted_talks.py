@@ -19,17 +19,6 @@ Fetcher = fetcher.Fetcher(xbmc.translatePath)
 TedTalks = ted_talks_scraper.TedTalks(Fetcher.getHTML)
 
 
-class updateArgs:
-
-    def __init__(self, *args, **kwargs):
-        for key, value in kwargs.iteritems():
-            if value == 'None':
-                kwargs[key] = None
-            else:
-                kwargs[key] = urllib.unquote_plus(kwargs[key])
-        self.__dict__.update(kwargs)
-
-
 class UI:
 
     def __init__(self, settings, args):

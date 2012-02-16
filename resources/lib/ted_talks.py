@@ -34,7 +34,7 @@ class UI:
         #Sort methods are required in library mode.
         xbmcplugin.addSortMethod(int(sys.argv[1]), sortMethod)
         #let xbmc know the script is done adding items to the list.
-        xbmcplugin.endOfDirectory(handle = int(sys.argv[1]), updateListing = True)
+        xbmcplugin.endOfDirectory(handle = int(sys.argv[1]), updateListing = False)
 
     def addItem(self, info, isFolder = True):
         #Defaults in dict. Use 'None' instead of None so it is compatible for quote_plus in parseArgs

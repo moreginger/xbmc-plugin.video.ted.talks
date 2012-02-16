@@ -1,5 +1,4 @@
 import re
-import plugin
 from util import cleanHTML, resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 
@@ -178,8 +177,9 @@ class TedTalks:
 
     class Favorites:
 
-        def __init__(self, fetcher):
+        def __init__(self, fetcher, logger):
             self.fetcher = fetcher
+            self.logger = logger
 
         def getFavoriteTalks(self, user, url = URLFAVORITES):
             """user must be TedTalks().User object with .id attribute"""
@@ -192,31 +192,20 @@ class TedTalks:
                     pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
                     yield {'url':link, 'Title':title, 'Thumb':pic}
             else:
-                print '[%s] %s invalid user object' % (plugin.__plugin__, __name__)
+                self.logger('invalid user object')
 
-        def addToFavorites(self, user, url):
-            """user must be TedTalks().User object with .id attribute"""
-            if user.userID is not None:
-                id = TedTalks(self.fetcher).getVideoDetails(url)['id']
-                print id
-                response = self.fetcher.getHTML(URLADDFAV % (id))
-                if response:
-                    print '[%s] %s addToFavorites success' % (plugin.__plugin__, __name__)
-                    return True
-            else:
-                print '[%s] %s invalid user object' % (plugin.__plugin__, __name__)
+        def addToFavorites(self, user, talkID):
+            response = self.fetcher.getHTML(URLADDFAV % (talkID))
+            if not response:
+                self.logger('failed to add favorite with id: %s' % (talkID))
+            return response != None
 
-        def removeFromFavorites(self, user, url):
-            """user must be TedTalks().User object with .id attribute"""
-            if user.userID is not None:
-                id = TedTalks(self.fetcher).getVideoDetails(url)['id']
-                print id
-                response = self.fetcher.getHTML(URLREMFAV % (id))
-                if response:
-                    print '[%s] %s removeFromFavorites success' % (plugin.__plugin__, __name__)
-                    return True
-            else:
-                print '[%s] %s invalid user object' % (plugin.__plugin__, __name__)
+        def removeFromFavorites(self, user, talkID):
+            response = self.fetcher.getHTML(URLREMFAV % (id))
+            if not response:
+                self.logger('failed to remove favorite with id: %s' % (talkID))
+            return response != None
+
 
     class Search:
         pass

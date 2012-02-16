@@ -14,3 +14,6 @@ def init():
     __author__ = addon.getAddonInfo('author')
     __version__ = addon.getAddonInfo('version')
     print "[PLUGIN] '%s: version %s' initialized!" % (__plugin__, __version__)
+
+def log(message):
+    print "[%s] %s" % (__plugin__, message)

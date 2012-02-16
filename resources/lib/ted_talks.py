@@ -228,10 +228,6 @@ class Main:
             Download(video['Title'], video['url'], downloadPath)
 
     def run(self):
-        print sys.argv[2]
-        print "Map"
-        print self.args_map
-        
         if 'addToFavorites' in self.args_map:
             self.addToFavorites(self.args_map['addToFavorites'])
         if 'removeFromFavorites' in self.args_map:

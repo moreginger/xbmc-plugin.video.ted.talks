@@ -65,15 +65,6 @@ class UI:
         #add item to list
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=li, isFolder=isFolder)
 
-    def addItems(self, items):
-        """
-        items Iterable of 2-tuples, first value is whether this is a folder, second is a string->string dict of attributes
-        """
-        for item in items:
-            self.addItem(item[1], isFolder = item[0])
-        #end the list
-        self.endofdirectory(sortMethod = 'date')
-
     def playVideo(self):
         video = self.ted_talks.getVideoDetails(self.args.url)
         li=xbmcgui.ListItem(video['Title'],
@@ -90,7 +81,6 @@ class UI:
             self.addItem({'Title': getLS(30021), 'url':navItems['previous'], 'mode':mode})
 
     def showCategories(self):
-        self.addItem({'Title':getLS(30001) + ' (deprecated old style)', 'mode':'newTalks', 'Plot':getLS(30031)})#new
         self.addItem({'Title':getLS(30001), 'mode':'newTalksRss', 'Plot':getLS(30031)})#new RSS
         self.addItem({'Title':getLS(30002), 'mode':'speakers', 'Plot':getLS(30032)})#speakers
         self.addItem({'Title':getLS(30003), 'mode':'themes', 'Plot':getLS(30033)})#themes
@@ -98,11 +88,6 @@ class UI:
         if self.settings['username']:
             self.addItem({'Title':getLS(30005), 'mode':'favorites', 'Plot':getLS(30035)})#favorites
         self.endofdirectory()
-
-    def newTalks(self):
-        newTalks = ted_talks_scraper.NewTalks(Fetcher.getHTML, getLS)
-        talks = newTalks.getNewTalks(self.args.url)
-        self.addItems(talks)
         
     def newTalksRss(self):
         newTalks = ted_talks_rss.NewTalksRss()
@@ -231,8 +216,6 @@ class Main:
             mode = self.args_map['mode']
             if mode == 'playVideo':
                 ui.playVideo()
-            elif mode == 'newTalks':
-                ui.newTalks()
             elif mode == 'newTalksRss':
                 ui.newTalksRss()
             elif mode == 'speakers':

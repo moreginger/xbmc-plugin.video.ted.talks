@@ -1,6 +1,5 @@
 import urllib2
 import re
-import sys
 
 
 def getUrllib2ResponseObject(url):

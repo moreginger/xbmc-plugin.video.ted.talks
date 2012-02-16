@@ -2,26 +2,25 @@ import sys
 import urllib
 import ted_talks_scraper
 import ted_talks_rss
-import xbmc
-import xbmcplugin
-import xbmcgui
 from talkDownloader import Download
-import xbmcaddon
 import fetcher
 import user
 import menu_util
+import xbmc
+import xbmcplugin
+import xbmcgui
+import xbmcaddon
 
 __settings__ = xbmcaddon.Addon(id='plugin.video.ted.talks')
 getLS = __settings__.getLocalizedString
 
 #getLS = xbmc.getLocalizedString
 Fetcher = fetcher.Fetcher(xbmc.translatePath)
-TedTalks = ted_talks_scraper.TedTalks(Fetcher.getHTML)
-
 
 class UI:
 
-    def __init__(self, settings, args):
+    def __init__(self, ted_talks, settings, args):
+        self.ted_talks = ted_talks
         self.settings = settings
         self.args = args
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -76,7 +75,7 @@ class UI:
         self.endofdirectory(sortMethod = 'date')
 
     def playVideo(self):
-        video = TedTalks.getVideoDetails(self.args.url)
+        video = self.ted_talks.getVideoDetails(self.args.url)
         li=xbmcgui.ListItem(video['Title'],
                             iconImage = self.args.icon,
                             thumbnailImage = self.args.icon,
@@ -121,7 +120,7 @@ class UI:
 
     def speakers(self):
         newMode = 'speakerVids'
-        speakers = TedTalks.Speakers(Fetcher, self.args.url)
+        speakers = self.ted_talks.Speakers(Fetcher, self.args.url)
         #add speakers to the list
         for speaker in speakers.getAllSpeakers():
             speaker['mode'] = newMode
@@ -133,7 +132,7 @@ class UI:
 
     def speakerVids(self):
         newMode = 'playVideo'
-        speakers = TedTalks.Speakers(Fetcher, self.args.url)
+        speakers = self.ted_talks.Speakers(Fetcher, self.args.url)
         for talk in speakers.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -142,7 +141,7 @@ class UI:
 
     def themes(self):
         newMode = 'themeVids'
-        themes = TedTalks.Themes(Fetcher, self.args.url)
+        themes = self.ted_talks.Themes(Fetcher, self.args.url)
         #add themes to the list
         for theme in themes.getThemes():
             theme['mode'] = newMode
@@ -152,7 +151,7 @@ class UI:
 
     def themeVids(self):
         newMode = 'playVideo'
-        themes = TedTalks.Themes(Fetcher, self.args.url)
+        themes = self.ted_talks.Themes(Fetcher, self.args.url)
         for talk in themes.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -162,7 +161,7 @@ class UI:
         newMode = 'playVideo'
         #attempt to login
         if self.isValidUser():
-            for talk in TedTalks.Favorites(Fetcher, self.logger).getFavoriteTalks(self.main.user):
+            for talk in self.ted_talks.Favorites(Fetcher, self.logger).getFavoriteTalks(self.main.user):
                 talk['mode'] = newMode
                 self.addItem(talk, isFolder = False)
             self.endofdirectory()
@@ -175,6 +174,7 @@ class Main:
         self.args_map = args_map
         self.user = None
         self.getSettings()
+        self.ted_talks = ted_talks_scraper.TedTalks(Fetcher.getHTML)
 
     def getSettings(self):
         self.settings = dict()
@@ -193,7 +193,7 @@ class Main:
 
     def addToFavorites(self, talkID):
         if self.isValidUser():
-            successful = TedTalks.Favorites(Fetcher, self.logger).addToFavorites(self.user, talkID)
+            successful = self.ted_talks.Favorites(self.logger).addToFavorites(self.user, talkID)
             if successful:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30091)))
             else:
@@ -201,14 +201,14 @@ class Main:
 
     def removeFromFavorites(self, talkID):
         if self.isValidUser():
-            successful = TedTalks.Favorites(Fetcher, self.logger).removeFromFavorites(self.user, talkID)
+            successful = self.ted_talks.Favorites(self.logger).removeFromFavorites(self.user, talkID)
             if successful:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30094)))
             else:
                 xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30095)))
 
     def downloadVid(self, url):
-        video = TedTalks.getVideoDetails(url)
+        video = self.ted_talks.getVideoDetails(url)
         if self.settings['downloadMode'] == 'true':
             downloadPath = xbmcgui.Dialog().browse(3, getLS(30096), 'files')
         else:
@@ -224,7 +224,7 @@ class Main:
         if 'downloadVideo' in self.args_map:
             self.downloadVid(self.args_map('downloadVideo'))
         
-        ui = UI(self.settings, self.args_map)
+        ui = UI(self.ted_talks, self.settings, self.args_map)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:

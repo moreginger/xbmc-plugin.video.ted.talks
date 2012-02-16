@@ -177,14 +177,13 @@ class TedTalks:
 
     class Favorites:
 
-        def __init__(self, fetcher, logger):
-            self.fetcher = fetcher
+        def __init__(self, logger):
             self.logger = logger
 
         def getFavoriteTalks(self, user, url = URLFAVORITES):
             """user must be TedTalks().User object with .id attribute"""
             if user.userID is not None:
-                html = self.fetcher.getHTML(url+user.userID)
+                html = TedTalks.fetcher.getHTML(url+user.userID)
                 talkContainer = SoupStrainer(attrs = {'class':re.compile('box clearfix')})
                 for talk in BeautifulSoup(html, parseOnlyThese = talkContainer):
                     title = talk.ul.a.string
@@ -195,13 +194,13 @@ class TedTalks:
                 self.logger('invalid user object')
 
         def addToFavorites(self, user, talkID):
-            response = self.fetcher.getHTML(URLADDFAV % (talkID))
+            response = TedTalks.fetcher.getHTML(URLADDFAV % (talkID))
             if not response:
                 self.logger('failed to add favorite with id: %s' % (talkID))
             return response != None
 
         def removeFromFavorites(self, user, talkID):
-            response = self.fetcher.getHTML(URLREMFAV % (id))
+            response = TedTalks.fetcher.getHTML(URLREMFAV % (id))
             if not response:
                 self.logger('failed to remove favorite with id: %s' % (talkID))
             return response != None

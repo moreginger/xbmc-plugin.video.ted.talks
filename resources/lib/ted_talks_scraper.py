@@ -104,10 +104,10 @@ class TedTalks:
 
     class Speakers:
 
-        def __init__(self, fetcher, url=None):
+        def __init__(self, fetcher, url):
             # adding 9999 to the url takes the script to the very last page of the list, providing the total # of pages.
-            if url == None:
-                url = URLSPEAKERS+'9999'
+            if url is None:
+                url = URLSPEAKERS + '9999'
             self.fetcher = fetcher
             self.html = self.fetcher.getHTML(url)
             # only bother with navItems where they have a chance to appear.

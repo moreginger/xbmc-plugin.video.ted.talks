@@ -38,15 +38,19 @@ class UI:
 
     def addItem(self, info, isFolder = True):
         #Defaults in dict. Use 'None' instead of None so it is compatible for quote_plus in parseArgs
+        #create params for xbmcplugin module
+        args = {}
+        for key1, key2 in {'url': 'url', 'mode': 'mode', 'Title': 'name', 'Thumb': 'icon'}.iteritems():
+            if key1 in info:
+                args[key2] = urllib.quote_plus(info[key1])
+        if 'name' in args:
+            args['name'] = args['name'].encode('ascii','ignore')
+        
+        u = sys.argv[0] + '?' + "&".join(key + '=' + value for key, value in args.iteritems())
+                        
         info.setdefault('url', 'None')
         info.setdefault('Thumb', 'None')
         info.setdefault('Icon', info['Thumb'])
-        #create params for xbmcplugin module
-        u = sys.argv[0]+\
-            '?url='+urllib.quote_plus(info['url'])+\
-            '&mode='+urllib.quote_plus(info['mode'])+\
-            '&name='+urllib.quote_plus(info['Title'].encode('ascii','ignore'))+\
-            '&icon='+urllib.quote_plus(info['Thumb'])            
         #create list item
         if info['Title'].startswith(" "):
             title = info['Title'][1:]
@@ -66,10 +70,10 @@ class UI:
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=li, isFolder=isFolder)
 
     def playVideo(self):
-        video = self.ted_talks.getVideoDetails(self.args.url)
+        video = self.ted_talks.getVideoDetails(self.args['url'])
         li=xbmcgui.ListItem(video['Title'],
-                            iconImage = self.args.icon,
-                            thumbnailImage = self.args.icon,
+                            iconImage = self.args['icon'],
+                            thumbnailImage = self.args['icon'],
                             path = video['url'])
         li.setInfo(type='Video', infoLabels=video)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
@@ -105,19 +109,19 @@ class UI:
 
     def speakers(self):
         newMode = 'speakerVids'
-        speakers = self.ted_talks.Speakers(Fetcher, self.args.url)
+        speakers = self.ted_talks.Speakers(Fetcher, self.args.get('url'))
         #add speakers to the list
         for speaker in speakers.getAllSpeakers():
             speaker['mode'] = newMode
             self.addItem(speaker, isFolder = True)
         #add nav items to the list
-        self.navItems(speakers.navItems, self.args.mode)
+        self.navItems(speakers.navItems, self.args['mode'])
         #end the list
         self.endofdirectory()
 
     def speakerVids(self):
         newMode = 'playVideo'
-        speakers = self.ted_talks.Speakers(Fetcher, self.args.url)
+        speakers = self.ted_talks.Speakers(Fetcher, self.args.get('url'))
         for talk in speakers.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -126,7 +130,7 @@ class UI:
 
     def themes(self):
         newMode = 'themeVids'
-        themes = self.ted_talks.Themes(Fetcher, self.args.url)
+        themes = self.ted_talks.Themes(Fetcher, self.args.get('url'))
         #add themes to the list
         for theme in themes.getThemes():
             theme['mode'] = newMode
@@ -136,7 +140,7 @@ class UI:
 
     def themeVids(self):
         newMode = 'playVideo'
-        themes = self.ted_talks.Themes(Fetcher, self.args.url)
+        themes = self.ted_talks.Themes(Fetcher, self.args.get('url'))
         for talk in themes.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)

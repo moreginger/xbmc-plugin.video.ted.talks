@@ -1,5 +1,5 @@
 import unittest
-import ted_talks_rss
+from rss_scraper import NewTalksRss
 from datetime import datetime
 try:    
     from elementtree.ElementTree import fromstring
@@ -18,10 +18,13 @@ minimal_item = """
   <enclosure url="invalid://nowhere/nothing.mp4" length="42" type="video/mp4" />
 </item>"""
 
-class TestGetTalkDetails(unittest.TestCase):
+class TestNewTalksRss(unittest.TestCase):
     
-    def test_minimal(self):
-        details = ted_talks_rss.getTalkDetails(fromstring(minimal_item))
+    def setUp(self):
+        self.talks = NewTalksRss(lambda x: x)
+
+    def test_get_talk_details_minimal(self):
+        details = self.talks.get_talk_details(fromstring(minimal_item))
         expected_details = {
             'author':'Dovahkiin',
             'date':'04.02.2012',
@@ -34,24 +37,18 @@ class TestGetTalkDetails(unittest.TestCase):
         }
         self.assertEqual(expected_details, details)
         
-    def test_broken_date(self):
+    def test_get_talk_details_broken_date(self):
         """
         It just seems likely this will break sooner or later, check that we handle gracefully.
         """
         document = fromstring(minimal_item)
         document.find('./pubDate').text = "Sat, 04 02 2012 08:14:00" # Same date, different formatting
-        details = ted_talks_rss.getTalkDetails(document)
+        details = self.talks.get_talk_details(document)
         date_now = datetime.strftime(datetime.now(), "%d.%m.%Y")
         self.assertEqual(date_now, details['date'])
 
-
-class TestNewTalksRss(unittest.TestCase):
-    
-    def setUp(self):
-        self.talks = ted_talks_rss.NewTalksRss()
-
     def test_smoke(self):
-        talks = list(self.talks.getNewTalks())
+        talks = list(self.talks.get_new_talks())
         self.assertTrue(len(talks) > 10) # If there are less then this than worry?
         talk = talks[0] # Sanity check on most recent talk
         self.assertTrue(len(talk) == 8)

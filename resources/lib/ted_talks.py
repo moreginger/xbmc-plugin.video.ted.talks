@@ -1,8 +1,8 @@
 import sys
 import urllib
 import ted_talks_scraper
-import ted_talks_rss
 from talkDownloader import Download
+from model.rss_scraper import NewTalksRss
 from model.fetcher import Fetcher
 from model.user import User
 import menu_util
@@ -16,7 +16,8 @@ getLS = __settings__.getLocalizedString
 
 class UI:
 
-    def __init__(self, ted_talks, settings, args):
+    def __init__(self, logger, ted_talks, settings, args):
+        self.logger = logger
         self.ted_talks = ted_talks
         self.settings = settings
         self.args = args
@@ -91,8 +92,8 @@ class UI:
         self.endofdirectory()
         
     def newTalksRss(self):
-        newTalks = ted_talks_rss.NewTalksRss()
-        for talk in newTalks.getNewTalks():
+        newTalks = NewTalksRss(self.logger)
+        for talk in newTalks.get_new_talks():
             li = xbmcgui.ListItem(label = talk['title'], iconImage = talk['thumb'], thumbnailImage = talk['thumb'])
             li.setProperty("IsPlayable", "true")
             li.setInfo('video', {'date':talk['date'], 'duration':talk['duration'], 'plot':talk['plot']})
@@ -211,7 +212,7 @@ class Main:
         if 'downloadVideo' in self.args_map:
             self.downloadVid(self.args_map('downloadVideo'))
         
-        ui = UI(self.ted_talks, self.settings, self.args_map)
+        ui = UI(self.logger, self.ted_talks, self.settings, self.args_map)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:

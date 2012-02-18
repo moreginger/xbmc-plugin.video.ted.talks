@@ -14,9 +14,6 @@ import xbmcaddon
 __settings__ = xbmcaddon.Addon(id='plugin.video.ted.talks')
 getLS = __settings__.getLocalizedString
 
-#getLS = xbmc.getLocalizedString
-Fetcher = fetcher.Fetcher(xbmc.translatePath)
-
 class UI:
 
     def __init__(self, ted_talks, settings, args):
@@ -109,7 +106,7 @@ class UI:
 
     def speakers(self):
         newMode = 'speakerVids'
-        speakers = self.ted_talks.Speakers(Fetcher, self.args.get('url'))
+        speakers = self.ted_talks.Speakers(self.fetcher, self.args.get('url'))
         #add speakers to the list
         for speaker in speakers.getAllSpeakers():
             speaker['mode'] = newMode
@@ -121,7 +118,7 @@ class UI:
 
     def speakerVids(self):
         newMode = 'playVideo'
-        speakers = self.ted_talks.Speakers(Fetcher, self.args.get('url'))
+        speakers = self.ted_talks.Speakers(self.fetcher, self.args.get('url'))
         for talk in speakers.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -130,7 +127,7 @@ class UI:
 
     def themes(self):
         newMode = 'themeVids'
-        themes = self.ted_talks.Themes(Fetcher, self.args.get('url'))
+        themes = self.ted_talks.Themes(self.fetcher, self.args.get('url'))
         #add themes to the list
         for theme in themes.getThemes():
             theme['mode'] = newMode
@@ -140,7 +137,7 @@ class UI:
 
     def themeVids(self):
         newMode = 'playVideo'
-        themes = self.ted_talks.Themes(Fetcher, self.args.get('url'))
+        themes = self.ted_talks.Themes(self.fetcher, self.args.get('url'))
         for talk in themes.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -150,7 +147,7 @@ class UI:
         newMode = 'playVideo'
         #attempt to login
         if self.isValidUser():
-            for talk in self.ted_talks.Favorites(Fetcher, self.logger).getFavoriteTalks(self.main.user):
+            for talk in self.ted_talks.Favorites(self.fetcher, self.logger).getFavoriteTalks(self.main.user):
                 talk['mode'] = newMode
                 self.addItem(talk, isFolder = False)
             self.endofdirectory()
@@ -163,7 +160,8 @@ class Main:
         self.args_map = args_map
         self.user = None
         self.getSettings()
-        self.ted_talks = ted_talks_scraper.TedTalks(Fetcher.getHTML)
+        self.fetcher = fetcher.Fetcher(xbmc.translatePath)
+        self.ted_talks = ted_talks_scraper.TedTalks(self.fetcher.getHTML)
 
     def getSettings(self):
         self.settings = dict()
@@ -173,7 +171,7 @@ class Main:
         self.settings['downloadPath'] = __settings__.getSetting('downloadPath')
 
     def isValidUser(self):
-        self.user = user.User(Fetcher.getHTML, self.settings['username'], self.settings['password'])
+        self.user = user.User(self.fetcher.getHTML, self.settings['username'], self.settings['password'])
         if self.user:
             return True
         else:

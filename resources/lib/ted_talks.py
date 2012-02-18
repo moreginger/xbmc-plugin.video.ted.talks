@@ -3,8 +3,8 @@ import urllib
 import ted_talks_scraper
 import ted_talks_rss
 from talkDownloader import Download
-import fetcher
-import user
+from model.fetcher import Fetcher
+from model.user import User
 import menu_util
 import xbmc
 import xbmcplugin
@@ -160,7 +160,7 @@ class Main:
         self.args_map = args_map
         self.user = None
         self.getSettings()
-        self.fetcher = fetcher.Fetcher(logger, xbmc.translatePath)
+        self.fetcher = Fetcher(logger, xbmc.translatePath)
         self.ted_talks = ted_talks_scraper.TedTalks(self.fetcher.getHTML)
 
     def getSettings(self):
@@ -171,7 +171,7 @@ class Main:
         self.settings['downloadPath'] = __settings__.getSetting('downloadPath')
 
     def isValidUser(self):
-        self.user = user.User(self.fetcher.getHTML, self.settings['username'], self.settings['password'])
+        self.user = User(self.fetcher.getHTML, self.settings['username'], self.settings['password'])
         if self.user:
             return True
         else:

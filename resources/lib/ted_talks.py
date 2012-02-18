@@ -160,7 +160,7 @@ class Main:
         self.args_map = args_map
         self.user = None
         self.getSettings()
-        self.fetcher = fetcher.Fetcher(xbmc.translatePath)
+        self.fetcher = fetcher.Fetcher(logger, xbmc.translatePath)
         self.ted_talks = ted_talks_scraper.TedTalks(self.fetcher.getHTML)
 
     def getSettings(self):

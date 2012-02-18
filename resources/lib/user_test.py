@@ -16,7 +16,7 @@ class TestNewTalksRss(unittest.TestCase):
         cookieFile = tempfile.mkstemp()[1]
         try:
             os.remove(cookieFile)
-            getHTML = fetcher.Fetcher(lambda x: cookieFile).getHTML
+            getHTML = fetcher.Fetcher(lambda x: x, lambda x: cookieFile).getHTML
             user = User(getHTML, self.username, self.password)
             # Weak assertions but don't want to tie to a particular user.
             self.assertIsNotNone(user.userID)
@@ -28,7 +28,7 @@ class TestNewTalksRss(unittest.TestCase):
         cookieFile = tempfile.mkstemp()[1]
         try:
             os.remove(cookieFile)
-            getHTML = fetcher.Fetcher(lambda x: cookieFile).getHTML
+            getHTML = fetcher.Fetcher(lambda x: x, lambda x: cookieFile).getHTML
             user = User(getHTML, self.username, self.password + "not")
             self.assertIsNone(user.userID)
             self.assertIsNone(user.realName)

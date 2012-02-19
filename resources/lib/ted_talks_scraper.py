@@ -1,5 +1,5 @@
 import re
-from util import cleanHTML, resizeImage
+from model.util import cleanHTML, resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 
 #MAIN URLS

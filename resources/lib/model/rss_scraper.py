@@ -77,7 +77,6 @@ class NewTalksRss:
             for url in rss_urls:
                 result = pool.apply_async(get_document, [url])
                 document_fetchers.append(lambda x: result.get(30))
-            pool.close()
         else:
             for url in rss_urls:
                 document_fetchers.append(lambda x: get_document(url))
@@ -90,7 +89,14 @@ class NewTalksRss:
                 talksByTitle[talk['title']] = talk
         
         if do_multi_threading:
-            pool.join()
+            # pool.close()
+            # pool.join()
+            # If I close Pool using close/join, then it logs 
+            # ERROR: Error Type: <type 'exceptions.OSError'>
+            # ERROR: Error Contents: [Errno 3] No such process
+            # when the app exits (i.e. finalization occurs).
+            # Whereas this seems to be OK.
+            pool._terminate()
         
         return talksByTitle.itervalues()
 

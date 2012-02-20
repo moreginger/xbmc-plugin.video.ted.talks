@@ -3,8 +3,9 @@ from user import User
 import os
 import fetcher
 import tempfile
+import sys
 
-class TestNewTalksRss(unittest.TestCase):
+class TestUser(unittest.TestCase):
     
     def setUp(self):
         self.username = os.getenv("ted_username", None)
@@ -16,11 +17,13 @@ class TestNewTalksRss(unittest.TestCase):
         cookieFile = tempfile.mkstemp()[1]
         try:
             os.remove(cookieFile)
-            getHTML = fetcher.Fetcher(lambda x: x, lambda x: cookieFile).getHTML
-            user = User(getHTML, self.username, self.password)
+            get_HTML = fetcher.Fetcher(lambda x: sys.stdout.write(x + '\n'), lambda x: cookieFile).getHTML
+            user = User(get_HTML)
             # Weak assertions but don't want to tie to a particular user.
-            self.assertIsNotNone(user.userID)
-            self.assertIsNotNone(user.realName)
+            userID, real_name = user.login(self.username, self.password)
+            # Weak assertions but don't want to tie to a particular user.
+            self.assertIsNotNone(userID)
+            self.assertIsNotNone(real_name)
         finally:
             os.remove(cookieFile)
 
@@ -28,14 +31,16 @@ class TestNewTalksRss(unittest.TestCase):
         cookieFile = tempfile.mkstemp()[1]
         try:
             os.remove(cookieFile)
-            getHTML = fetcher.Fetcher(lambda x: x, lambda x: cookieFile).getHTML
-            user = User(getHTML, self.username, self.password + "not")
-            self.assertIsNone(user.userID)
-            self.assertIsNone(user.realName)
+            get_HTML = fetcher.Fetcher(lambda x: sys.stdout.write(x + '\n'), lambda x: cookieFile).getHTML
+            user = User(get_HTML)
+            userID, real_name = user.login(self.username, self.password + "not")
+            self.assertIsNone(userID)
+            self.assertIsNone(real_name)
         finally:
             os.remove(cookieFile)
         
     def test_no_credentials(self):
-        user = User(getHTML = None) # We won't try to get any HTML
-        self.assertIsNone(user.userID)
-        self.assertIsNone(user.realName)
+        user = User(get_HTML = None) # We won't try to get any HTML
+        userID, real_name = user.login(None, None)
+        self.assertIsNone(userID)
+        self.assertIsNone(real_name)

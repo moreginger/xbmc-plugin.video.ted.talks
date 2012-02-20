@@ -2,9 +2,10 @@ import sys
 import urllib
 import ted_talks_scraper
 from talkDownloader import Download
-from model.rss_scraper import NewTalksRss
 from model.fetcher import Fetcher
 from model.user import User
+from model.rss_scraper import NewTalksRss
+from model.favorites_scraper import Favorites
 import menu_util
 import xbmc
 import xbmcplugin
@@ -14,11 +15,20 @@ import xbmcaddon
 __settings__ = xbmcaddon.Addon(id='plugin.video.ted.talks')
 getLS = __settings__.getLocalizedString
 
+
+def login(user_scraper, username, password):
+    user_details = user_scraper.login(username, password)
+    if not user_scraper:
+        xbmcgui.Dialog().ok(getLS(30050), getLS(30051))
+    return user_details
+
+
 class UI:
 
-    def __init__(self, logger, ted_talks, settings, args):
+    def __init__(self, logger, ted_talks, user, settings, args):
         self.logger = logger
         self.ted_talks = ted_talks
+        self.user = user
         self.settings = settings
         self.args = args
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
@@ -147,8 +157,9 @@ class UI:
     def favorites(self):
         newMode = 'playVideo'
         #attempt to login
-        if self.isValidUser():
-            for talk in self.ted_talks.Favorites(self.fetcher, self.logger).getFavoriteTalks(self.main.user):
+        userID, realname = login(self.user, self.settings['username'], self.settings['password'])
+        if userID:
+            for talk in Favorites(self.logger, self.fetcher.getHTML).getFavoriteTalks(userID):
                 talk['mode'] = newMode
                 self.addItem(talk, isFolder = False)
             self.endofdirectory()
@@ -159,9 +170,9 @@ class Main:
     def __init__(self, logger, args_map):
         self.logger = logger
         self.args_map = args_map
-        self.user = None
         self.getSettings()
         self.fetcher = Fetcher(logger, xbmc.translatePath)
+        self.user = User(self.fetcher.getHTML)
         self.ted_talks = ted_talks_scraper.TedTalks(self.fetcher.getHTML)
 
     def getSettings(self):
@@ -171,29 +182,20 @@ class Main:
         self.settings['downloadMode'] = __settings__.getSetting('downloadMode')
         self.settings['downloadPath'] = __settings__.getSetting('downloadPath')
 
-    def isValidUser(self):
-        self.user = User(self.fetcher.getHTML, self.settings['username'], self.settings['password'])
-        if self.user:
-            return True
-        else:
-            xbmcgui.Dialog().ok(getLS(30050), getLS(30051))
-            return False
-
-    def addToFavorites(self, talkID):
-        if self.isValidUser():
-            successful = self.ted_talks.Favorites(self.logger).addToFavorites(self.user, talkID)
-            if successful:
-                xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30091)))
+    def set_favorite(self, talkID, is_favorite):
+        """
+        talkID ID for the talk.
+        is_favorite True to set as a favorite, False to unset.
+        """
+        if login(self.user, self.settings['username'], self.settings['password']):
+            favorites = Favorites(self.logger, self.fetcher.getHTML)
+            if is_favorite:
+                successful = favorites.addToFavorites(talkID)
             else:
-                xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30092)))
-
-    def removeFromFavorites(self, talkID):
-        if self.isValidUser():
-            successful = self.ted_talks.Favorites(self.logger).removeFromFavorites(self.user, talkID)
-            if successful:
-                xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30094)))
-            else:
-                xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(30095)))
+                successful = favorites.removeFromFavorites(talkID)
+            notification_messages = {(True, True): 30091, (True, False): 30092, (False, True): 30094, (False, False): 30095}
+            notification_message = notification_messages[(is_favorite, successful)]
+            xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(notification_message)))
 
     def downloadVid(self, url):
         video = self.ted_talks.getVideoDetails(url)
@@ -205,14 +207,15 @@ class Main:
             Download(video['Title'], video['url'], downloadPath)
 
     def run(self):
+        # TODO Make these all modes for consistency
         if 'addToFavorites' in self.args_map:
-            self.addToFavorites(self.args_map['addToFavorites'])
+            self.set_favorite(self.args_map['addToFavorites'], True)
         if 'removeFromFavorites' in self.args_map:
-            self.removeFromFavorites(self.args_map['removeFromFavorites'])
+            self.set_favorite(self.args_map['removeFromFavorites'], False)
         if 'downloadVideo' in self.args_map:
             self.downloadVid(self.args_map('downloadVideo'))
         
-        ui = UI(self.logger, self.ted_talks, self.settings, self.args_map)
+        ui = UI(self.logger, self.ted_talks, self.user, self.settings, self.args_map)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:

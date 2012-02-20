@@ -1,15 +1,12 @@
 import re
 from model.util import cleanHTML, resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
+from model.url_constants import URLTED
 
 #MAIN URLS
-URLTED = 'http://www.ted.com'
 URLTHEMES = 'http://www.ted.com/themes/atoz/page/'
 URLSPEAKERS = 'http://www.ted.com/speakers/atoz/page/'
 URLSEARCH = 'http://www.ted.com/search?q=%s/page/'
-URLFAVORITES = 'http://www.ted.com/profiles/favorites/id/'
-URLADDFAV ='http://www.ted.com/profiles/addfavorites?id=%s&modulename=talks'
-URLREMFAV ='http://www.ted.com/profiles/removefavorites?id=%s&modulename=talks'
 
 def getNavItems(html):
     """self.navItems={'next':url, 'previous':url, 'selected':pagenumberasaninteger}"""
@@ -174,36 +171,6 @@ class TedTalks:
                 title = cleanHTML(talk.dt.a['title'])
                 pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
                 yield {'url':link, 'Title':title, 'Thumb':pic}
-
-    class Favorites:
-
-        def __init__(self, logger):
-            self.logger = logger
-
-        def getFavoriteTalks(self, user, url = URLFAVORITES):
-            """user must be TedTalks().User object with .id attribute"""
-            if user.userID is not None:
-                html = TedTalks.fetcher.getHTML(url+user.userID)
-                talkContainer = SoupStrainer(attrs = {'class':re.compile('box clearfix')})
-                for talk in BeautifulSoup(html, parseOnlyThese = talkContainer):
-                    title = talk.ul.a.string
-                    link = URLTED+talk.dt.a['href']
-                    pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
-                    yield {'url':link, 'Title':title, 'Thumb':pic}
-            else:
-                self.logger('invalid user object')
-
-        def addToFavorites(self, user, talkID):
-            response = TedTalks.fetcher.getHTML(URLADDFAV % (talkID))
-            if not response:
-                self.logger('failed to add favorite with id: %s' % (talkID))
-            return response != None
-
-        def removeFromFavorites(self, user, talkID):
-            response = TedTalks.fetcher.getHTML(URLREMFAV % (id))
-            if not response:
-                self.logger('failed to remove favorite with id: %s' % (talkID))
-            return response != None
 
 
     class Search:

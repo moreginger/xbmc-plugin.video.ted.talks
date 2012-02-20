@@ -8,20 +8,23 @@ URLLOGIN = 'http://www.ted.com/session/new'
 
 class User:
     """
-    User identity.
-    userID User ID or None if not provided / wrong.
-    realName Real name or None if not provided / wrong.
+    For user interactions.
     """
 
-    def __init__(self, getHTML, username = None, password = None):
+    def __init__(self, get_HTML):
         """
-        getHTML Takes a URL and optionally HTTP headers, also handles cookies.
+        get_HTML Takes a URL and optionally HTTP headers, also handles cookies.
         """
-        self.getHTML = getHTML
+        self.get_HTML = get_HTML
+    
+    def login(self, username, password):
+        """
+        return (userID, realName) or None if unsuccessful.  
+        """
         if username and password:
-            self.userID, self.realName = self.__getUserDetails(username, password)
+            return self.__getUserDetails(username, password)
         else:
-            self.userID = self.realName = None
+            return None, None
 
     def __getUserDetails(self, username, password):
         html = self.__getLoginResponse(username, password)
@@ -46,4 +49,4 @@ class User:
         form["users[password]"] = password
         form["users[rememberme]"] = ["on"]
         #click submit
-        return self.getHTML(form.click())
+        return self.get_HTML(form.click())

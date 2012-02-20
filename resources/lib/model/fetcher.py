@@ -10,11 +10,7 @@ class Fetcher:
 
     def getHTML(self, url, headers = [('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')]):
         """Returns HTML from a given URL"""
-        try:
-            url = url.get_full_url()
-        except:
-            pass # We log url anyway so can probably infer what happened.
-        self.logger('%s attempting to open %s with data' % (__name__, url))
+        self.logger('%s attempting to open %s with data' % (__name__, url.get_full_url()))
 
         #create cookiejar
         cj = cookielib.LWPCookieJar()

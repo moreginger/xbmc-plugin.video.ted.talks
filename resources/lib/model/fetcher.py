@@ -9,8 +9,14 @@ class Fetcher:
         self.getTranslatedPath = getTranslatedPath
 
     def getHTML(self, url, headers = [('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')]):
-        """Returns HTML from a given URL"""
-        self.logger('%s attempting to open %s with data' % (__name__, url.get_full_url()))
+        """
+        url Might be a real URL object or a String-like thing.
+        """
+        try:
+            url_string = url.get_full_url()
+        except AttributeError:
+            url_string = url
+        self.logger('%s attempting to open %s with data' % (__name__, url_string))
 
         #create cookiejar
         cj = cookielib.LWPCookieJar()

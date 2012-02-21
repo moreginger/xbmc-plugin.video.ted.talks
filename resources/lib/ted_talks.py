@@ -25,8 +25,9 @@ def login(user_scraper, username, password):
 
 class UI:
 
-    def __init__(self, logger, ted_talks, user, settings, args):
+    def __init__(self, logger, get_HTML, ted_talks, user, settings, args):
         self.logger = logger
+        self.get_HTML = get_HTML
         self.ted_talks = ted_talks
         self.user = user
         self.settings = settings
@@ -117,7 +118,7 @@ class UI:
 
     def speakers(self):
         newMode = 'speakerVids'
-        speakers = self.ted_talks.Speakers(self.fetcher, self.args.get('url'))
+        speakers = self.ted_talks.Speakers(self.get_HTML, self.args.get('url'))
         #add speakers to the list
         for speaker in speakers.getAllSpeakers():
             speaker['mode'] = newMode
@@ -129,7 +130,7 @@ class UI:
 
     def speakerVids(self):
         newMode = 'playVideo'
-        speakers = self.ted_talks.Speakers(self.fetcher, self.args.get('url'))
+        speakers = self.ted_talks.Speakers(self.get_HTML, self.args.get('url'))
         for talk in speakers.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -138,7 +139,7 @@ class UI:
 
     def themes(self):
         newMode = 'themeVids'
-        themes = self.ted_talks.Themes(self.fetcher, self.args.get('url'))
+        themes = self.ted_talks.Themes(self.get_HTML, self.args.get('url'))
         #add themes to the list
         for theme in themes.getThemes():
             theme['mode'] = newMode
@@ -148,7 +149,7 @@ class UI:
 
     def themeVids(self):
         newMode = 'playVideo'
-        themes = self.ted_talks.Themes(self.fetcher, self.args.get('url'))
+        themes = self.ted_talks.Themes(self.get_HTML, self.args.get('url'))
         for talk in themes.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -159,7 +160,7 @@ class UI:
         #attempt to login
         userID, realname = login(self.user, self.settings['username'], self.settings['password'])
         if userID:
-            for talk in Favorites(self.logger, self.fetcher.getHTML).getFavoriteTalks(userID):
+            for talk in Favorites(self.logger, self.get_HTML).getFavoriteTalks(userID):
                 talk['mode'] = newMode
                 self.addItem(talk, isFolder = False)
             self.endofdirectory()
@@ -171,9 +172,9 @@ class Main:
         self.logger = logger
         self.args_map = args_map
         self.getSettings()
-        self.fetcher = Fetcher(logger, xbmc.translatePath)
-        self.user = User(self.fetcher.getHTML)
-        self.ted_talks = ted_talks_scraper.TedTalks(self.fetcher.getHTML)
+        self.get_HTML = Fetcher(logger, xbmc.translatePath).getHTML
+        self.user = User(self.get_HTML)
+        self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML)
 
     def getSettings(self):
         self.settings = dict()
@@ -215,7 +216,7 @@ class Main:
         if 'downloadVideo' in self.args_map:
             self.downloadVid(self.args_map('downloadVideo'))
         
-        ui = UI(self.logger, self.ted_talks, self.user, self.settings, self.args_map)
+        ui = UI(self.logger, self.get_HTML, self.ted_talks, self.user, self.settings, self.args_map)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:

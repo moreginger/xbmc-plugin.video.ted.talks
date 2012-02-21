@@ -101,12 +101,12 @@ class TedTalks:
 
     class Speakers:
 
-        def __init__(self, fetcher, url):
+        def __init__(self, get_HTML, url):
             # adding 9999 to the url takes the script to the very last page of the list, providing the total # of pages.
             if url is None:
                 url = URLSPEAKERS + '9999'
-            self.fetcher = fetcher
-            self.html = self.fetcher.getHTML(url)
+            self.get_HTML = get_HTML
+            self.html = self.get_HTML(url)
             # only bother with navItems where they have a chance to appear.
             if URLSPEAKERS in url:
                 self.navItems = getNavItems(self.html)
@@ -124,7 +124,7 @@ class TedTalks:
             for i in range(self.navItems['selected']):
                 # don't parse the last page twice.
                 if i is not 8:
-                    html = self.fetcher.getHTML(URLSPEAKERS+str(i+1))
+                    html = self.get_HTML(URLSPEAKERS+str(i+1))
                 else:
                     html = self.html
                 for speaker in BeautifulSoup(html, parseOnlyThese = speakerContainers):
@@ -142,20 +142,22 @@ class TedTalks:
 
     class Themes:
 
-        def __init__(self, fetcher, url=None):
+        def __init__(self, get_HTML, url=None):
             if url == None:
                 url = URLTHEMES
-            self.fetcher = fetcher
-            self.html = self.fetcher.getHTML(url)
+            self.get_HTML = get_HTML
+            self.html = self.get_HTML(url)
             # a-z themes don't yet have navItems, so the check can be skipped for now.
             # self.navItems = TedTalks().getNavItems(html)
 
         def getThemes(self):
-            themeContainers = SoupStrainer(attrs = {'href':re.compile('/themes/\S.+?.html')})
+            themeContainers = SoupStrainer(name = 'a', attrs = {'href':re.compile('/themes/\S.+?.html')})
             for theme in BeautifulSoup(self.html, parseOnlyThese = themeContainers):
-                title = theme.string
-                link = URLTED+theme['href']
-                yield {'url':link, 'Title':title}
+                if theme.img:
+                    title = theme['title']
+                    link = URLTED + theme['href']
+                    thumb = theme.img['src']
+                    yield {'url':link, 'Title':title, 'Thumb':thumb}
 
         def getTalks(self):
             # themes loaded with a json call. Why are they not more consistant?
@@ -163,7 +165,7 @@ class TedTalks:
             # search HTML for the link to tedtalk's "api".  It is easier to use regex here than BS.
             jsonUrl = URLTED+re.findall('DataSource\("(.+?)"', self.html)[0]
             # make a dict from the json formatted string from above url
-            talksMarkup = loads(self.fetcher.getHTML(jsonUrl))
+            talksMarkup = loads(self.get_HTML(jsonUrl))
             # parse through said dict for all the metadata
             for markup in talksMarkup['resultSet']['result']:
                 talk = BeautifulSoup(markup['markup'])

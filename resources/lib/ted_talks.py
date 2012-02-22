@@ -51,9 +51,10 @@ class UI:
         args = {}
         for key1, key2 in {'url': 'url', 'mode': 'mode', 'Title': 'name', 'Thumb': 'icon'}.iteritems():
             if key1 in info:
-                args[key2] = urllib.quote_plus(info[key1])
-        if 'name' in args:
-            args['name'] = args['name'].encode('ascii','ignore')
+                if info[key1] is None:
+                    self.logger("'None' in item dict: " + info)
+                else:
+                    args[key2] = urllib.quote_plus(info[key1].encode('ascii', 'ignore'))
         
         u = sys.argv[0] + '?' + "&".join(key + '=' + value for key, value in args.iteritems())
                         

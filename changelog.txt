@@ -1,3 +1,8 @@
+[B]Version 2.3.1[/B]
+Works on Dharma again
+Newest Talks now work on Eden+Win32
+Remove duplicates of some themes
+
 [B]Version 2.3.0[/B]
 Get new talks from RSS feeds
 Update themes scraper to cope with website changes

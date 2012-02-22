@@ -152,12 +152,15 @@ class TedTalks:
 
         def getThemes(self):
             themeContainers = SoupStrainer(name = 'a', attrs = {'href':re.compile('/themes/\S.+?.html')})
+            seen_titles = set()
             for theme in BeautifulSoup(self.html, parseOnlyThese = themeContainers):
                 if theme.img:
                     title = theme['title']
-                    link = URLTED + theme['href']
-                    thumb = theme.img['src']
-                    yield {'url':link, 'Title':title, 'Thumb':thumb}
+                    if title not in seen_titles:
+                        seen_titles.add(title)
+                        link = URLTED + theme['href']
+                        thumb = theme.img['src']
+                        yield {'url':link, 'Title':title, 'Thumb':thumb}
 
         def getTalks(self):
             # themes loaded with a json call. Why are they not more consistant?

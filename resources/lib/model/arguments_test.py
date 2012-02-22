@@ -1,7 +1,7 @@
 import unittest
 import arguments
 
-class TestNewTalksRss(unittest.TestCase):
+class TestArguments(unittest.TestCase):
     
     def test_parse_arguments(self):
         self.assertEqual({'mode': 'rn_life_is_rubbish'}, arguments.parse_arguments("?mode=rn_life_is_rubbish"))

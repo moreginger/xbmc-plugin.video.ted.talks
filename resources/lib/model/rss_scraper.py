@@ -6,13 +6,14 @@ so keep it for now.
 
 import urllib2
 import time
-try:
-    # >=Eden
-    from multiprocessing import Pool
-    do_multi_threading = True
-except ImportError:
-    # < Eden
-    do_multi_threading = False
+# multiprocessing module isn't working on Win32: http://forum.xbmc.org/showthread.php?p=1023960
+#try:
+#    # >=Eden
+#    from multiprocessing import Pool
+#    do_multi_threading = True
+#except ImportError:
+#    # < Eden
+#    do_multi_threading = False
 
 try:    
     from elementtree.ElementTree import fromstring
@@ -72,15 +73,18 @@ class NewTalksRss:
         rss_urls = [sd_rss_url, hd_rss_url] # Prefer HD, but get SD if that's all there is (my friends)
         
         document_fetchers = []
-        if do_multi_threading:
-            pool = Pool(processes=1) # Maybe it would be better to fetch them simultaneously?
-            for url in rss_urls:
-                result = pool.apply_async(get_document, [url])
-                document_fetchers.append(lambda x: result.get(30))
-        else:
-            for url in rss_urls:
-                document_fetchers.append(lambda x: get_document(url))
-
+#        if do_multi_threading:
+#            pool = Pool(processes=1) # Maybe it would be better to fetch them simultaneously?
+#            for url in rss_urls:
+#                result = pool.apply_async(get_document, [url])
+#                document_fetchers.append(lambda x: result.get(30))
+#        else:
+#            for url in rss_urls:
+#                document_fetchers.append(lambda x: get_document(url))
+        
+        for url in rss_urls:
+            document_fetchers.append(lambda x: get_document(url))
+           
         talksByTitle = {}
         for documentFetcher in document_fetchers:
             rss = documentFetcher(None) # Is this evil? We have to pass something into the lambda.
@@ -88,15 +92,15 @@ class NewTalksRss:
                 talk = self.get_talk_details(item)
                 talksByTitle[talk['title']] = talk
         
-        if do_multi_threading:
-            # pool.close()
-            # pool.join()
-            # If I close Pool using close/join, then it logs 
-            # ERROR: Error Type: <type 'exceptions.OSError'>
-            # ERROR: Error Contents: [Errno 3] No such process
-            # when the app exits (i.e. finalization occurs).
-            # Whereas this seems to be OK.
-            pool._terminate()
+#        if do_multi_threading:
+#            # pool.close()
+#            # pool.join()
+#            # If I close Pool using close/join, then it logs 
+#            # ERROR: Error Type: <type 'exceptions.OSError'>
+#            # ERROR: Error Contents: [Errno 3] No such process
+#            # when the app exits (i.e. finalization occurs).
+#            # Whereas this seems to be OK.
+#            pool._terminate()
         
         return talksByTitle.itervalues()
 

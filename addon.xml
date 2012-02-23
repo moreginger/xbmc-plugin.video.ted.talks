@@ -4,7 +4,7 @@
        version="2.3.1"
        provider-name="rwparris2, moreginger">
   <requires>
-    <import addon="xbmc.python" version="1.0"/>
+    <import addon="xbmc.python" version="2.0"/>
     <import addon="script.module.simplejson" version="2.0.10"/>
     <import addon="script.module.beautifulsoup" version="3.0.8"/>
     <import addon="script.module.elementtree" version="1.2.7"/>

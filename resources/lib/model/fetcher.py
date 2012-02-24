@@ -26,7 +26,7 @@ class Fetcher:
             cj.load(cookiefile)
             #log what cookies were loaded
             for index, cookie in enumerate(cj):
-                self.logger('loaded cookie : %s\nfrom %s' % (cookie, cookiefile))
+                self.logger('loaded cookie : %s from %s' % (cookie, cookiefile))
 
         #build opener with automagic cookie handling abilities.
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))

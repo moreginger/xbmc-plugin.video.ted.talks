@@ -28,7 +28,7 @@ class Favorites:
         return response != None
 
     def removeFromFavorites(self, talkID):
-        response = self.get_HTML(URLREMFAV % (id))
+        response = self.get_HTML(URLREMFAV % (talkID))
         if not response:
             self.logger('failed to remove favorite with id: %s' % (talkID))
         return response != None

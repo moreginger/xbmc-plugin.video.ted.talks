@@ -1,6 +1,7 @@
 import unittest
 from rss_scraper import NewTalksRss
 from datetime import datetime
+import sys
 try:    
     from elementtree.ElementTree import fromstring
 except ImportError:
@@ -21,7 +22,7 @@ minimal_item = """
 class TestNewTalksRss(unittest.TestCase):
     
     def setUp(self):
-        self.talks = NewTalksRss(lambda x: x)
+        self.talks = NewTalksRss(lambda x: sys.stdout.write(x))
 
     def test_get_talk_details_minimal(self):
         details = self.talks.get_talk_details(fromstring(minimal_item))

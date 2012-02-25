@@ -190,7 +190,7 @@ class Main:
         is_favorite True to set as a favorite, False to unset.
         """
         if login(self.user, self.settings['username'], self.settings['password']):
-            favorites = Favorites(self.logger, self.fetcher.getHTML)
+            favorites = Favorites(self.logger, self.get_HTML)
             if is_favorite:
                 successful = favorites.addToFavorites(talkID)
             else:

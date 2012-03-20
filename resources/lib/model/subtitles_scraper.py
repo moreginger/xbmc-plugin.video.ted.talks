@@ -15,3 +15,8 @@ def format_time(time):
     minutes = (time / 60000) % 60
     hours = (time / 3600000)
     return "%02d:%02d:%02d,%03d" % (hours, minutes, seconds, millis)
+
+def get_languages(soup):
+    languages = soup.find('select', attrs = {'id': 'languageCode'}).findAll('option')
+    return [l['value'].encode('ascii') for l in languages]
+

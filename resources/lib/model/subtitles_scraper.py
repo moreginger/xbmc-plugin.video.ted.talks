@@ -6,7 +6,6 @@ http://estebanordano.com.ar/wp-content/uploads/2010/01/TEDTalkSubtitles.py_.zip
 '''
 import simplejson
 import urllib
-import sys
 import re
 
 def format_time(time):
@@ -16,9 +15,20 @@ def format_time(time):
     hours = (time / 3600000)
     return '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, millis)
 
-def get_languages(soup):
-    languages = soup.find('select', attrs = {'id': 'languageCode'}).findAll('option')
-    return [l['value'].encode('ascii') for l in languages]
+def get_flashvars(soup):
+    '''
+    Get flashVars for a talk.
+    Blow up if we can't find it or if we fail to parse.
+    returns dict of values, no guarantees are made about which values are present.
+    '''
+    flashVars_re = re.compile('flashVars = {([^}]+)}')
+    flash_script = soup.find('script', text=flashVars_re)
+    if not flash_script:
+        raise Exception('Could not find flashVars')
+    flashVars = flashVars_re.search(flash_script.string).group(1)
+    flashVar_re = re.compile('\s*(\w+):(.+),?')
+    matches = filter(None, [flashVar_re.match(l) for l in flashVars.split('\n')])
+    return dict([(m.group(1).encode('ascii'), m.group(2).encode('ascii')) for m in matches])
 
 def get_subtitles(talk_id, language):
     url = 'http://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)

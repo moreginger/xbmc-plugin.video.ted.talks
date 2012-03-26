@@ -16,10 +16,22 @@ class TestSubtitlesScraper(unittest.TestCase):
         self.assertEqual('00:00:00,000', subtitles_scraper.format_time(0))
         self.assertEqual('03:25:45,678', subtitles_scraper.format_time(12345678))
 
-    def test_get_languages(self):
+    def test_get_flashvars(self):
         soup = get_talk_1253()
-        expected = ['sq', 'ar', 'hy', 'bg', 'ca', 'zh-cn', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'en', 'fr', 'ka', 'de', 'el', 'he', 'hu', 'id', 'it', 'ja', 'ko', 'fa', 'pl', 'pt-br', 'pt', 'ro', 'ru', 'sr', 'sk', 'es', 'th', 'tr', 'uk', 'vi']
-        self.assertEqual(expected, subtitles_scraper.get_languages(soup))
+        # This should be the language list once we get back the point of parsing the languages param
+        # expected = ['sq', 'ar', 'hy', 'bg', 'ca', 'zh-cn', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'en', 'fr', 'ka', 'de', 'el', 'he', 'hu', 'id', 'it', 'ja', 'ko', 'fa', 'pl', 'pt-br', 'pt', 'ro', 'ru', 'sr', 'sk', 'es', 'th', 'tr', 'uk', 'vi']
+        flashvars = subtitles_scraper.get_flashvars(soup)
+        self.assertTrue('languages' in flashvars) # subtitle languages 
+        self.assertTrue('introDuration' in flashvars) # TED intro, need to offset subtitles with this
+        self.assertTrue('ti' in flashvars) # talk ID
+        
+    def test_get_flashvars_not_there(self):
+        soup = MinimalSoup('<html><head/><body><script>Not much here</script></body></html>')
+        try:
+            subtitles_scraper.get_flashvars(soup)
+            self.fail()
+        except Exception, e:
+            self.assertEqual('Could not find flashVars', e.args[0])
         
     def test_get_subtitles(self):
         subs = subtitles_scraper.get_subtitles('1253', 'en')

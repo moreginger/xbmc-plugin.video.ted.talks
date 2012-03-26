@@ -15,6 +15,14 @@ def format_time(time):
     hours = (time / 3600000)
     return '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, millis)
 
+def get_languages(languages):
+    '''
+    languages Escaped languages param from flashVars
+    '''
+    language_code_re = re.compile('"LanguageCode":"(\w+)"')
+    matches = filter(None, [language_code_re.search(param) for param in urllib.unquote(languages).split(',')])
+    return [m.group(1) for m in matches]
+
 def get_flashvars(soup):
     '''
     Get flashVars for a talk.

@@ -81,4 +81,6 @@ World
 Vous savez tous que ce que je vais dire est vrai.
 
 2'''))
+        
+    # Add tests for sad paths of get_subtitles_for_talk
     

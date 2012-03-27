@@ -15,6 +15,14 @@ def format_time(time):
     hours = (time / 3600000)
     return '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, millis)
 
+def format_subtitles(subtitles, introDuration):
+    result = ''
+    for idx, sub in enumerate(subtitles):
+        start = introDuration + sub['start']
+        end = start + sub['duration']
+        result += '%d\n%s --> %s\n%s\n\n' %(idx + 1, format_time(start), format_time(end), sub['content'])
+    return result
+
 def get_languages(languages):
     '''
     languages Escaped languages param from flashVars
@@ -53,3 +61,9 @@ def get_subtitles_for_url(url):
     for caption in json['captions']:
         captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]
     return captions
+
+def get_subtitles_for_flash_vars(flash_vars, user_feedback):
+    '''
+    Return subtitles in srt format, or notify the user and return None if there was a problem.
+    '''
+    return 1

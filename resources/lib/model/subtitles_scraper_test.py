@@ -40,6 +40,11 @@ class TestSubtitlesScraper(unittest.TestCase):
     def test_get_subtitles(self):
         subs = subtitles_scraper.get_subtitles('1253', 'en')
         self.assertEqual(385, len(subs))
+        
+    def test_get_subtitles_bad_language(self):
+        subs = subtitles_scraper.get_subtitles('1253', 'panda')
+        # Yes, it returns the English subtitles - so we have to parse flashVars to know whether they exist for a particular language
+        self.assertEqual('You all know the truth of what I\'m going to say.', subs[0]['content'])
     
     def test_get_subtitles_for_url(self):
         json_subs = '{"captions":[{"content":"What","startTime":0,"duration":3000,"startOfParagraph":false},{"content":"Began","startTime":3000,"duration":4000,"startOfParagraph":false}]}'

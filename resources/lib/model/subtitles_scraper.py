@@ -37,13 +37,13 @@ def get_flashvars(soup):
     Blow up if we can't find it or if we fail to parse.
     returns dict of values, no guarantees are made about which values are present.
     '''
-    flashVars_re = re.compile('flashVars = {([^}]+)}')
-    flash_script = soup.find('script', text=flashVars_re)
+    flashvars_re = re.compile('flashVars = {([^}]+)}')
+    flash_script = soup.find('script', text=flashvars_re)
     if not flash_script:
         raise Exception('Could not find flashVars')
-    flashVars = flashVars_re.search(flash_script.string).group(1)
-    flashVar_re = re.compile('\s*(\w+):(.+),?')
-    matches = filter(None, [flashVar_re.match(l) for l in flashVars.split('\n')])
+    flashvars = flashvars_re.search(flash_script.string).group(1)
+    flashvar_re = re.compile('^\s*(\w+):"?(.+?)"?,?$')
+    matches = filter(None, [flashvar_re.match(l) for l in flashvars.split('\n')])
     return dict([(m.group(1).encode('ascii'), m.group(2).encode('ascii')) for m in matches])
 
 def get_subtitles(talk_id, language):
@@ -62,8 +62,29 @@ def get_subtitles_for_url(url):
         captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]
     return captions
 
-def get_subtitles_for_flash_vars(flash_vars, user_feedback):
+def get_subtitles_for_talk(talk_soup, language, report_problem):
     '''
     Return subtitles in srt format, or notify the user and return None if there was a problem.
     '''
-    return 1
+    try:
+        flashvars = get_flashvars(talk_soup)
+    except Exception, e:
+        report_problem('Could not display subtitles: %s' % (e))
+        return None
+
+    if 'languages' in flashvars:  
+        languages = get_languages(flashvars['languages'])
+        if language not in languages:
+            report_problem('No subtitles in language: %s' % (language))
+            return None
+
+    # Note: if we don't have 'languages' at all, take a punt.
+    if 'ti' not in flashvars:
+        report_problem('Could not determine talk ID for subtitles')
+        return None
+    if 'introDuration' not in flashvars:
+        report_problem('Could not determine intro duration for subtitles')
+        return None
+    
+    raw_subtitles = get_subtitles(flashvars['ti'], language)
+    return format_subtitles(raw_subtitles, int(flashvars['introDuration']))

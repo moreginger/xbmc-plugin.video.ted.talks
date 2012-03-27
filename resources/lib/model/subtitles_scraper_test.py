@@ -39,8 +39,8 @@ World
         # expected = ['sq', 'ar', 'hy', 'bg', 'ca', 'zh-cn', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'en', 'fr', 'ka', 'de', 'el', 'he', 'hu', 'id', 'it', 'ja', 'ko', 'fa', 'pl', 'pt-br', 'pt', 'ro', 'ru', 'sr', 'sk', 'es', 'th', 'tr', 'uk', 'vi']
         flashvars = subtitles_scraper.get_flashvars(soup)
         self.assertTrue('languages' in flashvars) # subtitle languages 
-        self.assertTrue('introDuration' in flashvars) # TED intro, need to offset subtitles with this
-        self.assertTrue('ti' in flashvars) # talk ID
+        self.assertTrue('15330', flashvars['introDuration']) # TED intro, need to offset subtitles with this
+        self.assertEquals('1253', flashvars['ti']) # talk ID
         
     def test_get_flashvars_not_there(self):
         soup = MinimalSoup('<html><head/><body><script>Not much here</script></body></html>')
@@ -69,4 +69,16 @@ World
         finally:
             subs_file.close()
         self.assertEqual([{'duration': 3000, 'start': 0, 'content': 'What'}, {'duration': 4000, 'start': 3000, 'content': 'Began'}], subs)
+        
+    def test_get_subtitles_for_talk(self):
+        '''
+        This one is the real deal.
+        '''
+        soup = get_talk_1253()
+        subs = subtitles_scraper.get_subtitles_for_talk(soup, 'fr', None)
+        self.assertTrue(subs.startswith('''1
+00:00:15,330 --> 00:00:18,330
+Vous savez tous que ce que je vais dire est vrai.
+
+2'''))
     

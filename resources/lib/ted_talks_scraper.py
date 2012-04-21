@@ -101,7 +101,7 @@ class TedTalks:
 
     class Themes:
 
-        def __init__(self, get_HTML, url=None):
+        def __init__(self, get_HTML, url):
             if url == None:
                 url = URLTHEMES
             self.get_HTML = get_HTML

@@ -25,13 +25,12 @@ def login(user_scraper, username, password):
 
 class UI:
 
-    def __init__(self, logger, get_HTML, ted_talks, user, settings, args):
+    def __init__(self, logger, get_HTML, ted_talks, user, settings):
         self.logger = logger
         self.get_HTML = get_HTML
         self.ted_talks = ted_talks
         self.user = user
         self.settings = settings
-        self.args = args
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
     def endofdirectory(self, sortMethod = 'title'):
@@ -79,11 +78,11 @@ class UI:
         #add item to list
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=li, isFolder=isFolder)
 
-    def playVideo(self):
-        video = self.ted_talks.getVideoDetails(self.args['url'])
+    def playVideo(self, url, icon):
+        video = self.ted_talks.getVideoDetails(url)
         li=xbmcgui.ListItem(video['Title'],
-                            iconImage = self.args['icon'],
-                            thumbnailImage = self.args['icon'],
+                            iconImage = icon,
+                            thumbnailImage = icon,
                             path = video['url'])
         li.setInfo(type='Video', infoLabels=video)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
@@ -119,19 +118,17 @@ class UI:
 
     def speakers(self):
         newMode = 'speakerVids'
-        speakers = ted_talks_scraper.Speakers(self.get_HTML, self.args.get('url'))
+        speakers = ted_talks_scraper.Speakers(self.get_HTML, None)
         #add speakers to the list
         for speaker in speakers.getAllSpeakers():
             speaker['mode'] = newMode
             self.addItem(speaker, isFolder = True)
-        #add nav items to the list
-        self.navItems(speakers.navItems, self.args['mode'])
         #end the list
         self.endofdirectory()
 
-    def speakerVids(self):
+    def speakerVids(self, url):
         newMode = 'playVideo'
-        speakers = ted_talks_scraper.Speakers(self.get_HTML, self.args.get('url'))
+        speakers = ted_talks_scraper.Speakers(self.get_HTML, url)
         for talk in speakers.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -140,7 +137,7 @@ class UI:
 
     def themes(self):
         newMode = 'themeVids'
-        themes = self.ted_talks.Themes(self.get_HTML, self.args.get('url'))
+        themes = self.ted_talks.Themes(self.get_HTML, None)
         #add themes to the list
         for theme in themes.getThemes():
             theme['mode'] = newMode
@@ -148,9 +145,9 @@ class UI:
         #end the list
         self.endofdirectory()
 
-    def themeVids(self):
+    def themeVids(self, url):
         newMode = 'playVideo'
-        themes = self.ted_talks.Themes(self.get_HTML, self.args.get('url'))
+        themes = self.ted_talks.Themes(self.get_HTML, url)
         for talk in themes.getTalks():
             talk['mode'] = newMode
             self.addItem(talk, isFolder = False)
@@ -165,6 +162,130 @@ class UI:
                 talk['mode'] = newMode
                 self.addItem(talk, isFolder = False)
             self.endofdirectory()
+
+
+class Action(object):
+    '''
+    Some action that can be executed by the user.
+    '''
+    
+    def __init__(self, mode, required_args, logger):
+        self.mode = mode
+        self.required_args = set(required_args)
+        self.logger = logger
+    
+    def run(self, args):
+        good = self.required_args.issubset(args.keys())
+        if good:
+            self.run_internal(args)
+        else:
+            self.report_problem(args)
+    
+    def report_problem(self, args):
+        # The theory is that this might happen for a favorite from an older version;
+        # though we can't be sure about the cause hence vagueness in friendly message.
+        friendly_message = "Action '%s' failed. Try re-creating the item." % (self.mode)
+        self.logger("%s\nBad arguments: %s" % (friendly_message, args), friendly_message)
+    
+
+class PlayVideoAction(Action):
+    
+    def __init__(self, logger, ui):
+        super(PlayVideoAction, self).__init__('playVideo', ['url', 'icon'], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.playVideo(args['url'], args['icon'])
+
+
+class NewTalksAction(Action):
+    
+    def __init__(self, logger, ui):
+        super(NewTalksAction, self).__init__('newTalksRss', [], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.newTalksRss()
+
+
+class SpeakersAction(Action):
+    
+    def __init__(self, logger, ui):
+        super(SpeakersAction, self).__init__('speakers', [], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.speakers()
+
+        
+class SpeakerVideosAction(Action):
+    
+    def __init__(self, logger, ui):
+        super(SpeakerVideosAction, self).__init__('speakerVids', ['url'], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.speakerVids(args['url'])
+
+        
+class ThemesAction(Action):
+    
+    def __init__(self, logger, ui):
+        super(ThemesAction, self).__init__('themes', [], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.themes()
+
+        
+class ThemeVideosAction(Action):
+    
+    def __init__(self, logger, ui):
+        super(ThemeVideosAction, self).__init__('themeVids', ['url'], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.themeVids(args['url'])
+
+        
+class FavoritesAction(Action):
+    
+    def __init__(self, logger, ui):
+        super(FavoritesAction, self).__init__('favorites', [], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.favorites()
+
+        
+class SetFavoriteAction(Action):
+    
+    def __init__(self, logger, main):
+        super(SetFavoriteAction, self).__init__('addToFavorites', ['talkID'], logger)
+        self.main = main
+
+    def run_internal(self, args):
+        self.main.set_favorite(args['talkID'], True)
+
+        
+class RemoveFavoriteAction(Action):
+    
+    def __init__(self, logger, main):
+        super(RemoveFavoriteAction, self).__init__('removeFromFavorites', ['talkID'], logger)
+        self.main = main
+
+    def run_internal(self, args):
+        self.main.set_favorite(args['talkID'], False)
+        
+        
+class DownloadVideoAction(Action):
+    
+    def __init__(self, logger, main):
+        super(DownloadVideoAction, self).__init__('downloadVideo', ['url'], logger)
+        self.main = main
+
+    def run_internal(self, args):
+        self.main.downloadVid(args['url'], False)
 
 
 class Main:
@@ -209,30 +330,26 @@ class Main:
             Download(video['Title'], video['url'], downloadPath)
 
     def run(self):
-        # TODO Make these all modes for consistency
-        if 'addToFavorites' in self.args_map:
-            self.set_favorite(self.args_map['addToFavorites'], True)
-        if 'removeFromFavorites' in self.args_map:
-            self.set_favorite(self.args_map['removeFromFavorites'], False)
-        if 'downloadVideo' in self.args_map:
-            self.downloadVid(self.args_map('downloadVideo'))
-        
-        ui = UI(self.logger, self.get_HTML, self.ted_talks, self.user, self.settings, self.args_map)
+        ui = UI(self.logger, self.get_HTML, self.ted_talks, self.user, self.settings)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:
+            modes = [
+                PlayVideoAction(self.logger, ui),
+                NewTalksAction(self.logger, ui),
+                SpeakersAction(self.logger, ui),
+                SpeakerVideosAction(self.logger, ui),
+                ThemesAction(self.logger, ui),
+                ThemeVideosAction(self.logger, ui),
+                FavoritesAction(self.logger, ui),
+                SetFavoriteAction(self.logger, self),
+                RemoveFavoriteAction(self.logger, self),
+                DownloadVideoAction(self.logger, self),
+            ]
+            modes = dict([(m.mode, m) for m in modes])
             mode = self.args_map['mode']
-            if mode == 'playVideo':
-                ui.playVideo()
-            elif mode == 'newTalksRss':
-                ui.newTalksRss()
-            elif mode == 'speakers':
-                ui.speakers()
-            elif mode == 'speakerVids':
-                ui.speakerVids()
-            elif mode == 'themes':
-                ui.themes()
-            elif mode == 'themeVids':
-                ui.themeVids()
-            elif mode == 'favorites':
-                ui.favorites()
+            if mode in modes:
+                modes[mode].run(self.args_map)
+            else:
+                # Bit of a hack (cough)
+                Action(mode, [], self.logger).report_problem(self.args_map)

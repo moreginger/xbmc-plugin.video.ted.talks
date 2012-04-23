@@ -46,9 +46,10 @@ class Speakers:
             else:
                 html = self.html
             for speaker in BeautifulSoup(html, parseOnlyThese = speakerContainers):
-                title = speaker.string
+                # Some speakers have whitespace at the start e.g. 'Bono'
+                title = speaker.string.strip()
                 link = URLTED+speaker['href']
-                yield {'url':link, 'Title':title}
+                yield title, link
 
     def getTalks(self):
         talkContainer = SoupStrainer(attrs = {'class':re.compile('box clearfix')})
@@ -56,7 +57,7 @@ class Speakers:
             title = talk.h4.a.string
             link = URLTED+talk.dt.a['href']
             pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
-            yield {'url':link, 'Title':title, 'Thumb':pic}
+            yield title, link, pic
 
 
 class TedTalks:
@@ -119,7 +120,7 @@ class TedTalks:
                         seen_titles.add(title)
                         link = URLTED + theme['href']
                         thumb = theme.img['src']
-                        yield {'url':link, 'Title':title, 'Thumb':thumb}
+                        yield title, link, thumb
 
         def getTalks(self):
             # themes loaded with a json call. Why are they not more consistant?
@@ -134,7 +135,7 @@ class TedTalks:
                 link = URLTED+talk.dt.a['href']
                 title = cleanHTML(talk.dt.a['title'])
                 pic = resizeImage(talk.find('img', attrs = {'src':re.compile('.+?\.jpg')})['src'])
-                yield {'url':link, 'Title':title, 'Thumb':pic}
+                yield title, link, pic
 
 
     class Search:

@@ -39,7 +39,7 @@ class NewTalksRss:
         pic = item.find('./{http://search.yahoo.com/mrss/}thumbnail').get('url')
         duration = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}duration').text
         plot = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}summary').text
-        link = item.find('./enclosure').get('url')
+        link = item.find('./link').text
         talkID = item.find('./guid').text.split(':')[-1]
         
         # Get date as XBMC wants it

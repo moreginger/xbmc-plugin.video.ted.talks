@@ -46,5 +46,5 @@ class TestSpeakers(unittest.TestCase):
         # 1027 at time of writing, feel free to update
         self.assertTrue(len(speakers) >= 1027)
         # See https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues/14 for the chosen speaker :)
-        self.assertTrue('Clifford Stoll' in [s['Title'] for s in speakers])
+        self.assertTrue('Clifford Stoll' in [s[0] for s in speakers])
 

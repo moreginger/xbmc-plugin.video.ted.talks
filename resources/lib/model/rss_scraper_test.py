@@ -16,7 +16,7 @@ minimal_item = """
   <guid isPermaLink="false">eng.video.talk.ted.com:830</guid>
   <pubDate>Sat, 04 Feb 2012 08:14:00 +0000</pubDate>
   <media:thumbnail url="invalid://nowhere/nothing.jpg" width="42" height="42" />
-  <enclosure url="invalid://nowhere/nothing.mp4" length="42" type="video/mp4" />
+  <link>invalid://nowhere/nothing.html</link>
 </item>"""
 
 class TestNewTalksRss(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestNewTalksRss(unittest.TestCase):
         expected_details = {
             'author':'Dovahkiin',
             'date':'04.02.2012',
-            'link':'invalid://nowhere/nothing.mp4',
+            'link':'invalid://nowhere/nothing.html',
             'thumb':'invalid://nowhere/nothing.jpg',
             'title':'fus ro dah',
             'plot':'Unrelenting Force',

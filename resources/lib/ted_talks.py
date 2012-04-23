@@ -44,39 +44,28 @@ class UI:
         #let xbmc know the script is done adding items to the list.
         xbmcplugin.endOfDirectory(handle = int(sys.argv[1]), updateListing = False)
 
-    def addItem(self, info, isFolder = True):
-        #Defaults in dict. Use 'None' instead of None so it is compatible for quote_plus in parseArgs
-        #create params for xbmcplugin module
-        args = {}
-        for key1, key2 in {'url': 'url', 'mode': 'mode', 'Title': 'name', 'Thumb': 'icon'}.iteritems():
-            if key1 in info:
-                if info[key1] is None:
-                    self.logger("'None' in item dict: " + info)
-                else:
-                    args[key2] = urllib.quote_plus(info[key1].encode('ascii', 'ignore'))
-        
-        u = sys.argv[0] + '?' + "&".join(key + '=' + value for key, value in args.iteritems())
-                        
-        info.setdefault('url', 'None')
-        info.setdefault('Thumb', 'None')
-        info.setdefault('Icon', info['Thumb'])
-        #create list item
-        if info['Title'].startswith(" "):
-            title = info['Title'][1:]
-        else:
-            title = info['Title']  
-        li = xbmcgui.ListItem(label = title, iconImage = info['Icon'], thumbnailImage = info['Thumb'])
-        li.setInfo(type='Video', infoLabels = info)
-        #for videos, replace context menu with queue and add to favorites
+    def addItem(self, title, mode, url = None, img = None, video_info = {}, talkID = None, isFolder = True):
+        # Create action url
+        args = {'mode': mode}
+        if url:
+            args['url'] = url
+        if img:
+            args['icon'] = img
+        args = [k + '=' + urllib.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.iteritems()]
+        action_url = sys.argv[0] + '?' + "&".join(args)
+
+        li = xbmcgui.ListItem(label = title, iconImage = img, thumbnailImage = img)
+        video_info = dict((k, v) for k, v in video_info.iteritems() if k in ['date', 'duration', 'plot'])
+        if len(video_info) > 0:
+            li.setInfo('video', video_info)
         if not isFolder:
-            li.setProperty("IsPlayable", "true")#let xbmc know this can be played, unlike a folder.
-            context_menu = menu_util.create_context_menu(getLS = getLS)
+            li.setProperty("IsPlayable", "true") #let xbmc know this can be played, unlike a folder.
+            context_menu = menu_util.create_context_menu(getLS = getLS, favorites_action = 'add', talkID = talkID)
             li.addContextMenuItems(context_menu, replaceItems = True)
         else:
-            #for folders, completely remove contextmenu, as it is totally useless.
             li.addContextMenuItems([], replaceItems = True)
         #add item to list
-        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=li, isFolder=isFolder)
+        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=action_url, listitem=li, isFolder=isFolder)
 
     def playVideo(self, url, icon):
         video = self.ted_talks.getVideoDetails(url)
@@ -89,68 +78,52 @@ class UI:
 
     def navItems(self, navItems, mode):
         if navItems['next']:
-            self.addItem({'Title': getLS(30020), 'url':navItems['next'], 'mode':mode})
+            self.addItem(getLS(30020), mode, navItems['next'])
         if navItems['previous']:
-            self.addItem({'Title': getLS(30021), 'url':navItems['previous'], 'mode':mode})
+            self.addItem(getLS(30021), mode, navItems['previous'])
 
     def showCategories(self):
-        self.addItem({'Title':getLS(30001), 'mode':'newTalksRss', 'Plot':getLS(30031)})#new RSS
-        self.addItem({'Title':getLS(30002), 'mode':'speakers', 'Plot':getLS(30032)})#speakers
-        self.addItem({'Title':getLS(30003), 'mode':'themes', 'Plot':getLS(30033)})#themes
-        #self.addItem({'Title':getLS(30004), 'mode':'search', 'Plot':getLS(30034)})#search
+        self.addItem(getLS(30001), 'newTalksRss', video_info = {'Plot':getLS(30031)})
+        self.addItem(getLS(30002), 'speakers', video_info = {'Plot':getLS(30032)})
+        self.addItem(getLS(30003), 'themes', video_info = {'Plot':getLS(30033)})
+        #self.addItem({'Title':getLS(30004), 'mode':'search', 'Plot':getLS(30034)})
         if self.settings['username']:
-            self.addItem({'Title':getLS(30005), 'mode':'favorites', 'Plot':getLS(30035)})#favorites
+            self.addItem(getLS(30005), 'favorites', video_info = {'Plot':getLS(30035)})
         self.endofdirectory()
         
     def newTalksRss(self):
         newTalks = NewTalksRss(self.logger)
         for talk in newTalks.get_new_talks():
-            li = xbmcgui.ListItem(label = talk['title'], iconImage = talk['thumb'], thumbnailImage = talk['thumb'])
-            li.setProperty("IsPlayable", "true")
-            li.setInfo('video', {'date':talk['date'], 'duration':talk['duration'], 'plot':talk['plot']})
-            favorites_action = None
-            if self.settings['username'] != None:
-                favorites_action = "add"
-            context_menu = menu_util.create_context_menu(getLS = getLS, url = talk['link'], favorites_action = favorites_action, talkID = talk['id'])
-            li.addContextMenuItems(context_menu, replaceItems = True)
-            xbmcplugin.addDirectoryItem(handle = int(sys.argv[1]), url = talk['link'], listitem = li)
+            self.addItem(talk['title'], 'playVideo', talk['link'], talk['thumb'], talk, talk['id'], isFolder = False)
         self.endofdirectory(sortMethod = 'date')
 
     def speakers(self):
-        newMode = 'speakerVids'
         speakers = ted_talks_scraper.Speakers(self.get_HTML, None)
         #add speakers to the list
-        for speaker in speakers.getAllSpeakers():
-            speaker['mode'] = newMode
-            self.addItem(speaker, isFolder = True)
+        for title, link in speakers.getAllSpeakers():
+            self.addItem(title, 'speakerVids', link, isFolder = True)
         #end the list
         self.endofdirectory()
 
     def speakerVids(self, url):
-        newMode = 'playVideo'
         speakers = ted_talks_scraper.Speakers(self.get_HTML, url)
-        for talk in speakers.getTalks():
-            talk['mode'] = newMode
-            self.addItem(talk, isFolder = False)
+        for title, link, img in speakers.getTalks():
+            self.addItem(title, 'playVideo', link, img, isFolder = False)
         #end the list
         self.endofdirectory()
 
     def themes(self):
-        newMode = 'themeVids'
         themes = self.ted_talks.Themes(self.get_HTML, None)
         #add themes to the list
-        for theme in themes.getThemes():
-            theme['mode'] = newMode
-            self.addItem(theme, isFolder = True)
+        for title, link, img in themes.getThemes():
+            self.addItem(title, 'themeVids', link, img, isFolder = True)
         #end the list
         self.endofdirectory()
 
     def themeVids(self, url):
-        newMode = 'playVideo'
         themes = self.ted_talks.Themes(self.get_HTML, url)
-        for talk in themes.getTalks():
-            talk['mode'] = newMode
-            self.addItem(talk, isFolder = False)
+        for title, link, img in themes.getTalks():
+            self.addItem(title, 'playVideo', link, img, isFolder = False)
         self.endofdirectory()
 
     def favorites(self):
@@ -182,7 +155,7 @@ class Action(object):
             self.report_problem(args)
     
     def report_problem(self, args):
-        # The theory is that this might happen for a favorite from an older version;
+        # The theory is that this might happen for a favorite from another version;
         # though we can't be sure about the cause hence vagueness in friendly message.
         friendly_message = "Action '%s' failed. Try re-creating the item." % (self.mode)
         self.logger("%s\nBad arguments: %s" % (friendly_message, args), friendly_message)

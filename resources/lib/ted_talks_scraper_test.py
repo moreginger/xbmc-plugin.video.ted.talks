@@ -29,7 +29,7 @@ def assertTalk(test_case, talk):
 class TestTedTalks(unittest.TestCase):
     
     def setUp(self):
-        self.ted_talks = ted_talks_scraper.TedTalks(getHTML)
+        self.ted_talks = ted_talks_scraper.TedTalks(getHTML, None)
 
     def test_smoke(self):
         self.ted_talks.getVideoDetails("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")

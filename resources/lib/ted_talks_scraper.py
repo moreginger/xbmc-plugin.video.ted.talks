@@ -2,6 +2,7 @@ import re
 from model.util import cleanHTML, resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 from model.url_constants import URLTED
+import model.subtitles_scraper as subtitles_scraper
 
 #MAIN URLS
 URLTHEMES = 'http://www.ted.com/themes/atoz/page/'
@@ -62,8 +63,9 @@ class Speakers:
 
 class TedTalks:
 
-    def __init__(self, getHTML):
+    def __init__(self, getHTML, logger):
         self.getHTML = getHTML
+        self.logger = logger
 
     def getVideoDetails(self, url):
         """self.videoDetails={Title, Director, Genre, Plot, id, url}"""
@@ -95,9 +97,8 @@ class TedTalks:
             utublinks = re.compile('http://(?:www.)?youtube.com/v/([^\&]*)\&').findall(html)
             for link in utublinks:
                 url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' %(link)
-        #get id from url
-        id = url.split('/')[-1]
-        return {'Title':title, 'Director':speaker, 'Genre':'TED', 'Plot':plot, 'PlotOutline':plot, 'id':id, 'url':url}
+        subs = subtitles_scraper.get_subtitles_for_talk(soup, 'en', self.logger)
+        return title, url, subs, {'Director':speaker, 'Genre':'TED', 'Plot':plot, 'PlotOutline':plot}
 
 
     class Themes:

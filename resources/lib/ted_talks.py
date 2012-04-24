@@ -7,6 +7,8 @@ from model.user import User
 from model.rss_scraper import NewTalksRss
 from model.favorites_scraper import Favorites
 import menu_util
+import os
+import time
 import xbmc
 import xbmcplugin
 import xbmcgui
@@ -68,13 +70,27 @@ class UI:
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=action_url, listitem=li, isFolder=isFolder)
 
     def playVideo(self, url, icon):
-        video = self.ted_talks.getVideoDetails(url)
-        li=xbmcgui.ListItem(video['Title'],
-                            iconImage = icon,
-                            thumbnailImage = icon,
-                            path = video['url'])
-        li.setInfo(type='Video', infoLabels=video)
+        title, url, subs, info_labels = self.ted_talks.getVideoDetails(url)
+        li = xbmcgui.ListItem(title, iconImage = icon, thumbnailImage = icon, path = url)
+        li.setInfo(type = 'Video', infoLabels = info_labels)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
+        if subs:
+            subs_file = os.path.join(xbmc.translatePath( "special://temp"), 'ted_talks_subs.srt')
+            fh = open(subs_file, 'w')
+            try:
+                fh.write(subs.encode('utf-8'))
+            finally:
+                fh.close()
+                player = xbmc.Player()
+            # Up to 30s to start
+            start_time = time.time()
+            while not player.isPlaying() and time.time() - start_time < 30:
+                time.sleep(1)
+            if player.isPlaying():
+                xbmc.Player().setSubtitles(subs_file);
+            else:
+                # No user message: user was probably already notified of a problem with the stream.
+                self.logger('Could not show subtitles: timed out waiting for player to start.')
 
     def navItems(self, navItems, mode):
         if navItems['next']:
@@ -269,7 +285,7 @@ class Main:
         self.getSettings()
         self.get_HTML = Fetcher(logger, xbmc.translatePath).getHTML
         self.user = User(self.get_HTML)
-        self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML)
+        self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML, logger)
 
     def getSettings(self):
         self.settings = dict()

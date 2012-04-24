@@ -76,7 +76,7 @@ def get_subtitles_for_talk(talk_soup, language, logger):
 
     if 'languages' in flashvars:  
         languages = get_languages(flashvars['languages'])
-        if len(language) == 0:
+        if len(languages) == 0:
             msg = 'No subtitles found for talk'
             logger(msg, msg)
             return None

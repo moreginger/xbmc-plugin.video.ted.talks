@@ -7,3 +7,4 @@ class TestLanguageMapping(unittest.TestCase):
         self.assertEqual("de", language_mapping.get_language_code("German"))
         self.assertEqual("de", language_mapping.get_language_code("german"))
         self.assertEqual("de", language_mapping.get_language_code("German (sausage)"))
+        self.assertEqual(None, language_mapping.get_language_code("Herman (sausage)"))

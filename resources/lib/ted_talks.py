@@ -8,7 +8,6 @@ from model.fetcher import Fetcher
 from model.user import User
 from model.rss_scraper import NewTalksRss
 from model.favorites_scraper import Favorites
-import model.language_mapping as language_mapping
 import menu_util
 import os
 import time
@@ -60,7 +59,7 @@ class UI:
             li.setInfo('video', video_info)
         if not isFolder:
             li.setProperty("IsPlayable", "true") #let xbmc know this can be played, unlike a folder.
-            context_menu = menu_util.create_context_menu(getLS=plugin.getLS, favorites_action='add', talkID=talkID)
+            context_menu = menu_util.create_context_menu(getLS=plugin.getLS)
             li.addContextMenuItems(context_menu, replaceItems=True)
         else:
             li.addContextMenuItems([], replaceItems=True)

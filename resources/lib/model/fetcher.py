@@ -8,7 +8,7 @@ class Fetcher:
         self.logger = logger
         self.getTranslatedPath = getTranslatedPath
 
-    def getHTML(self, url, headers = [('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')]):
+    def getHTML(self, url, data=None, headers=[('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14')]):
         """
         url Might be a real URL object or a String-like thing.
         """
@@ -32,7 +32,7 @@ class Fetcher:
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         opener.addheaders = headers
         try:
-            usock = opener.open(url)
+            usock = opener.open(url, data)
             response = usock.read()
             usock.close()
             cj.save(cookiefile)

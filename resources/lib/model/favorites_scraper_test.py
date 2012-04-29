@@ -8,7 +8,7 @@ from resources.lib.model.user import User
 
 
 class TestFavorites(unittest.TestCase):
-    
+
     def setUp(self):
         self.username = os.getenv("ted_username", None)
         self.password = os.getenv("ted_password", None)
@@ -20,7 +20,7 @@ class TestFavorites(unittest.TestCase):
         get_HTML = Fetcher(log_stdout, lambda x: self.cookieFile).getHTML
         self.user = User(get_HTML)
         self.faves = Favorites(log_stdout, get_HTML)
-        
+
     def tearDown(self):
         os.remove(self.cookieFile)
         unittest.TestCase.tearDown(self)
@@ -29,6 +29,8 @@ class TestFavorites(unittest.TestCase):
         userID, realName = self.user.login(self.username, self.password)
 
         favorites_1 = list(self.faves.getFavoriteTalks(userID))
+        self.assertTrue(len(favorites_1) > 0)
+        # Relies on there being some favorites to start with
         titles_1 = [x['Title'] for x in favorites_1]
 
         talk_id = '1368'
@@ -44,7 +46,7 @@ class TestFavorites(unittest.TestCase):
         favorites_2 = list(self.faves.getFavoriteTalks(userID))
         titles_2 = [x['Title'] for x in favorites_2]
         self.assertEquals(titles_1 + ['Tan Le: My immigration story'], titles_2)
-        
+
         # Remove from faves.
         self.assertTrue(self.faves.removeFromFavorites(talk_id))
         favorites_3 = list(self.faves.getFavoriteTalks(userID))

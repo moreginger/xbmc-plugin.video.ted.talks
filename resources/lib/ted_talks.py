@@ -69,12 +69,13 @@ class UI:
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=action_url, listitem=li, isFolder=isFolder)
 
     def playVideo(self, url, icon):
-        subs_language = language_mapping.get_language_code(xbmc.getLanguage())
+        subs_language = settings.get_subtitle_languages()
         title, url, subs, info_labels = self.ted_talks.getVideoDetails(url, subs_language)
         li = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon, path=url)
         li.setInfo(type='Video', infoLabels=info_labels)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
         if subs:
+            # If not we either don't want them, or should have displayed a notification.
             subs_file = os.path.join(xbmc.translatePath("special://temp"), 'ted_talks_subs.srt')
             fh = open(subs_file, 'w')
             try:

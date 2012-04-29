@@ -71,12 +71,12 @@ World
             subs_file.close()
         self.assertEqual([{'duration': 3000, 'start': 0, 'content': 'What'}, {'duration': 4000, 'start': 3000, 'content': 'Began'}], subs)
 
-    def test_get_subtitles_for_talk_smoke(self):
+    def test_get_subtitles_for_talk_live(self):
         '''
         This one is the real deal.
         '''
         soup = get_talk_1253()
-        subs = subtitles_scraper.get_subtitles_for_talk(soup, 'fr', None)
+        subs = subtitles_scraper.get_subtitles_for_talk(soup, ['banana', 'fr'], None)
         self.assertTrue(subs.startswith('''1
 00:00:15,330 --> 00:00:18,330
 Vous savez tous que ce que je vais dire est vrai.
@@ -88,7 +88,7 @@ Vous savez tous que ce que je vais dire est vrai.
             self.pretty = pretty
 
         soup = MinimalSoup('<script>flashVars = { languages:"%5B%5D" } </script>')
-        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, 'fr', logger))
+        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, ['fr'], logger))
         self.assertEqual('No subtitles found for talk', self.pretty)
 
     def test_get_subtitles_for_talk_no_language_match(self):
@@ -96,8 +96,8 @@ Vous savez tous que ce que je vais dire est vrai.
             self.pretty = pretty
 
         soup = MinimalSoup('<script>flashVars = { languages:"%s" } </script>' % (self.__sample_languages__))
-        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, 'fr', logger))
-        self.assertEqual('No subtitles in language: fr', self.pretty)
+        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, ['fr', 'de'], logger))
+        self.assertEqual('No subtitles in: fr,de', self.pretty)
 
     def test_get_subtitles_for_talk_no_talk_id(self):
         def logger(gnarly, pretty):
@@ -105,7 +105,7 @@ Vous savez tous que ce que je vais dire est vrai.
             self.pretty = pretty
 
         soup = MinimalSoup('<script>flashVars = { languages:"%s" } </script>' % (self.__sample_languages__))
-        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, 'sq', logger))
+        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, ['sq'], logger))
         self.assertEqual('Could not display subtitles', self.pretty)
         self.assertEqual('Could not determine talk ID for subtitles.', self.gnarly)
 
@@ -115,6 +115,6 @@ Vous savez tous que ce que je vais dire est vrai.
             self.pretty = pretty
 
         soup = MinimalSoup('<script>flashVars = { languages:"%s",\nti:1234 } </script>' % (self.__sample_languages__))
-        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, 'sq', logger))
+        self.assertIsNone(subtitles_scraper.get_subtitles_for_talk(soup, ['sq'], logger))
         self.assertEqual('Could not display subtitles', self.pretty)
         self.assertEqual('Could not determine intro duration for subtitles.', self.gnarly)

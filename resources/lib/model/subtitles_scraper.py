@@ -8,7 +8,7 @@ import simplejson
 import urllib
 import re
 
-__friendly_message__ = 'Could not display subtitles' 
+__friendly_message__ = 'Could not display subtitles'
 
 def format_time(time):
     millis = time % 1000
@@ -22,7 +22,7 @@ def format_subtitles(subtitles, introDuration):
     for idx, sub in enumerate(subtitles):
         start = introDuration + sub['start']
         end = start + sub['duration']
-        result += '%d\n%s --> %s\n%s\n\n' %(idx + 1, format_time(start), format_time(end), sub['content'])
+        result += '%d\n%s --> %s\n%s\n\n' % (idx + 1, format_time(start), format_time(end), sub['content'])
     return result
 
 def get_languages(languages):
@@ -51,7 +51,7 @@ def get_flashvars(soup):
 def get_subtitles(talk_id, language):
     url = 'http://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)
     return get_subtitles_for_url(url)
-        
+
 def get_subtitles_for_url(url):
     s = urllib.urlopen(url)
     try:
@@ -64,7 +64,7 @@ def get_subtitles_for_url(url):
         captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]
     return captions
 
-def get_subtitles_for_talk(talk_soup, language, logger):
+def get_subtitles_for_talk(talk_soup, accepted_languages, logger):
     '''
     Return subtitles in srt format, or notify the user and return None if there was a problem.
     '''
@@ -74,14 +74,15 @@ def get_subtitles_for_talk(talk_soup, language, logger):
         logger('Could not display subtitles: %s' % (e), __friendly_message__)
         return None
 
-    if 'languages' in flashvars:  
+    if 'languages' in flashvars:
         languages = get_languages(flashvars['languages'])
         if len(languages) == 0:
             msg = 'No subtitles found for talk'
             logger(msg, msg)
             return None
-        if language not in languages:
-            msg = 'No subtitles in language: %s' % (language)
+        matches = [l for l in languages if l in accepted_languages]
+        if not matches:
+            msg = 'No subtitles in: %s' % (",".join(accepted_languages))
             logger(msg, msg)
             return None
 
@@ -92,6 +93,6 @@ def get_subtitles_for_talk(talk_soup, language, logger):
     if 'introDuration' not in flashvars:
         logger('Could not determine intro duration for subtitles.', __friendly_message__)
         return None
-    
-    raw_subtitles = get_subtitles(flashvars['ti'], language)
+
+    raw_subtitles = get_subtitles(flashvars['ti'], matches[0])
     return format_subtitles(raw_subtitles, int(flashvars['introDuration']))

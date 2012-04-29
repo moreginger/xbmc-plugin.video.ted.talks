@@ -27,7 +27,7 @@ def assertTalk(test_case, talk):
 
 
 class TestTedTalks(unittest.TestCase):
-    
+
     def setUp(self):
         self.ted_talks = ted_talks_scraper.TedTalks(getHTML, None)
 
@@ -37,14 +37,13 @@ class TestTedTalks(unittest.TestCase):
 
 
 class TestSpeakers(unittest.TestCase):
-    
+
     def setUp(self):
         self.speakers = ted_talks_scraper.Speakers(getHTML, None)
-    
+
     def test_smoke(self):
         speakers = list(self.speakers.getAllSpeakers())
         # 1027 at time of writing, feel free to update
         self.assertTrue(len(speakers) >= 1027)
         # See https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues/14 for the chosen speaker :)
         self.assertTrue('Clifford Stoll' in [s[0] for s in speakers])
-

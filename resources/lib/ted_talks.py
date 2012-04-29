@@ -318,7 +318,7 @@ class Main:
         else:
             downloadPath = self.settings['downloadPath']
         if downloadPath:
-            Download(video['Title'], video['url'], downloadPath)
+            Download(getLS, video['Title'], video['url'], downloadPath)
 
     def run(self):
         ui = UI(self.logger, self.get_HTML, self.ted_talks, self.user, self.settings)

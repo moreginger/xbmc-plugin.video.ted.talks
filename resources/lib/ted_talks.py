@@ -1,6 +1,8 @@
 import sys
 import urllib
 import ted_talks_scraper
+import plugin
+import settings
 from talkDownloader import Download
 from model.fetcher import Fetcher
 from model.user import User
@@ -15,25 +17,21 @@ import xbmcplugin
 import xbmcgui
 import xbmcaddon
 
-__settings__ = xbmcaddon.Addon(id='plugin.video.ted.talks')
-getLS = __settings__.getLocalizedString
-
 
 def login(user_scraper, username, password):
     user_details = user_scraper.login(username, password)
     if not user_scraper:
-        xbmcgui.Dialog().ok(getLS(30050), getLS(30051))
+        xbmcgui.Dialog().ok(plugin.getLS(30050), plugin.getLS(30051))
     return user_details
 
 
 class UI:
 
-    def __init__(self, logger, get_HTML, ted_talks, user, settings):
+    def __init__(self, logger, get_HTML, ted_talks, user):
         self.logger = logger
         self.get_HTML = get_HTML
         self.ted_talks = ted_talks
         self.user = user
-        self.settings = settings
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
     def endofdirectory(self, sortMethod='title'):
@@ -63,7 +61,7 @@ class UI:
             li.setInfo('video', video_info)
         if not isFolder:
             li.setProperty("IsPlayable", "true") #let xbmc know this can be played, unlike a folder.
-            context_menu = menu_util.create_context_menu(getLS=getLS, favorites_action='add', talkID=talkID)
+            context_menu = menu_util.create_context_menu(getLS=plugin.getLS, favorites_action='add', talkID=talkID)
             li.addContextMenuItems(context_menu, replaceItems=True)
         else:
             li.addContextMenuItems([], replaceItems=True)
@@ -96,17 +94,17 @@ class UI:
 
     def navItems(self, navItems, mode):
         if navItems['next']:
-            self.addItem(getLS(30020), mode, navItems['next'])
+            self.addItem(plugin.getLS(30020), mode, navItems['next'])
         if navItems['previous']:
-            self.addItem(getLS(30021), mode, navItems['previous'])
+            self.addItem(plugin.getLS(30021), mode, navItems['previous'])
 
     def showCategories(self):
-        self.addItem(getLS(30001), 'newTalksRss', video_info={'Plot':getLS(30031)})
-        self.addItem(getLS(30002), 'speakers', video_info={'Plot':getLS(30032)})
-        self.addItem(getLS(30003), 'themes', video_info={'Plot':getLS(30033)})
-        #self.addItem({'Title':getLS(30004), 'mode':'search', 'Plot':getLS(30034)})
-        if self.settings['username']:
-            self.addItem(getLS(30005), 'favorites', video_info={'Plot':getLS(30035)})
+        self.addItem(plugin.getLS(30001), 'newTalksRss', video_info={'Plot':plugin.getLS(30031)})
+        self.addItem(plugin.getLS(30002), 'speakers', video_info={'Plot':plugin.getLS(30032)})
+        self.addItem(plugin.getLS(30003), 'themes', video_info={'Plot':plugin.getLS(30033)})
+        #self.addItemplugin.({'Title':getLS(30004), 'mode':'search', 'Plot':getLS(30034)})
+        if settings.username:
+            self.addItem(plugin.getLS(30005), 'favorites', video_info={'Plot':plugin.getLS(30035)})
         self.endofdirectory()
 
     def newTalksRss(self):
@@ -147,7 +145,7 @@ class UI:
     def favorites(self):
         newMode = 'playVideo'
         #attempt to login
-        userID, realname = login(self.user, self.settings['username'], self.settings['password'])
+        userID, realname = login(self.user, settings.username, settings.password)
         if userID:
             for talk in Favorites(self.logger, self.get_HTML).getFavoriteTalks(userID):
                 talk['mode'] = newMode
@@ -281,27 +279,18 @@ class DownloadVideoAction(Action):
 
 class Main:
 
-    def __init__(self, logger, args_map):
-        self.logger = logger
+    def __init__(self, args_map):
         self.args_map = args_map
-        self.getSettings()
-        self.get_HTML = Fetcher(logger, xbmc.translatePath).getHTML
+        self.get_HTML = Fetcher(plugin.report, xbmc.translatePath).getHTML
         self.user = User(self.get_HTML)
-        self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML, logger)
-
-    def getSettings(self):
-        self.settings = dict()
-        self.settings['username'] = __settings__.getSetting('username')
-        self.settings['password'] = __settings__.getSetting('password')
-        self.settings['downloadMode'] = __settings__.getSetting('downloadMode')
-        self.settings['downloadPath'] = __settings__.getSetting('downloadPath')
+        self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML, plugin.report)
 
     def set_favorite(self, talkID, is_favorite):
         """
         talkID ID for the talk.
         is_favorite True to set as a favorite, False to unset.
         """
-        if login(self.user, self.settings['username'], self.settings['password']):
+        if login(self.user, settings.username, settings.password):
             favorites = Favorites(self.logger, self.get_HTML)
             if is_favorite:
                 successful = favorites.addToFavorites(talkID)
@@ -309,19 +298,19 @@ class Main:
                 successful = favorites.removeFromFavorites(talkID)
             notification_messages = {(True, True): 30091, (True, False): 30092, (False, True): 30094, (False, False): 30095}
             notification_message = notification_messages[(is_favorite, successful)]
-            xbmc.executebuiltin('Notification(%s,%s,)' % (getLS(30000), getLS(notification_message)))
+            xbmc.executebuiltin('Notification(%s,%s,)' % (plugin.getLS(30000), plugin.getLS(notification_message)))
 
     def downloadVid(self, url):
         video = self.ted_talks.getVideoDetails(url)
-        if self.settings['downloadMode'] == 'true':
-            downloadPath = xbmcgui.Dialog().browse(3, getLS(30096), 'files')
+        if settings.download_mode == 'true':
+            downloadPath = xbmcgui.Dialog().browse(3, plugin.getLS(30096), 'files')
         else:
-            downloadPath = self.settings['downloadPath']
+            downloadPath = settings.download_path
         if downloadPath:
-            Download(getLS, video['Title'], video['url'], downloadPath)
+            Download(plugin.getLS, video['Title'], video['url'], downloadPath)
 
     def run(self):
-        ui = UI(self.logger, self.get_HTML, self.ted_talks, self.user, self.settings)
+        ui = UI(self.logger, self.get_HTML, self.ted_talks, self.user)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:

@@ -43,6 +43,8 @@ class TestFavorites(unittest.TestCase):
 
         # Add to faves.
         self.assertTrue(self.faves.addToFavorites(talk_id))
+        # moreginger: It works ATM but the favorites page only updates tardily,
+        # so this step will fail. At some point the talk will appear on the page. Hmm.
         favorites_2 = list(self.faves.getFavoriteTalks(userID))
         titles_2 = [x['Title'] for x in favorites_2]
         self.assertEquals(titles_1 + ['Tan Le: My immigration story'], titles_2)

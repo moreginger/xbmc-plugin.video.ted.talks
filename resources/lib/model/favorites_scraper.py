@@ -36,6 +36,5 @@ class Favorites:
             self.logger(msg)
             return False
         response = simplejson.loads(response)
-        print response['status']
-        return response['status'] == 'OK'
+        return response['status'] == 'success'
 

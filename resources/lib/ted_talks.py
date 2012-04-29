@@ -27,8 +27,7 @@ def login(user_scraper, username, password):
 
 class UI:
 
-    def __init__(self, logger, get_HTML, ted_talks, user):
-        self.logger = logger
+    def __init__(self, get_HTML, ted_talks, user):
         self.get_HTML = get_HTML
         self.ted_talks = ted_talks
         self.user = user
@@ -91,7 +90,7 @@ class UI:
                 xbmc.Player().setSubtitles(subs_file);
             else:
                 # No user message: user was probably already notified of a problem with the stream.
-                self.logger('Could not show subtitles: timed out waiting for player to start.')
+                plugin.report('Could not show subtitles: timed out waiting for player to start.')
 
     def navItems(self, navItems, mode):
         if navItems['next']:
@@ -109,7 +108,7 @@ class UI:
         self.endofdirectory()
 
     def newTalksRss(self):
-        newTalks = NewTalksRss(self.logger)
+        newTalks = NewTalksRss(plugin.report)
         for talk in newTalks.get_new_talks():
             self.addItem(talk['title'], 'playVideo', talk['link'], talk['thumb'], talk, talk['id'], isFolder=False)
         self.endofdirectory(sortMethod='date')
@@ -148,7 +147,7 @@ class UI:
         #attempt to login
         userID, realname = login(self.user, settings.username, settings.password)
         if userID:
-            for talk in Favorites(self.logger, self.get_HTML).getFavoriteTalks(userID):
+            for talk in Favorites(plugin.report, self.get_HTML).getFavoriteTalks(userID):
                 talk['mode'] = newMode
                 self.addItem(talk, isFolder=False)
             self.endofdirectory()
@@ -292,7 +291,7 @@ class Main:
         is_favorite True to set as a favorite, False to unset.
         """
         if login(self.user, settings.username, settings.password):
-            favorites = Favorites(self.logger, self.get_HTML)
+            favorites = Favorites(plugin.report, self.get_HTML)
             if is_favorite:
                 successful = favorites.addToFavorites(talkID)
             else:
@@ -311,21 +310,21 @@ class Main:
             Download(plugin.getLS, video['Title'], video['url'], downloadPath)
 
     def run(self):
-        ui = UI(self.logger, self.get_HTML, self.ted_talks, self.user)
+        ui = UI(self.get_HTML, self.ted_talks, self.user)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:
             modes = [
-                PlayVideoAction(self.logger, ui),
-                NewTalksAction(self.logger, ui),
-                SpeakersAction(self.logger, ui),
-                SpeakerVideosAction(self.logger, ui),
-                ThemesAction(self.logger, ui),
-                ThemeVideosAction(self.logger, ui),
-                FavoritesAction(self.logger, ui),
-                SetFavoriteAction(self.logger, self),
-                RemoveFavoriteAction(self.logger, self),
-                DownloadVideoAction(self.logger, self),
+                PlayVideoAction(plugin.report, ui),
+                NewTalksAction(plugin.report, ui),
+                SpeakersAction(plugin.report, ui),
+                SpeakerVideosAction(plugin.report, ui),
+                ThemesAction(plugin.report, ui),
+                ThemeVideosAction(plugin.report, ui),
+                FavoritesAction(plugin.report, ui),
+                SetFavoriteAction(plugin.report, self),
+                RemoveFavoriteAction(plugin.report, self),
+                DownloadVideoAction(plugin.report, self),
             ]
             modes = dict([(m.mode, m) for m in modes])
             mode = self.args_map['mode']
@@ -333,4 +332,4 @@ class Main:
                 modes[mode].run(self.args_map)
             else:
                 # Bit of a hack (cough)
-                Action(mode, [], self.logger).report_problem(self.args_map)
+                Action(mode, [], plugin.report).report_problem(self.args_map)

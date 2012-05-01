@@ -27,34 +27,13 @@ def getNavItems(html):
 
 class Speakers:
 
-    def __init__(self, get_HTML, url):
-        # adding 9999 to the url takes the script to the very last page of the list, providing the total # of pages.
-        if url is None:
-            url = URLSPEAKERS + '9999'
+    def __init__(self, get_HTML):
         self.get_HTML = get_HTML
-        self.html = self.get_HTML(url)
-        # only bother with navItems where they have a chance to appear.
-        if URLSPEAKERS in url:
-            self.navItems = getNavItems(self.html)
 
-    def getAllSpeakers(self):
-        speakerContainers = SoupStrainer(attrs={'href':re.compile('/speakers/\S.+?.html')})
-        pages_count = self.navItems['selected']
-        for i in range(pages_count):
-            # don't parse the last page twice.
-            if i is not pages_count:
-                html = self.get_HTML(URLSPEAKERS + str(i + 1))
-            else:
-                html = self.html
-            for speaker in BeautifulSoup(html, parseOnlyThese=speakerContainers):
-                # Some speakers have whitespace at the start e.g. 'Bono'
-                title = speaker.string.strip()
-                link = URLTED + speaker['href']
-                yield title, link
-
-    def getTalks(self):
+    def getTalks(self, url):
+        html = self.get_HTML(url)
         talkContainer = SoupStrainer(attrs={'class':re.compile('box clearfix')})
-        for talk in BeautifulSoup(self.html, parseOnlyThese=talkContainer):
+        for talk in BeautifulSoup(html, parseOnlyThese=talkContainer):
             title = talk.h4.a.string
             link = URLTED + talk.dt.a['href']
             pic = resizeImage(talk.find('img', attrs={'src':re.compile('.+?\.jpg')})['src'])

@@ -8,6 +8,7 @@ from model.fetcher import Fetcher
 from model.user import User
 from model.rss_scraper import NewTalksRss
 from model.favorites_scraper import Favorites
+from model.speakers_scraper import Speakers
 import menu_util
 import os
 import time
@@ -15,6 +16,7 @@ import xbmc
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
+import itertools
 
 
 def login(user_scraper, username, password):
@@ -43,7 +45,7 @@ class UI:
         #let xbmc know the script is done adding items to the list.
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), updateListing=False)
 
-    def addItem(self, title, mode, url=None, img=None, video_info={}, talkID=None, isFolder=True):
+    def addItem(self, title, mode, url=None, img=None, video_info={}, talkID=None, isFolder=True, total_items=0):
         # Create action url
         args = {'mode': mode}
         if url:
@@ -63,8 +65,7 @@ class UI:
             li.addContextMenuItems(context_menu, replaceItems=True)
         else:
             li.addContextMenuItems([], replaceItems=True)
-        #add item to list
-        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=action_url, listitem=li, isFolder=isFolder)
+        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=action_url, listitem=li, isFolder=isFolder, totalItems=total_items)
 
     def playVideo(self, url, icon):
         subs_language = settings.get_subtitle_languages()
@@ -112,17 +113,22 @@ class UI:
             self.addItem(talk['title'], 'playVideo', talk['link'], talk['thumb'], talk, talk['id'], isFolder=False)
         self.endofdirectory(sortMethod='date')
 
-    def speakers(self):
-        speakers = ted_talks_scraper.Speakers(self.get_HTML, None)
-        #add speakers to the list
-        for title, link in speakers.getAllSpeakers():
-            self.addItem(title, 'speakerVids', link, isFolder=True)
-        #end the list
+    def speakerGroups(self):
+        for i in range(65, 91):
+            letter = chr(i)
+            self.addItem(plugin.getLS(30006) + letter, 'speakerGroup', letter, isFolder=True)
+        self.endofdirectory()
+
+    def speakers(self, letter):
+        speakers_generator = Speakers(self.get_HTML).get_speakers_for_letter(letter)
+        speaker_count = itertools.islice(speakers_generator, 1).next()
+        for title, link, img in speakers_generator:
+            self.addItem(title, 'speakerVids', link, img, isFolder=True, total_items=speaker_count)
         self.endofdirectory()
 
     def speakerVids(self, url):
-        speakers = ted_talks_scraper.Speakers(self.get_HTML, url)
-        for title, link, img in speakers.getTalks():
+        speakers = ted_talks_scraper.Speakers(self.get_HTML)
+        for title, link, img in speakers.getTalks(url):
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         #end the list
         self.endofdirectory()
@@ -203,7 +209,17 @@ class SpeakersAction(Action):
         self.ui = ui
 
     def run_internal(self, args):
-        self.ui.speakers()
+        self.ui.speakerGroups()
+
+
+class SpeakerGroupAction(Action):
+
+    def __init__(self, logger, ui):
+        super(SpeakerGroupAction, self).__init__('speakerGroup', ['url'], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.speakers(args['url'])
 
 
 class SpeakerVideosAction(Action):
@@ -317,6 +333,7 @@ class Main:
                 PlayVideoAction(plugin.report, ui),
                 NewTalksAction(plugin.report, ui),
                 SpeakersAction(plugin.report, ui),
+                SpeakerGroupAction(plugin.report, ui),
                 SpeakerVideosAction(plugin.report, ui),
                 ThemesAction(plugin.report, ui),
                 ThemeVideosAction(plugin.report, ui),

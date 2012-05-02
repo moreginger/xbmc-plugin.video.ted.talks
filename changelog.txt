@@ -1,6 +1,7 @@
-[B]Version 3.1.0beta[/B]
+[B]Version 3.1.0[/B]
 Subtitle support (https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues/10)
-Fix Favorites (https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues/17)
+Fix favorites (https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues/17)
+Speakers list divided by first letter of last name (https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues/18)
 
 [B]Version 3.0.1[/B]
 Full speaker list restored (https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues/14)

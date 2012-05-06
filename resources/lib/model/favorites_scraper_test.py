@@ -31,7 +31,7 @@ class TestFavorites(unittest.TestCase):
         favorites_1 = list(self.faves.getFavoriteTalks(userID))
         self.assertTrue(len(favorites_1) > 0)
         # Relies on there being some favorites to start with
-        titles_1 = [x['Title'] for x in favorites_1]
+        titles_1 = [x[0] for x in favorites_1]
 
         talk_id = '1368'
         talk_title = 'Tan Le: My immigration story'
@@ -46,11 +46,11 @@ class TestFavorites(unittest.TestCase):
         # moreginger: It works ATM but the favorites page only updates tardily,
         # so this step will fail. At some point the talk will appear on the page. Hmm.
         favorites_2 = list(self.faves.getFavoriteTalks(userID))
-        titles_2 = [x['Title'] for x in favorites_2]
+        titles_2 = [x[0] for x in favorites_2]
         self.assertEquals(titles_1 + ['Tan Le: My immigration story'], titles_2)
 
         # Remove from faves.
         self.assertTrue(self.faves.removeFromFavorites(talk_id))
         favorites_3 = list(self.faves.getFavoriteTalks(userID))
-        titles_3 = [x['Title'] for x in favorites_3]
+        titles_3 = [x[0] for x in favorites_3]
         self.assertEquals(titles_1, titles_3)

@@ -148,13 +148,11 @@ class UI:
         self.endofdirectory()
 
     def favorites(self):
-        newMode = 'playVideo'
         #attempt to login
         userID, realname = login(self.user, settings.username, settings.password)
         if userID:
-            for talk in Favorites(plugin.report, self.get_HTML).getFavoriteTalks(userID):
-                talk['mode'] = newMode
-                self.addItem(talk, isFolder=False)
+            for title, url, img in Favorites(plugin.report, self.get_HTML).getFavoriteTalks(userID):
+                self.addItem(title, 'playVideo', url=url, img=img, isFolder=False)
             self.endofdirectory()
 
 

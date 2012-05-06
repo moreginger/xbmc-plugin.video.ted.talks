@@ -14,18 +14,6 @@ def getHTML(url):
         usock.close()
 
 
-def assertTalk(test_case, talk):
-    """
-    Assert the given talk has vaguely sane properties.
-    """
-    test_case.assertEqual(False, talk[0])
-    test_case.assertEqual(4, len(talk[1]))
-    test_case.assertEqual('playVideo', talk[1]['mode'])
-    test_case.assertIsNotNone(talk[1]['Title'])
-    test_case.assertIsNotNone(talk[1]['url'])
-    test_case.assertIsNotNone(talk[1]['Thumb'])
-
-
 class TestTedTalks(unittest.TestCase):
 
     def setUp(self):

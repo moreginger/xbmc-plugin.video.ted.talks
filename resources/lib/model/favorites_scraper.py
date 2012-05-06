@@ -17,8 +17,8 @@ class Favorites:
             for talk in BeautifulSoup(html, parseOnlyThese=talkContainer):
                 title = talk.a['title']
                 link = URLTED + talk.a['href']
-                pic = resizeImage(talk.a.img['src'])
-                yield {'url':link, 'Title':title, 'Thumb':pic}
+                img = resizeImage(talk.a.img['src'])
+                yield title, link, img
         else:
             self.logger('invalid user object')
 
@@ -32,9 +32,12 @@ class Favorites:
         url = URLADDREMFAV % (verb)
         response = self.get_HTML(url, 'id=%s&type=talks' % (talkID))
         if not response:
-            msg = 'failed to %s favorite with id: %s' % (verb, talkID)
+            msg = 'Failed to %s favorite with id: %s' % (verb, talkID)
             self.logger(msg)
             return False
-        response = simplejson.loads(response)
-        return response['status'] == 'success'
+        parsed_response = simplejson.loads(response)
+        if parsed_response['status'] != 'success':
+            self.logger('Failed to %s favorite with id: %s\nReponse was: %s' % (verb, talkID, response))
+            return False
+        return True
 

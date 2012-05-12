@@ -8,7 +8,7 @@ import simplejson
 import urllib
 import re
 
-__friendly_message__ = 'Could not display subtitles'
+__friendly_message__ = 'Error showing subtitles'
 
 def format_time(time):
     millis = time % 1000
@@ -77,7 +77,7 @@ def get_subtitles_for_talk(talk_soup, accepted_languages, logger):
     if 'languages' in flashvars:
         languages = get_languages(flashvars['languages'])
         if len(languages) == 0:
-            msg = 'No subtitles found for talk'
+            msg = 'No subtitles found'
             logger(msg, msg)
             return None
         matches = [l for l in languages if l in accepted_languages]
@@ -86,7 +86,7 @@ def get_subtitles_for_talk(talk_soup, accepted_languages, logger):
             logger(msg, msg)
             return None
 
-    # Note: if we don't have 'languages' at all, take a punt.
+    # Note: if we don't find 'languages' in flashvars, may as well take a punt anyway.
     if 'ti' not in flashvars:
         logger('Could not determine talk ID for subtitles.', __friendly_message__)
         return None

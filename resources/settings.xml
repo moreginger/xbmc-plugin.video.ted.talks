@@ -4,8 +4,7 @@
     <category label="30110">
         <setting id="enable_subtitles" type="bool" default="true" label="30111" />
         <setting type="sep"/>
-        <setting type="text" label="30112" enable="false"/>
-        <setting id="subtitle_language" type="text" default="" label="30113" enable="eq(-3,true)"/>
+        <setting id="subtitle_language" type="text" default="" label="30113" enable="eq(-2,true)"/>
     </category>    
     <!--Login-->
     <category label="30075">

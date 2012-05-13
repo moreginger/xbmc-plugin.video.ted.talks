@@ -85,8 +85,11 @@ def get_subtitles_for_talk(talk_soup, accepted_languages, logger):
             msg = 'No subtitles in: %s' % (",".join(accepted_languages))
             logger(msg, msg)
             return None
+    else:
+        # If we don't find 'languages' in flashvars, may as well take a punt anyway.
+        logger('Could not find languages in flashvars.')
+        matches = accepted_languages
 
-    # Note: if we don't find 'languages' in flashvars, may as well take a punt anyway.
     if 'ti' not in flashvars:
         logger('Could not determine talk ID for subtitles.', __friendly_message__)
         return None

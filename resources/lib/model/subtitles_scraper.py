@@ -29,7 +29,7 @@ def get_languages(languages):
     '''
     languages Escaped languages param from flashVars
     '''
-    language_code_re = re.compile('"LanguageCode":"(\w+)"')
+    language_code_re = re.compile('"LanguageCode":"([a-zA-Z-]+)"')
     matches = filter(None, [language_code_re.search(param) for param in urllib.unquote(languages).split(',')])
     return [m.group(1) for m in matches]
 

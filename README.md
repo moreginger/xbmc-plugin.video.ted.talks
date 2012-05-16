@@ -19,5 +19,5 @@ Subtitle language
 The plugin attempts to fetch subtitles in the current XBMC language.
 
 Alternatively a _custom language code_ (ISO639-1) can be entered in the addon settings.
-It is also possible to enter a comma separated list of language codes (e.g. _fr,es,en_)
+It is also possible to enter a comma separated list of language codes (e.g. _pt-br,pt,en_)
 which will show subtitles in the first language which matches.

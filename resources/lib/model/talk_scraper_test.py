@@ -22,6 +22,10 @@ class TestTalkScraper(unittest.TestCase):
         self.scraper = Talk(get_HTML)
         self.assert_talk_details("http://www.ted.com/talks/bjarke_ingels_hedonistic_sustainability.html", "plugin://plugin.video.youtube/?action=play_video&videoid=ogXT_CI7KRU", u"Hedonistic sustainability", u"Bjarke Ingels")
 
+    def test_get_vimeo_video(self):
+        self.scraper = Talk(get_HTML)
+        self.assert_talk_details("http://www.ted.com/talks/seth_godin_this_is_broken_1.html", "plugin://plugin.video.vimeo?action=play_video&videoid=4246943", u"This is broken", u"Seth Godin")
+
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker):
         video_url, title, speaker, plot = self.scraper.get(talk_url)
         self.assertEqual(expected_video_url, video_url)

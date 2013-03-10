@@ -24,14 +24,18 @@ class Talk:
                     break
 
         if not url:
-            link_re = re.compile('https?://(www.)?youtube.com/.*?/([^/?]+)')
+            youtube_re = re.compile('https?://.*?youtube.com/.*?/([^/?]+)')
+            vimeo_re = re.compile('https?://.*?vimeo.com/.*?/([^/?]+)')
             for link in xbmc_common.parseDOM(html, 'iframe', ret='src'):
-                match = link_re.match(link)
+                match = youtube_re.match(link)
                 if match:
-                    url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % (match.group(2))
+                    url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % (match.group(1))
+                    break
+                match = vimeo_re.match(link)
+                if match:
+                    url = 'plugin://plugin.video.vimeo?action=play_video&videoid=%s' % (match.group(1))
                     break
 
         # TODO if not url: display error
-        # TODO vimeo
 
         return url, title, speaker, plot

@@ -18,10 +18,9 @@ class TestTalkScraper(unittest.TestCase):
         self.scraper = Talk(get_HTML)
         self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "http://download.ted.com/talks/ArielGarten_2011X.mp4", u"Know thyself, with a brain scanner", u"Ariel Garten")
 
-    # TODO How do these work? Are YouTube videos automagically played?
     def test_get_youtube_video(self):
         self.scraper = Talk(get_HTML)
-        self.assert_talk_details("http://www.ted.com/talks/bjarke_ingels_hedonistic_sustainability.html", "http://youtubesomething", u"Hedonistic Sustainability", u"Bjarke Ingels")
+        self.assert_talk_details("http://www.ted.com/talks/bjarke_ingels_hedonistic_sustainability.html", "plugin://plugin.video.youtube/?action=play_video&videoid=ogXT_CI7KRU", u"Hedonistic sustainability", u"Bjarke Ingels")
 
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker):
         video_url, title, speaker, plot = self.scraper.get(talk_url)
@@ -39,6 +38,6 @@ class TestTalkScraper(unittest.TestCase):
         t = timeit.Timer(test)
         repeats = 10
         time = t.timeit(repeats)
-        print "Extracting speaker took %s seconds per run" % (time / repeats)
+        print "Extracting talk details took %s seconds per run" % (time / repeats)
         self.assertGreater(4, time)
 

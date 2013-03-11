@@ -3,7 +3,7 @@ import re
 # Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
 import CommonFunctions as xbmc_common
 
-def get(self, html):
+def get(html):
     """Extract talk details from talk html"""
 
     headline = xbmc_common.parseDOM(html, 'span', attrs={'id':'altHeadline'})[0].split(':', 1)

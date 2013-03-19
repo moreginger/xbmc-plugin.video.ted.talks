@@ -7,7 +7,7 @@ import urlparse
 
 __download_link_re = re.compile('http://download.ted.com/talks/.+.mp4')
 
-def get(html, video_quality=3):
+def get(html, video_quality='320kbps'):
     """Extract talk details from talk html
        @param video_quality 1-7 with 7 being highest. 3 = standard.
     """
@@ -24,10 +24,9 @@ def get(html, video_quality=3):
             break
 
     # We could confirm these URLs exist from the DOM (with difficulty) but seems likely to break
-    if url and not video_quality == 3:
+    if url and not video_quality == '320kbps':
         # Quality '42' for testing
-        video_quality_string = {1:'64', 2:'180', 4:'450', 5:'600', 6:'950', 7:'1500', 42:'42'}[video_quality]
-        url_custom = url.replace(".mp4", "-%sk.mp4" % (video_quality_string))
+        url_custom = url.replace(".mp4", "-%sk.mp4" % (video_quality.split('k')[0]))
 
         # Test URL exists
         url_custom_parsed = urlparse.urlparse(url_custom)

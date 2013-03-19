@@ -31,9 +31,10 @@
     <string id="30051">User could not be authenticated</string>
     
     <!--Settings-->
-    <string id="30110">Subtitles</string>
+    <string id="30110">General</string>
     <string id="30111">Enable subtitles</string>
     <string id="30113">Custom language codes (optional)</string>
+    <string id="30114">Video quality</string>
     <string id="30075">Login</string>
     <string id="30070">username</string>
     <string id="30071">password</string>

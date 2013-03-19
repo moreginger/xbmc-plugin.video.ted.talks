@@ -70,7 +70,7 @@ class UI:
 
     def playVideo(self, url, icon):
         subs_language = settings.get_subtitle_languages()
-        title, url, subs, info_labels = self.ted_talks.getVideoDetails(url, subs_language)
+        title, url, subs, info_labels = self.ted_talks.getVideoDetails(url=url, video_quality=settings.video_quality, subs_language=subs_language)
         li = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon, path=url)
         li.setInfo(type='Video', infoLabels=info_labels)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)

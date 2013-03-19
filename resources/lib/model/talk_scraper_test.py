@@ -47,7 +47,6 @@ class TestTalkScraper(unittest.TestCase):
         except KeyError:
             pass
 
-
     def assert_custom_quality_url(self, talk_html, video_quality, expected_video_url):
         video_url, title, speaker, plot = talk_scraper.get(talk_html, video_quality)
         self.assertEqual(expected_video_url, video_url)

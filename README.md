@@ -1,5 +1,5 @@
 xbmc-plugin.video.ted.talks
----------------------------
+===========================
 This is a fork of the project started by rwparris, see [here](http://forum.xbmc.org/showthread.php?tid=36866).
 
 For installation instructions see [Installing](https://github.com/moreginger/xbmc-plugin.video.ted.talks/wiki/Installing)
@@ -12,6 +12,16 @@ It currently supports a few limited browsing options:
 * Favorites (if you provide your TED credentials)
 
 In addition it can show subtitles for a talk.
+
+Settings
+========
+
+TODO: Screenshot
+
+Video quality
+-------------
+Set your preferred video bitrate (quality).
+If the video isn't available at that bitrate then the default (320kbps) will be used.
 
 Subtitle language
 -----------------

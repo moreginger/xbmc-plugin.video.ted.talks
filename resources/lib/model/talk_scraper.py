@@ -9,7 +9,7 @@ __download_link_re = re.compile('http://download.ted.com/talks/.+.mp4')
 
 def get(html, video_quality='320kbps'):
     """Extract talk details from talk html
-       @param video_quality 1-7 with 7 being highest. 3 = standard.
+       @param video_quality string in form '\d+kbps' that should match one of the provided TED bitrates.
     """
 
     headline = xbmc_common.parseDOM(html, 'span', attrs={'id':'altHeadline'})[0].split(':', 1)

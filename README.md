@@ -16,16 +16,13 @@ Settings
 
 ![Alt text](README/settings.png)
 
-__Video quality__
-Set your preferred video bitrate (quality).
+__Video quality__: Set your preferred video bitrate (quality).
 If the video isn't available at that bitrate then the default (320kbps) will be used.
 
-__Enable subtitles__
-Check this option to show subtitles.
+__Enable subtitles__: Check this option to show subtitles.
 By default the subtitles will be shown in the current XBMC language.
 
-__Custom language code__ Set a custom language code (ISO639-1) if required.
-
+__Custom language code__: Set a custom language code (ISO639-1) if required.  
 It is also possible to enter a comma separated list of language codes (e.g. _pt-br,pt,en_)
 which will show subtitles in the first language which matches.
 

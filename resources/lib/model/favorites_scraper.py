@@ -1,7 +1,6 @@
-from url_constants import URLTED, URLFAVORITES, URLADDREMFAV
+from url_constants import URLTED, URLFAVORITES
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 from util import resizeImage
-import simplejson
 import re
 
 class Favorites:
@@ -10,9 +9,10 @@ class Favorites:
         self.logger = logger
         self.get_HTML = get_HTML
 
-    def getFavoriteTalks(self, userID, url=URLFAVORITES):
+    def getFavoriteTalks(self, userID):
         if userID:
-            html = self.get_HTML(url + userID)
+            html = self.get_HTML(URLFAVORITES % (userID))
+            print html
             talkContainer = SoupStrainer(attrs={'class':re.compile('col clearfix')})
             for talk in BeautifulSoup(html, parseOnlyThese=talkContainer):
                 title = talk.a['title']

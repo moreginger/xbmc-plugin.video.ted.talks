@@ -1,7 +1,6 @@
 URLTED = 'http://www.ted.com'
 URLPROFILES = URLTED + '/profiles'
-URLFAVORITES = URLPROFILES + '/favorites/id/'
-URLADDREMFAV = URLPROFILES + '/%sfavorites'
+URLFAVORITES = URLPROFILES + '/%s/talks/'
 URLSPEAKERS = URLTED + '/speakers?orderedby=TALKPOSTED&page=%s&alphabylastname=%s'
 URLTHEMES = 'http://www.ted.com/themes'
 URLRSS = 'http://feeds.feedburner.com/tedtalks_video'

@@ -33,7 +33,8 @@ def get_subtitle_languages():
     if enable_subtitles == 'false':
         return None
     if not subtitle_language.strip():
-        return [language_mapping.get_language_code(xbmc_language)]
+        code = language_mapping.get_language_code(xbmc_language)
+        return [code] if code else None
     else:
         return [code.strip() for code in subtitle_language.split(',') if code.strip()]
 

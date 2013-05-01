@@ -14,6 +14,7 @@ class TestSpeakersScraper(unittest.TestCase):
         self.assertTrue(timeit.itertools.islice(speakers_generator, 1).next() > 0)
         e_speakers = list(speakers_generator)
         self.assertTrue(len(e_speakers) > 0)
+        self.assertLessEqual(28, len(e_speakers))
         sample_speaker = [s for s in e_speakers if s[0] == 'Kenichi Ebina'][0]
         self.assertEqual('http://www.ted.com/speakers/kenichi_ebina.html', sample_speaker[1])
         self.assertEqual('http://images.ted.com/images/ted/16732_132x99.jpg', sample_speaker[2])
@@ -28,6 +29,7 @@ class TestSpeakersScraper(unittest.TestCase):
         scraper = Speakers(get_HTML_cached)
         # Run once to cache.
         speakers = list(scraper.get_speakers_for_letter('B'))
+        print "%s speakers found" % (len(speakers))
         
         def test():
             self.assertEqual(len(speakers), len(list(scraper.get_speakers_for_letter('B'))))
@@ -36,4 +38,4 @@ class TestSpeakersScraper(unittest.TestCase):
         repeats = 2
         time = t.timeit(repeats) / repeats
         print "Getting speakers list took %s seconds per run" % (time)
-        self.assertGreater(20, time)
+        self.assertGreater(1, time)

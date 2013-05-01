@@ -1,8 +1,7 @@
 from url_constants import URLSPEAKERS
-from BeautifulSoup import SoupStrainer, MinimalSoup
-import re
 from url_constants import URLTED
-
+# Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
+import CommonFunctions as xbmc_common
 
 class Speakers:
 
@@ -18,12 +17,12 @@ class Speakers:
         html = self.get_HTML(URLSPEAKERS % (page_index, char))
 
         speaker_count = 0
-        for h2 in MinimalSoup(html, SoupStrainer(name='h2')):
-            if h2.findAll(text=re.compile('speakers whose Last Name begins with')):
-                spans = h2.findAll(name='span')
+        for h2 in xbmc_common.parseDOM(html, 'h2'):
+            if 'speakers whose Last Name begins with' in h2:
+                spans = xbmc_common.parseDOM(h2, 'span')
                 if spans:
                     try:
-                        speaker_count = int(spans[-1].text.strip())
+                        speaker_count = int(spans[-1].strip())
                     except ValueError:
                         pass
 
@@ -34,21 +33,21 @@ class Speakers:
         found_on_last_page = 0
 
         while True:
-            containers = SoupStrainer(name='a', attrs={'href':re.compile('/speakers/.+\.html')})
-            found_on_this_page = 0
-            for speaker in MinimalSoup(html, parseOnlyThese=containers):
-                if speaker.img:
-                    title = speaker.img['alt'].strip()
-                    if title not in found_titles:
-                        found_titles.add(title)
-                        found_on_this_page += 1
-                        link = speaker['href']
-                        img = speaker.img['src']
-                        yield title, URLTED + link, img
+            dls = xbmc_common.parseDOM(html, 'dl', {'class': 'speakerMedallion'})
+            found_before = len(found_titles)
+            for dl in dls:
+                dt = xbmc_common.parseDOM(dl, 'dt')[0]
+                title = xbmc_common.parseDOM(dt, 'img', ret='alt')[0].strip()
+                if title not in found_titles:
+                    found_titles.add(title)
+                    link = xbmc_common.parseDOM(dt, 'a', ret='href')[0]
+                    img = xbmc_common.parseDOM(dt, 'img', ret='src')[0]
+                    yield title, URLTED + link, img
 
             # Results on last page == results on (last page + 1), _not_ 0 as you might hope.
             # The second clause allows us to skip looking at last page + 1 if the last page contains
             # fewer results than that before it; which is usually but not always the case.
+            found_on_this_page = len(found_titles) - found_before
             if found_on_this_page and found_on_this_page >= found_on_last_page:
                 page_index += 1
                 found_on_last_page = found_on_this_page

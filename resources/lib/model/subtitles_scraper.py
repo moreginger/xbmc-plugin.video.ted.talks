@@ -57,7 +57,6 @@ def get_flashvars(talk_html):
     talkId_re = re.compile('"%s":(\d+)' % (__talkIdKey__))
     talkId_match = talkId_re.search(talkDetails_match.group(1))
     if not talkId_match:
-        print talkDetails_match.group(1)
         raise Exception('Could not get talk ID')
 
     talkDetails = urllib.unquote(talkDetails_match.group(1).encode('ascii'))

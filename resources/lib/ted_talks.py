@@ -260,26 +260,6 @@ class FavoritesAction(Action):
         self.ui.favorites()
 
 
-class SetFavoriteAction(Action):
-
-    def __init__(self, logger, main):
-        super(SetFavoriteAction, self).__init__('addToFavorites', ['talkID'], logger)
-        self.main = main
-
-    def run_internal(self, args):
-        self.main.set_favorite(args['talkID'], True)
-
-
-class RemoveFavoriteAction(Action):
-
-    def __init__(self, logger, main):
-        super(RemoveFavoriteAction, self).__init__('removeFromFavorites', ['talkID'], logger)
-        self.main = main
-
-    def run_internal(self, args):
-        self.main.set_favorite(args['talkID'], False)
-
-
 class DownloadVideoAction(Action):
 
     def __init__(self, logger, main):
@@ -297,21 +277,6 @@ class Main:
         self.get_HTML = Fetcher(plugin.report, xbmc.translatePath).getHTML
         self.user = User(self.get_HTML)
         self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML, plugin.report)
-
-    def set_favorite(self, talkID, is_favorite):
-        """
-        talkID ID for the talk.
-        is_favorite True to set as a favorite, False to unset.
-        """
-        if login(self.user, settings.username, settings.password):
-            favorites = Favorites(plugin.report, self.get_HTML)
-            if is_favorite:
-                successful = favorites.addToFavorites(talkID)
-            else:
-                successful = favorites.removeFromFavorites(talkID)
-            notification_messages = {(True, True): 30091, (True, False): 30092, (False, True): 30094, (False, False): 30095}
-            notification_message = notification_messages[(is_favorite, successful)]
-            xbmc.executebuiltin('Notification(%s,%s,)' % (plugin.getLS(30000), plugin.getLS(notification_message)))
 
     def downloadVid(self, url):
         video = self.ted_talks.getVideoDetails(url)
@@ -336,8 +301,6 @@ class Main:
                 ThemesAction(plugin.report, ui),
                 ThemeVideosAction(plugin.report, ui),
                 FavoritesAction(plugin.report, ui),
-                SetFavoriteAction(plugin.report, self),
-                RemoveFavoriteAction(plugin.report, self),
                 DownloadVideoAction(plugin.report, self),
             ]
             modes = dict([(m.mode, m) for m in modes])

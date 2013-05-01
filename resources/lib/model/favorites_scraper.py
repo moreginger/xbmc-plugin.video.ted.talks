@@ -22,22 +22,4 @@ class Favorites:
         else:
             self.logger('invalid user object')
 
-    def addToFavorites(self, talkID):
-        return self.toggle_favorite('add', talkID)
-
-    def removeFromFavorites(self, talkID):
-        return self.toggle_favorite('remove', talkID)
-
-    def toggle_favorite(self, verb, talkID):
-        url = URLADDREMFAV % (verb)
-        response = self.get_HTML(url, 'id=%s&type=talks' % (talkID))
-        if not response:
-            msg = 'Failed to %s favorite with id: %s' % (verb, talkID)
-            self.logger(msg)
-            return False
-        parsed_response = simplejson.loads(response)
-        if parsed_response['status'] != 'success':
-            self.logger('Failed to %s favorite with id: %s\nReponse was: %s' % (verb, talkID, response))
-            return False
-        return True
 

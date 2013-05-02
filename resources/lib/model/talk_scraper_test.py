@@ -1,11 +1,7 @@
 import unittest
 import talk_scraper
-import urllib2
+import test_util
 import timeit
-
-
-def get_HTML(url):
-    return urllib2.urlopen(url).read()
 
 
 class TestTalkScraper(unittest.TestCase):
@@ -23,14 +19,14 @@ class TestTalkScraper(unittest.TestCase):
         self.assert_talk_details("http://www.ted.com/talks/seth_godin_this_is_broken_1.html", "plugin://plugin.video.vimeo?action=play_video&videoid=4246943", "This is broken", "Seth Godin")
 
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker):
-        video_url, title, speaker, plot = talk_scraper.get(get_HTML(talk_url))
+        video_url, title, speaker, plot = talk_scraper.get(test_util.get_HTML(talk_url))
         self.assertEqual(expected_video_url, video_url)
         self.assertEqual(expected_title, title)
         self.assertEqual(expected_speaker, speaker)
         self.assertTrue(plot)  # Not null or empty.
 
     def test_get_custom_quality_video(self):
-        html = get_HTML("http://www.ted.com/talks/edith_widder_how_we_found_the_giant_squid.html")
+        html = test_util.get_HTML("http://www.ted.com/talks/edith_widder_how_we_found_the_giant_squid.html")
         # Note not customized. Should be a useful fallback if this code goes haywire.
         self.assert_custom_quality_url(html, "320kbps", "http://download.ted.com/talks/EdithWidder_2013.mp4?apikey=TEDDOWNLOAD")
 
@@ -49,7 +45,7 @@ class TestTalkScraper(unittest.TestCase):
         self.assertEqual(expected_video_url, video_url)
 
     def test_performance(self):
-        html = get_HTML("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")
+        html = test_util.get_HTML("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")
 
         def test():
             talk_scraper.get(html);

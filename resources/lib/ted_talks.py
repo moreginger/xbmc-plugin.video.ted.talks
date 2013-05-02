@@ -128,10 +128,9 @@ class UI:
         self.endofdirectory()
 
     def speakerVids(self, url):
-        speakers = ted_talks_scraper.Speakers(self.get_HTML)
-        for title, link, img in speakers.getTalks(url):
+        talks_generator = Speakers(self.get_HTML).get_talks_for_speaker(url)
+        for title, link, img in talks_generator:
             self.addItem(title, 'playVideo', link, img, isFolder=False)
-        # end the list
         self.endofdirectory()
 
     def themes(self):

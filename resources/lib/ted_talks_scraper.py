@@ -1,5 +1,4 @@
 import re
-from model.util import resizeImage
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 from model.url_constants import URLTED
 import model.subtitles_scraper as subtitles_scraper
@@ -23,21 +22,6 @@ def getNavItems(html):
             elif aTag['class'] == 'selected':
                 navItems['selected'] = int(aTag.string)
     return navItems
-
-
-class Speakers:
-
-    def __init__(self, get_HTML):
-        self.get_HTML = get_HTML
-
-    def getTalks(self, url):
-        html = self.get_HTML(url)
-        talkContainer = SoupStrainer(attrs={'class':re.compile('box clearfix')})
-        for talk in BeautifulSoup(html, parseOnlyThese=talkContainer):
-            title = talk.h4.a.string
-            link = URLTED + talk.dt.a['href']
-            pic = resizeImage(talk.find('img', attrs={'src':re.compile('.+?\.jpg')})['src'])
-            yield title, link, pic
 
 
 class TedTalks:

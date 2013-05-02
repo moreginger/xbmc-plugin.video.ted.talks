@@ -1,10 +1,8 @@
 from url_constants import URLSPEAKERS
 from url_constants import URLTED
 from util import resizeImage
-from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
 # Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
 import CommonFunctions as xbmc_common
-import re
 
 class Speakers:
 
@@ -63,9 +61,11 @@ class Speakers:
         Yields tuples of title, link, img.
         '''
         html = self.get_HTML(url)
-        talkContainer = SoupStrainer(attrs={'class':re.compile('box clearfix')})
-        for talk in BeautifulSoup(html, parseOnlyThese=talkContainer):
-            title = talk.h4.a.string
-            link = URLTED + talk.dt.a['href']
-            pic = resizeImage(talk.find('img', attrs={'src':re.compile('.+?\.jpg')})['src'])
-            yield title, link, pic
+        for dl in xbmc_common.parseDOM(html, 'dl', {'class':'box clearfix'}):
+            dt = xbmc_common.parseDOM(dl, 'dt')[0]
+            link = xbmc_common.parseDOM(dt, 'a', ret='href')[0]
+            for img in xbmc_common.parseDOM(dt, 'img'):
+                img_link = xbmc_common.parseDOM(img, 'img', ret='src')
+                if img_link and 'jpg' in img_link[0]:
+                    title = xbmc_common.parseDOM(img, 'img', ret='title')[0]
+                    yield title, URLTED + link, resizeImage(img_link[0])

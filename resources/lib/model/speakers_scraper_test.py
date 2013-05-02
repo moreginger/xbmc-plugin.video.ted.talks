@@ -1,15 +1,12 @@
 import unittest
 from speakers_scraper import Speakers
-import urllib2
+import test_util
 import timeit
-
-def get_HTML(url):
-    return urllib2.urlopen(url).read()
 
 class TestSpeakersScraper(unittest.TestCase):
 
     def test_get_speakers(self):
-        speakers_generator = Speakers(get_HTML).get_speakers_for_letter('E')
+        speakers_generator = Speakers(test_util.get_HTML).get_speakers_for_letter('E')
         # First value returned is number of speakers, for progress.
         self.assertTrue(timeit.itertools.islice(speakers_generator, 1).next() > 0)
         e_speakers = list(speakers_generator)
@@ -20,13 +17,7 @@ class TestSpeakersScraper(unittest.TestCase):
         self.assertEqual('http://images.ted.com/images/ted/16732_132x99.jpg', sample_speaker[2])
 
     def test_get_speakers_performance(self):
-        cached_html = {}
-        def get_HTML_cached(url):
-            if url not in cached_html:
-                cached_html[url] = get_HTML(url)
-            return cached_html[url]
-
-        scraper = Speakers(get_HTML_cached)
+        scraper = Speakers(test_util.CachedHTMLProvider().get_HTML)
         # Run once to cache.
         speakers = list(scraper.get_speakers_for_letter('B'))
         print "%s speakers found" % (len(speakers))
@@ -41,7 +32,7 @@ class TestSpeakersScraper(unittest.TestCase):
         self.assertGreater(1, time)
 
     def test_get_talks_for_speaker(self):
-        talks = list(Speakers(get_HTML).get_talks_for_speaker("http://www.ted.com/speakers/kenichi_ebina.html"))
+        talks = list(Speakers(test_util.get_HTML).get_talks_for_speaker("http://www.ted.com/speakers/kenichi_ebina.html"))
         print "%s talks for speaker found" % (len(talks))
         self.assertLessEqual(0, len(talks))
         self.assertLessEqual(1, len(talks))

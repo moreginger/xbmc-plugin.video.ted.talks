@@ -2,7 +2,6 @@ import unittest
 import subtitles_scraper
 import urllib
 import tempfile
-from BeautifulSoup import MinimalSoup
 
 
 class TestSubtitlesScraper(unittest.TestCase):

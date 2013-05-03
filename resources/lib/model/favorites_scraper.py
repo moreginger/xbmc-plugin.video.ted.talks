@@ -1,6 +1,5 @@
 from url_constants import URLTED, URLFAVORITES
 from BeautifulSoup import SoupStrainer, MinimalSoup as BeautifulSoup
-from util import resizeImage
 import re
 
 class Favorites:
@@ -17,7 +16,7 @@ class Favorites:
             for talk in BeautifulSoup(html, parseOnlyThese=talkContainer):
                 title = talk.a['title']
                 link = URLTED + talk.a['href']
-                img = resizeImage(talk.a.img['src'])
+                img = talk.a.img['src']
                 yield title, link, img
         else:
             self.logger('invalid user object')

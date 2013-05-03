@@ -10,6 +10,7 @@ from model.rss_scraper import NewTalksRss
 from model.favorites_scraper import Favorites
 from model.speakers_scraper import Speakers
 from model.themes_scraper import Themes
+from model.util import resizeImage
 import menu_util
 import os
 import time
@@ -52,6 +53,7 @@ class UI:
         if url:
             args['url'] = url
         if img:
+            img = resizeImage(img)
             args['icon'] = img
         args = [k + '=' + urllib.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.iteritems()]
         action_url = sys.argv[0] + '?' + "&".join(args)

@@ -40,4 +40,4 @@ class TestSpeakersScraper(unittest.TestCase):
         talk = talks[0]
         self.assertEqual("Kenichi Ebina's magic moves", talk[0])
         self.assertEqual('http://www.ted.com/talks/kenichi_ebina_s_magic_moves.html', talk[1])
-        self.assertEqual('http://images.ted.com/images/ted/16705_389x292.jpg', talk[2])
+        self.assertEqual('http://images.ted.com/images/ted/16705_113x85.jpg', talk[2])

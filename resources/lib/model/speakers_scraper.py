@@ -1,6 +1,5 @@
 from url_constants import URLSPEAKERS
 from url_constants import URLTED
-from util import resizeImage
 # Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
 import CommonFunctions as xbmc_common
 
@@ -68,4 +67,4 @@ class Speakers:
                 img_link = xbmc_common.parseDOM(img, 'img', ret='src')
                 if img_link and 'jpg' in img_link[0]:
                     title = xbmc_common.parseDOM(img, 'img', ret='title')[0]
-                    yield title, URLTED + link, resizeImage(img_link[0])
+                    yield title, URLTED + link, img_link[0]

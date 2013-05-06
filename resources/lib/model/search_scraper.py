@@ -17,10 +17,10 @@ class Search:
         then tuples of title, link, img for results on this page.
         '''
         # TODO Read result count and use for paging control
-        
+
         search_string = urllib.quote_plus(search_string)
         html = self.get_HTML(URLSEARCH % (search_string, page_index))
-        
+
         yield self.results_remaining(html)
 
         results = xbmc_common.parseDOM(html, 'div', {'class': 'result video'})
@@ -40,6 +40,6 @@ class Search:
                 results_count_match = __results_count_re__.match(results_count[0])
                 if results_count_match:
                     return int(results_count_match.group(2)) - int(results_count_match.group(1))
-               
+
         # We don't know so just make sure that it is positive so that we keep paging.
-        yield 1
+        return 1

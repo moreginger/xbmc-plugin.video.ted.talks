@@ -21,7 +21,7 @@ class TestSpeakersScraper(unittest.TestCase):
         # Run once to cache.
         speakers = list(scraper.get_speakers_for_letter('B'))
         print "%s speakers found" % (len(speakers))
-        
+
         def test():
             self.assertEqual(len(speakers), len(list(scraper.get_speakers_for_letter('B'))))
 
@@ -36,8 +36,8 @@ class TestSpeakersScraper(unittest.TestCase):
         print "%s talks for speaker found" % (len(talks))
         self.assertLessEqual(0, len(talks))
         self.assertLessEqual(1, len(talks))
-        
+
         talk = talks[0]
-        self.assertEqual("Kenichi Ebina's magic moves", talk[0])
+        self.assertEqual("Kenichi Ebina: My magic moves", talk[0])
         self.assertEqual('http://www.ted.com/talks/kenichi_ebina_s_magic_moves.html', talk[1])
         self.assertEqual('http://images.ted.com/images/ted/16705_113x85.jpg', talk[2])

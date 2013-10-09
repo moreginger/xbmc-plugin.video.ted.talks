@@ -52,7 +52,7 @@ World
         # Talk ID, need this to request subtitles.
         self.assertEquals('1253', talk_id)
 
-        expected = set(['sq', 'ar', 'hy', 'bg', 'ca', 'zh-cn', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'en', 'fr', 'ka', 'de', 'el', 'he', 'hu', 'id', 'it', 'ja', 'ko', 'fa', 'mk', 'pl', 'pt', 'pt-br', 'ro', 'ru', 'sr', 'sk', 'es', 'th', 'tr', 'uk', 'vi'])
+        expected = set(['sq', 'ar', 'hy', 'bg', 'ca', 'zh-cn', 'zh-tw', 'hr', 'cs', 'da', 'nl', 'en', 'fr', 'ka', 'de', 'el', 'he', 'hu', 'id', 'it', 'ja', 'ko', 'fa', 'mk', 'pl', 'pt', 'pt-br', 'ro', 'ru', 'sr', 'sk', 'es', 'th', 'tr', 'uk', 'vi', 'eu', 'sv'])
         self.assertEquals(expected, set(subtitles_scraper.get_languages(html)))
 
         subs = subtitles_scraper.get_subtitles_for_talk(html, ['banana', 'fr', 'en'], None)

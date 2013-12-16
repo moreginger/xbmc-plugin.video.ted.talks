@@ -9,8 +9,8 @@ class TestTalkScraper(unittest.TestCase):
     def test_get_ted_video(self):
         self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "http://download.ted.com/talks/ArielGarten_2011X.mp4?apikey=TEDDOWNLOAD", "Know thyself, with a brain scanner", "Ariel Garten")
 
-        # No ':' in title. Can't determine speaker.
-        self.assert_talk_details("http://www.ted.com/talks/tom_shannon_s_magnetic_sculpture.html", "http://download.ted.com/talks/TomShannon_2003.mp4?apikey=TEDDOWNLOAD", "Anti-gravity sculpture", "");
+        # Historically there was no ':' in title, but was ':' added before 20131009. Need another example really :(
+        self.assert_talk_details("http://www.ted.com/talks/tom_shannon_s_magnetic_sculpture.html", "http://download.ted.com/talks/TomShannon_2003.mp4?apikey=TEDDOWNLOAD", "Anti-gravity sculpture", "Tom Shannon");
 
     def test_get_youtube_video(self):
         self.assert_talk_details("http://www.ted.com/talks/bjarke_ingels_hedonistic_sustainability.html", "plugin://plugin.video.youtube/?action=play_video&videoid=ogXT_CI7KRU", "Hedonistic sustainability", "Bjarke Ingels")

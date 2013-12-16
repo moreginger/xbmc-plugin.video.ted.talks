@@ -59,9 +59,12 @@ class UI:
         action_url = sys.argv[0] + '?' + "&".join(args)
 
         li = xbmcgui.ListItem(label=title, iconImage=img, thumbnailImage=img)
-        video_info = dict((k, v) for k, v in video_info.iteritems() if k in ['date', 'duration', 'plot'])
-        if len(video_info) > 0:
+        video_info = dict((k, v) for k, v in video_info.iteritems() if k in ['date', 'plot'])
+        if video_info:
             li.setInfo('video', video_info)
+        if 'duration' in video_info:
+            # To set with second granularity must do this rather than via setInfo
+            li.addStreamInfo('video', { 'duration' : video_info['duration'] })
         if not isFolder:
             li.setProperty("IsPlayable", "true")  # let xbmc know this can be played, unlike a folder.
             context_menu = menu_util.create_context_menu(getLS=plugin.getLS)

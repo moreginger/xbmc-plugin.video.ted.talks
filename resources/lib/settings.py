@@ -1,7 +1,11 @@
 """
 Contains constants that we initialize to the correct values at runtime.
+Should be usable as a testing shim.
 """
 import model.language_mapping as language_mapping
+
+__plugin_id__ = 'plugin.video.ted.talks'
+__previous_search__ = 'previous_search'
 
 username = 'Ted'
 password = 'Ted'
@@ -15,8 +19,8 @@ previous_search = ''
 
 def init():
     import xbmc, xbmcaddon
-    addon = xbmcaddon.Addon(id='plugin.video.ted.talks')
-    global username, password, download_mode, download_path, video_quality, enable_subtitles, xbmc_language, subtitle_language
+    addon = xbmcaddon.Addon(id=__plugin_id__)
+    global username, password, download_mode, download_path, video_quality, enable_subtitles, xbmc_language, subtitle_language, previous_search
     username = addon.getSetting('username')
     password = addon.getSetting('password')
     download_mode = addon.getSetting('downloadMode')
@@ -25,6 +29,11 @@ def init():
     enable_subtitles = addon.getSetting('enable_subtitles')
     xbmc_language = xbmc.getLanguage()
     subtitle_language = addon.getSetting('subtitle_language')
+    previous_search = __get_cache__().get(__previous_search__)
+    
+def __get_cache__():
+    import StorageServer
+    return StorageServer.StorageServer('xbmc-plugin.video.ted.talks', 24 * 7 * 2) # 2 weeks of storage. Who cares after that long? 
 
 def get_subtitle_languages():
     '''
@@ -39,3 +48,5 @@ def get_subtitle_languages():
     else:
         return [code.strip() for code in subtitle_language.split(',') if code.strip()]
 
+def set_previous_search(value):
+    __get_cache__().set(__previous_search__, value)

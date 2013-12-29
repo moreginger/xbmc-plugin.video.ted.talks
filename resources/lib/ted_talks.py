@@ -154,13 +154,15 @@ class UI:
         self.endofdirectory()
         
     def search(self):
-        keyboard = xbmc.Keyboard(settings.previous_search, "Search")
+        keyboard = xbmc.Keyboard(settings.previous_search, 'Search')
         keyboard.doModal()
                 
         if not keyboard.isConfirmed():
             return
         
         search_term = keyboard.getText()
+        settings.set_previous_search(search_term)
+        
         talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, 1)
         remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
         for title, link, img in talks_generator:

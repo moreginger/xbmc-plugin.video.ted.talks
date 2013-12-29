@@ -6,6 +6,7 @@
     <import addon="script.module.beautifulsoup" version="3.0.8"/>
     <import addon="script.module.elementtree" version="1.2.7"/>
     <import addon="script.module.parsedom" version="0.9.1"/>
+    <import addon="script.common.plugin.cache" version="0.9.1"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>

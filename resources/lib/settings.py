@@ -11,6 +11,7 @@ video_quality = 3
 enable_subtitles = True
 xbmc_language = 'English'
 subtitle_language = 'en'
+previous_search = ''
 
 def init():
     import xbmc, xbmcaddon

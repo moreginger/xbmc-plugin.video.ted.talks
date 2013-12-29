@@ -11,9 +11,11 @@ from model.favorites_scraper import Favorites
 from model.speakers_scraper import Speakers
 from model.themes_scraper import Themes
 from model.util import resizeImage
+from model.search_scraper import Search
 import menu_util
 import os
 import time
+import timeit
 import xbmc
 import xbmcplugin
 import xbmcgui
@@ -108,7 +110,7 @@ class UI:
         self.addItem(plugin.getLS(30001), 'newTalksRss', video_info={'Plot':plugin.getLS(30031)})
         self.addItem(plugin.getLS(30002), 'speakers', video_info={'Plot':plugin.getLS(30032)})
         self.addItem(plugin.getLS(30003), 'themes', video_info={'Plot':plugin.getLS(30033)})
-        # self.addItemplugin.({'Title':getLS(30004), 'mode':'search', 'Plot':getLS(30034)})
+        self.addItem(plugin.getLS(30004), 'search', video_info={'Plot':plugin.getLS(30034)})
         if settings.username:
             self.addItem(plugin.getLS(30005), 'favorites', video_info={'Plot':plugin.getLS(30035)})
         self.endofdirectory()
@@ -150,7 +152,21 @@ class UI:
         for title, link, img in themes.get_talks(url):
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         self.endofdirectory()
-
+        
+    def search(self):
+        keyboard = xbmc.Keyboard(settings.previous_search, "Search")
+        keyboard.doModal()
+                
+        if not keyboard.isConfirmed():
+            return
+        
+        search_term = keyboard.getText()
+        talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, 1)
+        remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
+        for title, link, img in talks_generator:
+            self.addItem(title, 'playVideo', link, img, isFolder=False)
+        self.endofdirectory()
+        
     def favorites(self):
         # attempt to login
         userID, realname = login(self.user, settings.username, settings.password)
@@ -264,6 +280,16 @@ class FavoritesAction(Action):
         self.ui.favorites()
 
 
+class SearchAction(Action):
+
+    def __init__(self, logger, ui):
+        super(SearchAction, self).__init__('search', [], logger)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.search()
+
+
 class DownloadVideoAction(Action):
 
     def __init__(self, logger, main):
@@ -299,6 +325,7 @@ class Main:
             modes = [
                 PlayVideoAction(plugin.report, ui),
                 NewTalksAction(plugin.report, ui),
+                SearchAction(plugin.report, ui),
                 SpeakersAction(plugin.report, ui),
                 SpeakerGroupAction(plugin.report, ui),
                 SpeakerVideosAction(plugin.report, ui),

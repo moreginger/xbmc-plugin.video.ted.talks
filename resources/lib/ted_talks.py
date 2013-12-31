@@ -44,14 +44,17 @@ class UI:
             sortMethod = xbmcplugin.SORT_METHOD_LABEL
         elif sortMethod == 'date':
             sortMethod = xbmcplugin.SORT_METHOD_DATE
+        elif sortMethod == 'none':
+            sortMethod = xbmcplugin.SORT_METHOD_NONE
+        
         # Sort methods are required in library mode.
         xbmcplugin.addSortMethod(int(sys.argv[1]), sortMethod)
         # let xbmc know the script is done adding items to the list.
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), updateListing=False)
 
-    def addItem(self, title, mode, url=None, img="", video_info={}, talkID=None, isFolder=True, total_items=0):
+    def addItem(self, title, mode, url=None, img='', args = {}, video_info={}, isFolder=True, total_items=0):
         # Create action url
-        args = {'mode': mode}
+        args['mode'] = mode;
         if url:
             args['url'] = url
         if img:
@@ -110,7 +113,7 @@ class UI:
         self.addItem(plugin.getLS(30001), 'newTalksRss', video_info={'Plot':plugin.getLS(30031)})
         self.addItem(plugin.getLS(30002), 'speakers', video_info={'Plot':plugin.getLS(30032)})
         self.addItem(plugin.getLS(30003), 'themes', video_info={'Plot':plugin.getLS(30033)})
-        self.addItem(plugin.getLS(30004), 'search', video_info={'Plot':plugin.getLS(30034)})
+        self.addItem(plugin.getLS(30004) + "...", 'search', video_info={'Plot':plugin.getLS(30034)})
         if settings.username:
             self.addItem(plugin.getLS(30005), 'favorites', video_info={'Plot':plugin.getLS(30035)})
         self.endofdirectory()
@@ -153,22 +156,6 @@ class UI:
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         self.endofdirectory()
         
-    def search(self):
-        keyboard = xbmc.Keyboard(settings.previous_search, 'Search')
-        keyboard.doModal()
-                
-        if not keyboard.isConfirmed():
-            return
-        
-        search_term = keyboard.getText()
-        settings.set_previous_search(search_term)
-        
-        talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, 1)
-        remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
-        for title, link, img in talks_generator:
-            self.addItem(title, 'playVideo', link, img, isFolder=False)
-        self.endofdirectory()
-        
     def favorites(self):
         # attempt to login
         userID, realname = login(self.user, settings.username, settings.password)
@@ -183,7 +170,7 @@ class Action(object):
     Some action that can be executed by the user.
     '''
 
-    def __init__(self, mode, required_args, logger):
+    def __init__(self, mode, required_args, logger = None, *args, **kwargs):
         self.mode = mode
         self.required_args = set(required_args)
         self.logger = logger
@@ -204,8 +191,8 @@ class Action(object):
 
 class PlayVideoAction(Action):
 
-    def __init__(self, logger, ui):
-        super(PlayVideoAction, self).__init__('playVideo', ['url', 'icon'], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(PlayVideoAction, self).__init__('playVideo', ['url', 'icon'], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
@@ -214,8 +201,8 @@ class PlayVideoAction(Action):
 
 class NewTalksAction(Action):
 
-    def __init__(self, logger, ui):
-        super(NewTalksAction, self).__init__('newTalksRss', [], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(NewTalksAction, self).__init__('newTalksRss', [], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
@@ -224,8 +211,8 @@ class NewTalksAction(Action):
 
 class SpeakersAction(Action):
 
-    def __init__(self, logger, ui):
-        super(SpeakersAction, self).__init__('speakers', [], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(SpeakersAction, self).__init__('speakers', [], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
@@ -234,8 +221,8 @@ class SpeakersAction(Action):
 
 class SpeakerGroupAction(Action):
 
-    def __init__(self, logger, ui):
-        super(SpeakerGroupAction, self).__init__('speakerGroup', ['url'], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(SpeakerGroupAction, self).__init__('speakerGroup', ['url'], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
@@ -244,8 +231,8 @@ class SpeakerGroupAction(Action):
 
 class SpeakerVideosAction(Action):
 
-    def __init__(self, logger, ui):
-        super(SpeakerVideosAction, self).__init__('speakerVids', ['url'], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(SpeakerVideosAction, self).__init__('speakerVids', ['url'], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
@@ -254,8 +241,8 @@ class SpeakerVideosAction(Action):
 
 class ThemesAction(Action):
 
-    def __init__(self, logger, ui):
-        super(ThemesAction, self).__init__('themes', [], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(ThemesAction, self).__init__('themes', [], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
@@ -264,8 +251,8 @@ class ThemesAction(Action):
 
 class ThemeVideosAction(Action):
 
-    def __init__(self, logger, ui):
-        super(ThemeVideosAction, self).__init__('themeVids', ['url'], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(ThemeVideosAction, self).__init__('themeVids', ['url'], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
@@ -274,22 +261,47 @@ class ThemeVideosAction(Action):
 
 class FavoritesAction(Action):
 
-    def __init__(self, logger, ui):
-        super(FavoritesAction, self).__init__('favorites', [], logger)
+    def __init__(self, ui, *args, **kwargs):
+        super(FavoritesAction, self).__init__('favorites', [], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
         self.ui.favorites()
 
 
-class SearchAction(Action):
-
-    def __init__(self, logger, ui):
-        super(SearchAction, self).__init__('search', [], logger)
+class SearchActionBase(Action):
+    
+    def __init__(self, ui, get_HTML, *args, **kwargs):
+        super(SearchActionBase, self).__init__(*args, **kwargs)
         self.ui = ui
+        self.get_HTML = get_HTML
+        
+    def __add_items__(self, search_term, page):
+        talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, page)
+        remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
+        for title, link, img in talks_generator:
+            self.ui.addItem(title, 'playVideo', link, img, isFolder=False)
+        if remaining_talks:
+            self.ui.addItem(plugin.getLS(30022), 'search', args={'page': str(page + 1)}, isFolder=False)
+        self.ui.endofdirectory(sortMethod = 'none')
+
+
+class SearchAction(SearchActionBase):
+
+    def __init__(self, *args, **kwargs):
+        # Well this is a mess. More research needed...
+        super(SearchAction, self).__init__(*(args + ('search', [])), **kwargs)
 
     def run_internal(self, args):
-        self.ui.search()
+        keyboard = xbmc.Keyboard(settings.previous_search, plugin.getLS(30004))
+        keyboard.doModal()
+                
+        if not keyboard.isConfirmed():
+            return
+        
+        search_term = keyboard.getText()
+        settings.set_previous_search(search_term)
+        self.__add_items__(search_term, 1)
 
 
 class DownloadVideoAction(Action):
@@ -325,16 +337,16 @@ class Main:
             ui.showCategories()
         else:
             modes = [
-                PlayVideoAction(plugin.report, ui),
-                NewTalksAction(plugin.report, ui),
-                SearchAction(plugin.report, ui),
-                SpeakersAction(plugin.report, ui),
-                SpeakerGroupAction(plugin.report, ui),
-                SpeakerVideosAction(plugin.report, ui),
-                ThemesAction(plugin.report, ui),
-                ThemeVideosAction(plugin.report, ui),
-                FavoritesAction(plugin.report, ui),
-                DownloadVideoAction(plugin.report, self),
+                PlayVideoAction(ui, logger = plugin.report),
+                NewTalksAction(ui, logger = plugin.report),
+                SearchAction(ui, self.get_HTML, logger = plugin.report),
+                SpeakersAction(ui, logger = plugin.report),
+                SpeakerGroupAction(ui, logger = plugin.report),
+                SpeakerVideosAction(ui, logger = plugin.report),
+                ThemesAction(ui, logger = plugin.report),
+                ThemeVideosAction(ui, logger = plugin.report),
+                FavoritesAction(ui, logger = plugin.report),
+                #DownloadVideoAction(plugin.report, self),
             ]
             modes = dict([(m.mode, m) for m in modes])
             mode = self.args_map['mode']

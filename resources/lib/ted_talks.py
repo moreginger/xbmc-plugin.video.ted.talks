@@ -15,7 +15,6 @@ from model.search_scraper import Search
 import menu_util
 import os
 import time
-import timeit
 import xbmc
 import xbmcplugin
 import xbmcgui
@@ -38,7 +37,7 @@ class UI:
         self.user = user
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
-    def endofdirectory(self, sortMethod='title'):
+    def endofdirectory(self, sortMethod='title', updateListing=False):
         # set sortmethod to something xbmc can use
         if sortMethod == 'title':
             sortMethod = xbmcplugin.SORT_METHOD_LABEL
@@ -50,7 +49,7 @@ class UI:
         # Sort methods are required in library mode.
         xbmcplugin.addSortMethod(int(sys.argv[1]), sortMethod)
         # let xbmc know the script is done adding items to the list.
-        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), updateListing=False)
+        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), updateListing=updateListing)
 
     def addItem(self, title, mode, url=None, img='', args = {}, video_info={}, isFolder=True, total_items=0):
         # Create action url
@@ -276,14 +275,17 @@ class SearchActionBase(Action):
         self.ui = ui
         self.get_HTML = get_HTML
         
-    def __add_items__(self, search_term, page):
+    def __add_items__(self, search_term, page, current_items, update_listing):
         talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, page)
-        remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
-        for title, link, img in talks_generator:
+        remaining_talks = itertools.islice(talks_generator, 1).next()
+        search_results = list(itertools.chain(current_items, talks_generator))
+        for title, link, img in search_results:
             self.ui.addItem(title, 'playVideo', link, img, isFolder=False)
         if remaining_talks:
-            self.ui.addItem(plugin.getLS(30022), 'search', args={'page': str(page + 1)}, isFolder=False)
-        self.ui.endofdirectory(sortMethod = 'none')
+            self.ui.addItem(plugin.getLS(30022), 'searchMore', args={'search_term': search_term, 'page': str(page + 1)})
+        self.ui.endofdirectory(sortMethod = 'none', updateListing = update_listing)
+        
+        return search_results
 
 
 class SearchAction(SearchActionBase):
@@ -293,15 +295,30 @@ class SearchAction(SearchActionBase):
         super(SearchAction, self).__init__(*(args + ('search', [])), **kwargs)
 
     def run_internal(self, args):
-        keyboard = xbmc.Keyboard(settings.previous_search, plugin.getLS(30004))
+        keyboard = xbmc.Keyboard(settings.get_current_search(), plugin.getLS(30004))
         keyboard.doModal()
                 
         if not keyboard.isConfirmed():
             return
         
         search_term = keyboard.getText()
-        settings.set_previous_search(search_term)
-        self.__add_items__(search_term, 1)
+        settings.set_current_search(search_term)
+        items = self.__add_items__(search_term, 1, [], False)
+        settings.set_current_search_results(items)
+
+
+class SearchMoreAction(SearchActionBase):
+
+    def __init__(self, *args, **kwargs):
+        # Well this is a mess. More research needed...
+        super(SearchMoreAction, self).__init__(*(args + ('searchMore', ['search_term', 'page'])), **kwargs)
+
+    def run_internal(self, args):
+        search_term = args['search_term']
+        page = int(args['page'])
+        current_items = settings.get_current_search_results()
+        items = self.__add_items__(search_term, page + 1, current_items, False)
+        settings.set_current_search_results(items)
 
 
 class DownloadVideoAction(Action):
@@ -340,6 +357,7 @@ class Main:
                 PlayVideoAction(ui, logger = plugin.report),
                 NewTalksAction(ui, logger = plugin.report),
                 SearchAction(ui, self.get_HTML, logger = plugin.report),
+                SearchMoreAction(ui, self.get_HTML, logger = plugin.report),
                 SpeakersAction(ui, logger = plugin.report),
                 SpeakerGroupAction(ui, logger = plugin.report),
                 SpeakerVideosAction(ui, logger = plugin.report),

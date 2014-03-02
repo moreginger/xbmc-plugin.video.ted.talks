@@ -7,8 +7,9 @@ For installation instructions see
 [Installing](https://github.com/moreginger/xbmc-plugin.video.ted.talks/wiki/Installing)
 
 The goal is (_surprise_) to allow watching TED talks in XBMC.
-It currently supports a few limited browsing options:
+The currently supported browsing options are:
 * Newest talks
+* Search
 * Speakers
 * Themes
 * Favorites (if you provide your TED credentials)

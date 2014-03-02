@@ -45,13 +45,13 @@ class UI:
             sortMethod = xbmcplugin.SORT_METHOD_DATE
         elif sortMethod == 'none':
             sortMethod = xbmcplugin.SORT_METHOD_NONE
-        
+
         # Sort methods are required in library mode.
         xbmcplugin.addSortMethod(int(sys.argv[1]), sortMethod)
         # let xbmc know the script is done adding items to the list.
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), updateListing=updateListing)
 
-    def addItem(self, title, mode, url=None, img='', args = {}, video_info={}, isFolder=True, total_items=0):
+    def addItem(self, title, mode, url=None, img='', args={}, video_info={}, isFolder=True, total_items=0):
         # Create action url
         args['mode'] = mode;
         if url:
@@ -154,7 +154,7 @@ class UI:
         for title, link, img in themes.get_talks(url):
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         self.endofdirectory()
-        
+
     def favorites(self):
         # attempt to login
         userID, realname = login(self.user, settings.username, settings.password)
@@ -169,7 +169,7 @@ class Action(object):
     Some action that can be executed by the user.
     '''
 
-    def __init__(self, mode, required_args, logger = None, *args, **kwargs):
+    def __init__(self, mode, required_args, logger=None, *args, **kwargs):
         self.mode = mode
         self.required_args = set(required_args)
         self.logger = logger
@@ -269,12 +269,12 @@ class FavoritesAction(Action):
 
 
 class SearchActionBase(Action):
-    
+
     def __init__(self, ui, get_HTML, *args, **kwargs):
         super(SearchActionBase, self).__init__(*args, **kwargs)
         self.ui = ui
         self.get_HTML = get_HTML
-        
+
     def __add_items__(self, search_term, page, current_items, update_listing):
         talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, page)
         remaining_talks = itertools.islice(talks_generator, 1).next()
@@ -283,8 +283,8 @@ class SearchActionBase(Action):
             self.ui.addItem(title, 'playVideo', link, img, isFolder=False)
         if remaining_talks:
             self.ui.addItem(plugin.getLS(30022), 'searchMore', args={'search_term': search_term, 'page': str(page + 1)})
-        self.ui.endofdirectory(sortMethod = 'none', updateListing = update_listing)
-        
+        self.ui.endofdirectory(sortMethod='none', updateListing=update_listing)
+
         return search_results
 
 
@@ -297,14 +297,13 @@ class SearchAction(SearchActionBase):
     def run_internal(self, args):
         keyboard = xbmc.Keyboard(settings.get_current_search(), plugin.getLS(30004))
         keyboard.doModal()
-                
+
         if not keyboard.isConfirmed():
             return
-        
+
         search_term = keyboard.getText()
         settings.set_current_search(search_term)
-        items = self.__add_items__(search_term, 1, [], False)
-        settings.set_current_search_results(items)
+        self.__add_items__(search_term, 1, [], False)
 
 
 class SearchMoreAction(SearchActionBase):
@@ -316,9 +315,7 @@ class SearchMoreAction(SearchActionBase):
     def run_internal(self, args):
         search_term = args['search_term']
         page = int(args['page'])
-        current_items = settings.get_current_search_results()
-        items = self.__add_items__(search_term, page + 1, current_items, False)
-        settings.set_current_search_results(items)
+        self.__add_items__(search_term, page + 1, [], False)
 
 
 class DownloadVideoAction(Action):
@@ -354,17 +351,17 @@ class Main:
             ui.showCategories()
         else:
             modes = [
-                PlayVideoAction(ui, logger = plugin.report),
-                NewTalksAction(ui, logger = plugin.report),
-                SearchAction(ui, self.get_HTML, logger = plugin.report),
-                SearchMoreAction(ui, self.get_HTML, logger = plugin.report),
-                SpeakersAction(ui, logger = plugin.report),
-                SpeakerGroupAction(ui, logger = plugin.report),
-                SpeakerVideosAction(ui, logger = plugin.report),
-                ThemesAction(ui, logger = plugin.report),
-                ThemeVideosAction(ui, logger = plugin.report),
-                FavoritesAction(ui, logger = plugin.report),
-                #DownloadVideoAction(plugin.report, self),
+                PlayVideoAction(ui, logger=plugin.report),
+                NewTalksAction(ui, logger=plugin.report),
+                SearchAction(ui, self.get_HTML, logger=plugin.report),
+                SearchMoreAction(ui, self.get_HTML, logger=plugin.report),
+                SpeakersAction(ui, logger=plugin.report),
+                SpeakerGroupAction(ui, logger=plugin.report),
+                SpeakerVideosAction(ui, logger=plugin.report),
+                ThemesAction(ui, logger=plugin.report),
+                ThemeVideosAction(ui, logger=plugin.report),
+                FavoritesAction(ui, logger=plugin.report),
+                # DownloadVideoAction(plugin.report, self),
             ]
             modes = dict([(m.mode, m) for m in modes])
             mode = self.args_map['mode']

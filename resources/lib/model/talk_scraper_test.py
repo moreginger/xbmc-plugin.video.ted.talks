@@ -28,17 +28,17 @@ class TestTalkScraper(unittest.TestCase):
     def test_get_custom_quality_video(self):
         html = test_util.get_HTML("http://www.ted.com/talks/edith_widder_how_we_found_the_giant_squid.html")
         # Note not customized. Should be a useful fallback if this code goes haywire.
-        self.assert_custom_quality_url(html, "320kbps", "http://download.ted.com/talks/EdithWidder_2013.mp4?apikey=TEDDOWNLOAD")
+        self.assert_custom_quality_url(html, "320kbps", "http://download.ted.com/talks/EdithWidder_2013-320k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
 
-        self.assert_custom_quality_url(html, "64kbps", "http://download.ted.com/talks/EdithWidder_2013-64k.mp4?apikey=TEDDOWNLOAD")
-        self.assert_custom_quality_url(html, "180kbps", "http://download.ted.com/talks/EdithWidder_2013-180k.mp4?apikey=TEDDOWNLOAD")
-        self.assert_custom_quality_url(html, "450kbps", "http://download.ted.com/talks/EdithWidder_2013-450k.mp4?apikey=TEDDOWNLOAD")
-        self.assert_custom_quality_url(html, "600kbps", "http://download.ted.com/talks/EdithWidder_2013-600k.mp4?apikey=TEDDOWNLOAD")
-        self.assert_custom_quality_url(html, "950kbps", "http://download.ted.com/talks/EdithWidder_2013-950k.mp4?apikey=TEDDOWNLOAD")
-        self.assert_custom_quality_url(html, "1500kbps", "http://download.ted.com/talks/EdithWidder_2013-1500k.mp4?apikey=TEDDOWNLOAD")
+        self.assert_custom_quality_url(html, "64kbps", "http://download.ted.com/talks/EdithWidder_2013-64k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
+        self.assert_custom_quality_url(html, "180kbps", "http://download.ted.com/talks/EdithWidder_2013-180k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
+        self.assert_custom_quality_url(html, "450kbps", "http://download.ted.com/talks/EdithWidder_2013-450k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
+        self.assert_custom_quality_url(html, "600kbps", "http://download.ted.com/talks/EdithWidder_2013-600k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
+        self.assert_custom_quality_url(html, "950kbps", "http://download.ted.com/talks/EdithWidder_2013-950k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
+        self.assert_custom_quality_url(html, "1500kbps", "http://download.ted.com/talks/EdithWidder_2013-1500k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
 
         # Fall back to standard URL when custom URL 404s
-        self.assert_custom_quality_url(html, "42kbps", "http://download.ted.com/talks/EdithWidder_2013.mp4?apikey=TEDDOWNLOAD")
+        self.assert_custom_quality_url(html, "42kbps", "http://download.ted.com/talks/EdithWidder_2013-320k.mp4?apikey=489b859150fc58263f17110eeb44ed5fba4a3b22")
 
     def assert_custom_quality_url(self, talk_html, video_quality, expected_video_url):
         video_url, title, speaker, plot = talk_scraper.get(talk_html, video_quality)

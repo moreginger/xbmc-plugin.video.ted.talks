@@ -4,32 +4,28 @@ import re
 import CommonFunctions as xbmc_common
 import httplib
 import urlparse
+import json
+import re
 
-__download_link_re = re.compile('http://download.ted.com/talks/.+.mp4')
 
 def get(html, video_quality='320kbps'):
     """Extract talk details from talk html
        @param video_quality string in form '\d+kbps' that should match one of the provided TED bitrates.
     """
 
-    headline = xbmc_common.parseDOM(html, 'span', attrs={'id':'altHeadline'})[0].split(':', 1)
-    # Cope with no ':' in title.
-    speaker = "Unknown" if len(headline) == 1 else headline[0].strip()
-    title = headline[0].strip() if len(headline) == 1 else headline[1].strip()
-    plot = xbmc_common.parseDOM(html, 'p', attrs={'id':'tagline'})[0]
+    speaker = xbmc_common.parseDOM(html, 'a', attrs={'class':'talk-hero__speaker__link'})[0].strip()
+    title = xbmc_common.parseDOM(html, 'div', attrs={'class':'talk-hero__title'})[0].strip()
+    plot = xbmc_common.parseDOM(html, 'p', attrs={'class':'talk-description'})[0]
 
-    url = None
-    for link in xbmc_common.parseDOM(html, 'a', ret='href'):
-        if __download_link_re.match(link):
-            url = link
-            break
+    init_script = [script for script in xbmc_common.parseDOM(html, 'script') if '"talkPage.init"' in script][0]
+    init_json = json.loads(re.compile(r'q[(]"talkPage.init",(.+)[)]').search(init_script).group(1))
+    url = init_json['talks'][0]['resources']['h264'][0]['file']
 
     # We could confirm these URLs exist from the DOM (with difficulty) but seems likely to break
     if url and not video_quality == '320kbps':
-        # Quality '42' for testing
-        url_custom = url.replace(".mp4", "-%sk.mp4" % (video_quality.split('k')[0]))
+        url_custom = url.replace("-320k.mp4", "-%sk.mp4" % (video_quality.split('k')[0]))
 
-        # Test URL exists
+        # Test resource exists
         url_custom_parsed = urlparse.urlparse(url_custom)
         h = httplib.HTTPConnection(url_custom_parsed.netloc)
         h.request('HEAD', url_custom_parsed.path)

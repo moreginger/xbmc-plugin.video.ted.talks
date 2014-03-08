@@ -11,7 +11,7 @@ class TestSearchScraper(unittest.TestCase):
         talks_generator = scraper.get_talks_for_search('nuclear', 1)
         remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
 
-        self.assertLess(100, remaining_talks)  # 925 (!) results at last check, just make sure we have a decent number remaining.
+        self.assertLess(50, remaining_talks)  # 85 remaining at last check, just make sure we have a decent number remaining.
 
         talks = list(talks_generator)
         talks_per_page = 12.0
@@ -26,3 +26,9 @@ class TestSearchScraper(unittest.TestCase):
         remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
         self.assertEqual(0, remaining_talks)
         self.assertLess(0, len(talks))
+
+    def test_search_for_speaker_name(self):
+        scraper = Search(test_util.get_HTML)
+        talks_generator = scraper.get_talks_for_search('Christopher Soghoian', 1)  # Random name I haven't heard of
+        self.assertEqual(0, timeit.itertools.islice(talks_generator, 1).next())  # Should be uncommon enough to have all results
+        list(talks_generator)  # We can generate a talk from each result - no contaminating "profile" results or similar

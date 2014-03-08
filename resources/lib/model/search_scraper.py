@@ -1,10 +1,10 @@
 import urllib
-from url_constants import URLSEARCH
+from url_constants import URLTED, URLSEARCH
 # Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
 import CommonFunctions as xbmc_common
 import re
 
-__results_count_re__ = re.compile(r'\d+-(\d+) of (\d+) results')
+__results_count_re__ = re.compile(r'.*\d+ - (\d+) of (\d+) results.*')
 
 class Search:
 
@@ -23,23 +23,22 @@ class Search:
 
         yield self.results_remaining(html)
 
-        results = xbmc_common.parseDOM(html, 'div', {'class': 'result video'})
+        results = xbmc_common.parseDOM(html, 'article', {'class': 'm1 search__result'})
+        print results
         for result in results:
-            div = xbmc_common.parseDOM(result, 'div', {'class': 'thumb'})[0]
-
-            title = xbmc_common.parseDOM(div, 'img', ret='alt')[0].strip()
-            link = xbmc_common.parseDOM(div, 'a', ret='href')[0]
-            img = xbmc_common.parseDOM(div, 'img', ret='src')[0]
-            yield title, link, img
+            header = xbmc_common.parseDOM(result, 'h3')[0]
+            title = xbmc_common.parseDOM(header, 'a')[0].strip()
+            url = URLTED + xbmc_common.parseDOM(header, 'a', ret='href')[0]
+            img = xbmc_common.parseDOM(result, 'img', ret='src')[0]
+            yield title, url, img
 
     def results_remaining(self, html):
-        results_count_div = xbmc_common.parseDOM(html, 'div', {'class': 'search-title clearfix'})
-        if results_count_div:
-            results_count = xbmc_common.parseDOM(results_count_div[0], 'span')
-            if results_count:
-                results_count_match = __results_count_re__.match(results_count[0])
-                if results_count_match:
-                    return int(results_count_match.group(2)) - int(results_count_match.group(1))
+        search_results = xbmc_common.parseDOM(html, 'div', {'class': 'heading search__results__heading'})
+        if search_results:
+            results_count_matches = __results_count_re__.findall(search_results[0])
+            if results_count_matches:
+                match = results_count_matches[0]
+                return int(match[1]) - int(match[0])
 
         # We don't know so just make sure that it is positive so that we keep paging.
         return 1

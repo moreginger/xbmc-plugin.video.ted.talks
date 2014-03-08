@@ -14,11 +14,11 @@ class TedTalks:
 
     def getVideoDetails(self, url, video_quality, subs_language=None):
         talk_html = self.getHTML(url)
-        video_url, title, speaker, plot = talk_scraper.get(talk_html, video_quality)
+        video_url, title, speaker, plot, init_json = talk_scraper.get(talk_html, video_quality)
 
         subs = None
         if subs_language:
-            subs = subtitles_scraper.get_subtitles_for_talk(talk_html, subs_language, self.logger)
+            subs = subtitles_scraper.get_subtitles_for_talk(init_json, subs_language, self.logger)
 
         return title, video_url, subs, {'Director':speaker, 'Genre':'TED', 'Plot':plot, 'PlotOutline':plot}
 

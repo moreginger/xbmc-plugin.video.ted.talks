@@ -1,70 +1,59 @@
-from url_constants import URLSPEAKERS
 from url_constants import URLTED
 # Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
 import CommonFunctions as xbmc_common
+
+
+__url_speakers__ = URLTED + '/people/speakers?page=%s'
 
 class Speakers:
 
     def __init__(self, get_HTML):
         self.get_HTML = get_HTML
 
-    def get_speakers_for_letter(self, char):
+    def get_speaker_page_count(self):
+        html = self.__get_speaker_page__(1)
+        return self.__get_speaker_page_count__(html)
+
+    def __get_speaker_page__(self, index):
+        return self.get_HTML(__url_speakers__ % (index))
+
+    def __get_speaker_page_count__(self, html):
+        pages = xbmc_common.parseDOM(html, 'a', attrs={'class':'pagination__item pagination__link'})
+        return int(pages[-1])
+
+    def get_speakers_for_pages(self, pages):
         '''
-        First yields the speaker count, or 0 if unknown.
+        First yields the number of pages of speakers.
         After that yields tuples of title, link, img.
         '''
-        page_index = 1
-        html = self.get_HTML(URLSPEAKERS % (page_index, char))
 
-        speaker_count = 0
-        for h2 in xbmc_common.parseDOM(html, 'h2'):
-            if 'speakers whose Last Name begins with' in h2:
-                spans = xbmc_common.parseDOM(h2, 'span')
-                if spans:
-                    try:
-                        speaker_count = int(spans[-1].strip())
-                    except ValueError:
-                        pass
+        returned_count = False
+        for page in pages:
+            html = self.__get_speaker_page__(page)
+            if not returned_count:
+                returned_count = True
+                yield self.__get_speaker_page_count__(html)
 
-        yield speaker_count
+            attrs = {'class': 'results__result media media--sm-v m4'}
+            hrefs = xbmc_common.parseDOM(html, 'a', attrs, ret='href')
+            content = xbmc_common.parseDOM(html, 'a', attrs)
 
-        # Have to know when to stop paging, see condition for loop exit below.
-        found_titles = set()
-        found_on_last_page = 0
+            for result in zip(hrefs, content):
+                url = URLTED + result[0]
+                header = xbmc_common.parseDOM(result[1], 'h4')[0]
+                title = ' '.join(header.replace('<br>', ' ').split())
+                img = xbmc_common.parseDOM(result[1], 'img', ret='src')[0]
+                yield title, url, img
 
-        while True:
-            dls = xbmc_common.parseDOM(html, 'dl', {'class': 'speakerMedallion'})
-            found_before = len(found_titles)
-            for dl in dls:
-                dt = xbmc_common.parseDOM(dl, 'dt')[0]
-                title = xbmc_common.parseDOM(dt, 'img', ret='alt')[0].strip()
-                if title not in found_titles:
-                    found_titles.add(title)
-                    link = xbmc_common.parseDOM(dt, 'a', ret='href')[0]
-                    img = xbmc_common.parseDOM(dt, 'img', ret='src')[0]
-                    yield title, URLTED + link, img
-
-            # Results on last page == results on (last page + 1), _not_ 0 as you might hope.
-            # The second clause allows us to skip looking at last page + 1 if the last page contains
-            # fewer results than that before it; which is usually but not always the case.
-            found_on_this_page = len(found_titles) - found_before
-            if found_on_this_page and found_on_this_page >= found_on_last_page:
-                page_index += 1
-                found_on_last_page = found_on_this_page
-                html = self.get_HTML(URLSPEAKERS % (page_index, char))
-            else:
-                break
-            
     def get_talks_for_speaker(self, url):
         '''
         Yields tuples of title, link, img.
         '''
         html = self.get_HTML(url)
-        for dl in xbmc_common.parseDOM(html, 'dl', {'class':'box clearfix'}):
-            dt = xbmc_common.parseDOM(dl, 'dt')[0]
-            link = xbmc_common.parseDOM(dt, 'a', ret='href')[0]
-            for img in xbmc_common.parseDOM(dt, 'img'):
-                img_link = xbmc_common.parseDOM(img, 'img', ret='src')
-                if img_link and 'jpg' in img_link[0]:
-                    title = xbmc_common.parseDOM(img, 'img', ret='title')[0]
-                    yield title, URLTED + link, img_link[0]
+        for talk in xbmc_common.parseDOM(html, 'div', {'class':'col-lg-4 profile-talks__talk'}):
+            link = xbmc_common.parseDOM(talk, 'a', ret='href')[0]
+            img = xbmc_common.parseDOM(talk, 'img', ret='src')[0]
+            div = xbmc_common.parseDOM(talk, 'div', {'class':'media__message'})[0]
+            title = xbmc_common.parseDOM(div, 'a')[0]
+
+            yield title, URLTED + link, img

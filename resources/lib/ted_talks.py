@@ -113,8 +113,8 @@ class UI:
         self.addItem(plugin.getLS(30002), 'speakers', video_info={'Plot':plugin.getLS(30032)})
         self.addItem(plugin.getLS(30003), 'themes', video_info={'Plot':plugin.getLS(30033)})
         self.addItem(plugin.getLS(30004) + "...", 'search', video_info={'Plot':plugin.getLS(30034)})
-        if settings.username:
-            self.addItem(plugin.getLS(30005), 'favorites', video_info={'Plot':plugin.getLS(30035)})
+#        if settings.username:
+#            self.addItem(plugin.getLS(30005), 'favorites', video_info={'Plot':plugin.getLS(30035)})
         self.endofdirectory()
 
     def newTalksRss(self):
@@ -123,18 +123,6 @@ class UI:
             self.addItem(title=talk['title'], mode='playVideo', url=talk['link'], img=talk['thumb'], video_info=talk, isFolder=False)
         self.endofdirectory(sortMethod='date')
 
-    def speakerGroups(self):
-        for i in range(65, 91):
-            letter = chr(i)
-            self.addItem(plugin.getLS(30006) + letter, 'speakerGroup', letter, isFolder=True)
-        self.endofdirectory()
-
-    def speakers(self, letter):
-        speakers_generator = Speakers(self.get_HTML).get_speakers_for_letter(letter)
-        speaker_count = itertools.islice(speakers_generator, 1).next()
-        for title, link, img in speakers_generator:
-            self.addItem(title, 'speakerVids', link, img, isFolder=True, total_items=speaker_count)
-        self.endofdirectory()
 
     def speakerVids(self, url):
         talks_generator = Speakers(self.get_HTML).get_talks_for_speaker(url)
@@ -210,22 +198,44 @@ class NewTalksAction(Action):
 
 class SpeakersAction(Action):
 
-    def __init__(self, ui, *args, **kwargs):
+    def __init__(self, ui, get_HTML, *args, **kwargs):
         super(SpeakersAction, self).__init__('speakers', [], *args, **kwargs)
         self.ui = ui
+        self.get_HTML = get_HTML
 
     def run_internal(self, args):
-        self.ui.speakerGroups()
+        page_count = Speakers(self.get_HTML).get_speaker_page_count()
+        pages_per_group = 4
+        for i in range(1, page_count / pages_per_group + 1):
+            label = '%s-%s' % ((i - 1) * pages_per_group + 1, i * pages_per_group)
+            self.ui.addItem(label, 'speakerGroup', label, isFolder=True)
+        remainder = page_count % pages_per_group
+        if remainder != 0:
+            label = '%s-%s' % (page_count - remainder, page_count)
+            self.ui.addItem(label, 'speakerGroup', label, isFolder=True)
+        self.ui.endofdirectory(sortMethod='none')
 
 
 class SpeakerGroupAction(Action):
 
-    def __init__(self, ui, *args, **kwargs):
+    def __init__(self, ui, get_HTML, *args, **kwargs):
         super(SpeakerGroupAction, self).__init__('speakerGroup', ['url'], *args, **kwargs)
         self.ui = ui
+        self.get_HTML = get_HTML
 
     def run_internal(self, args):
-        self.ui.speakers(args['url'])
+        pages = args['url']
+        pages = pages.split('-')
+        pages = range(int(pages[0]), int(pages[1]) + 1)
+        generator = Speakers(self.get_HTML).get_speakers_for_pages(pages)
+        pages_count = itertools.islice(generator, 1).next()
+        for title, link, img in generator:
+            self.ui.addItem(title, 'speakerVids', link, img=img, isFolder=True, total_items=120)
+
+        if pages[-1] < pages_count:
+            label = '%s-%s' % (pages[-1] + 1, min(pages_count, pages[-1] * 2 - pages[0]))
+            self.ui.addItem(label + '...', 'speakerGroup', label, isFolder=True)
+        self.ui.endofdirectory(sortMethod='none')
 
 
 class SpeakerVideosAction(Action):
@@ -355,8 +365,8 @@ class Main:
                 NewTalksAction(ui, logger=plugin.report),
                 SearchAction(ui, self.get_HTML, logger=plugin.report),
                 SearchMoreAction(ui, self.get_HTML, logger=plugin.report),
-                SpeakersAction(ui, logger=plugin.report),
-                SpeakerGroupAction(ui, logger=plugin.report),
+                SpeakersAction(ui, self.get_HTML, logger=plugin.report),
+                SpeakerGroupAction(ui, self.get_HTML, logger=plugin.report),
                 SpeakerVideosAction(ui, logger=plugin.report),
                 ThemesAction(ui, logger=plugin.report),
                 ThemeVideosAction(ui, logger=plugin.report),

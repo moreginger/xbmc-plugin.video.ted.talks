@@ -7,7 +7,6 @@ so keep it for now.
 import urllib2
 import time
 import datetime
-from resources.lib.model import url_constants
 try:
     from elementtree.ElementTree import fromstring
 except ImportError:
@@ -61,7 +60,7 @@ class NewTalksRss:
         Returns talks as dicts {title:, author:, thumb:, date:, duration:, link:}.
         """
         talksByTitle = {}
-        rss = get_document(url_constants.URLRSS)
+        rss = get_document('http://feeds.feedburner.com/tedtalks_video')
         for item in fromstring(rss).findall('channel/item'):
             talk = self.get_talk_details(item)
             talksByTitle[talk['title']] = talk

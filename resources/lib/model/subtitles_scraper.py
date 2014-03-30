@@ -22,6 +22,8 @@ def format_time(time):
     return '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, millis)
 
 def format_subtitles(subtitles, introDuration):
+    if not subtitles:
+        return None
     result = ''
     for idx, sub in enumerate(subtitles):
         start = introDuration + sub['start']
@@ -35,14 +37,17 @@ def __get_languages__(talk_json):
     '''
     return [l['languageCode'] for l in talk_json['languages']]
 
-def get_subtitles(talk_id, language):
+def get_subtitles(talk_id, language, logger):
     url = 'http://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)
-    subs = json.loads(urllib.urlopen(url).read())
-
     captions = []
-    for caption in subs['captions']:
-        captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]
-    return captions
+    try:
+        subs = json.loads(urllib.urlopen(url).read())
+    except Exception, e:
+        logger('Could not display subtitles: %s' % (e), __friendly_message__)
+    else:
+        for caption in subs['captions']:
+            captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]
+    return captions if captions else None
 
 def get_subtitles_for_talk(talk_json, accepted_languages, logger):
     '''
@@ -67,5 +72,5 @@ def get_subtitles_for_talk(talk_json, accepted_languages, logger):
         logger(msg, msg)
         return None
 
-    raw_subtitles = get_subtitles(talk_id, language_matches[0])
+    raw_subtitles = get_subtitles(talk_id, language_matches[0], logger)
     return format_subtitles(raw_subtitles, int(float(intro_duration) * 1000))

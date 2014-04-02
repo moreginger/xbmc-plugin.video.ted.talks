@@ -3,6 +3,8 @@ import subtitles_scraper
 import urllib
 import tempfile
 import talk_scraper
+import time
+import sys
 
 
 class TestSubtitlesScraper(unittest.TestCase):
@@ -50,11 +52,12 @@ Vous savez tous que ce que je vais dire est vrai.
         When this is the case we must return None and not throw.
         '''
         from rss_scraper import NewTalksRss
-        newest_talk = list(NewTalksRss(None).get_new_talks())[0]
-        talk_json = self.__get_talk_json__(newest_talk['link'])
+        newest_talk = sorted(NewTalksRss(None).get_new_talks(), key=lambda t: time.strptime(t['date'], "%d.%m.%Y"), reverse=True)[0]
 
-        subs = subtitles_scraper.get_subtitles_for_talk(talk_json, ['en'], None)
-        self.assertIsNotNone(subs)
+        talk_json = self.__get_talk_json__(newest_talk['link'])
+        subs = subtitles_scraper.get_subtitles_for_talk(talk_json, ['en'], lambda m1, m2: sys.stdout.write('%s\n%s' % (m1, m2)))
+        if subs:
+            print "Newest Talk (%s) has subtitles: test ineffective" % (newest_talk['title'])
 
 
     def __get_talk_json__(self, url):

@@ -9,6 +9,7 @@ from model.speakers_scraper import Speakers
 from model.themes_scraper import Themes
 from model.util import resizeImage
 from model.search_scraper import Search
+from model.topics_skrapers import Topics
 import menu_util
 import os
 import time
@@ -102,6 +103,7 @@ class UI:
         self.addItem(plugin.getLS(30002), 'speakers', video_info={'Plot':plugin.getLS(30032)})
         self.addItem(plugin.getLS(30003), 'themes', video_info={'Plot':plugin.getLS(30033)})
         self.addItem(plugin.getLS(30004) + "...", 'search', video_info={'Plot':plugin.getLS(30034)})
+        self.addItem(plugin.getLS(30007), 'topics', video_info={'Plot':plugin.getLS(30033)})
         self.endofdirectory()
 
     def newTalksRss(self):
@@ -130,6 +132,18 @@ class UI:
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         self.endofdirectory()
 
+    def topics(self):
+        topics = Topics(self.get_HTML)
+        for title, link in topics.get_topics():
+            # Need to associate count with the item so that we can use it when that one selected.
+            self.addItem(title, 'topicVids', link, isFolder=True)
+        self.endofdirectory()
+
+    def topicVids(self, url):
+        topics = Topics(self.get_HTML)
+        for title, link, img in topics.get_talks(url):
+            self.addItem(title, 'playVideo', link, img, isFolder=False)
+        self.endofdirectory()
 
 class Action(object):
     '''
@@ -246,6 +260,24 @@ class ThemeVideosAction(Action):
     def run_internal(self, args):
         self.ui.themeVids(args['url'])
 
+class TopicsAction(Action):
+
+    def __init__(self, ui, *args, **kwargs):
+        super(TopicsAction, self).__init__('topics', [], *args, **kwargs)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.topics()
+
+
+class TopicVideosAction(Action):
+
+    def __init__(self, ui, *args, **kwargs):
+        super(TopicVideosAction, self).__init__('topicVids', ['url'], *args, **kwargs)
+        self.ui = ui
+
+    def run_internal(self, args):
+        self.ui.topicVids(args['url'])
 
 class SearchActionBase(Action):
 
@@ -318,7 +350,9 @@ class Main:
                 SpeakerGroupAction(ui, self.get_HTML, logger=plugin.report),
                 SpeakerVideosAction(ui, logger=plugin.report),
                 ThemesAction(ui, logger=plugin.report),
-                ThemeVideosAction(ui, logger=plugin.report)
+                ThemeVideosAction(ui, logger=plugin.report),
+                TopicsAction(ui, logger=plugin.report),
+                TopicVideosAction(ui, logger=plugin.report)
             ]
             modes = dict([(m.mode, m) for m in modes])
             mode = self.args_map['mode']

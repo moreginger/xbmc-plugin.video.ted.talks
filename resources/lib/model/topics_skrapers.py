@@ -10,23 +10,9 @@ class Topics:
 
     def get_topics(self):
         html = self.get_HTML(URLTOPICS)
-        #topics_div = xbmc_common.parseDOM(html, 'div', {'class':'box topics'})[0]
-        # Duplicates due to topics scroll/banner at top
-	# seen_titles = []
-	# for topic_li in xbmc_common.parseDOM(topics_div, 'li'):
-	# title = xbmc_common.parseDOM(topic_li, 'a', ret='title')[0]
-	# if title not in seen_titles:
-	#     seen_titles.append(title)
-	#             link = xbmc_common.parseDOM(topic_li, 'a', ret='href')[0]
-	#                img_link = xbmc_common.parseDOM(topic_li, 'img', ret='src')[0]
-	#                talk_count_p = xbmc_common.parseDOM(topic_li, 'p', {'class':'talk_count'})[0]
-	#                talk_count = xbmc_common.parseDOM(talk_count_p, 'span')[0]
-	#      yield title, URLTED + link, img_link, int(talk_count.strip())
 	for topic_div in xbmc_common.parseDOM(html, 'div', {'class':'topics__list__topic'}):
 	    title = xbmc_common.parseDOM(topic_div, 'a')[0]
-	    #sys.stderr.write("Topic Name: " + repr(title))
 	    link = xbmc_common.parseDOM(topic_div, 'a', ret='href')[0]
-	    #sys.stderr.write("Topic link: " + repr(link))
 	    yield title, URLTED + link
 
 

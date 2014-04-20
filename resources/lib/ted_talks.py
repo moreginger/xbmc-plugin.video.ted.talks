@@ -135,7 +135,6 @@ class UI:
     def topics(self):
         topics = Topics(self.get_HTML)
         for title, link in topics.get_topics():
-            # Need to associate count with the item so that we can use it when that one selected.
             self.addItem(title, 'topicVids', link, isFolder=True)
         self.endofdirectory()
 

@@ -9,7 +9,7 @@ from model.speakers_scraper import Speakers
 from model.themes_scraper import Themes
 from model.util import resizeImage
 from model.search_scraper import Search
-from model.topics_scrapers import Topics
+from model.topics_scraper import Topics
 import menu_util
 import os
 import time

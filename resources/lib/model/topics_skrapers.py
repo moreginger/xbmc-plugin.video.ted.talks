@@ -1,7 +1,6 @@
 from url_constants import URLTED, URLTOPICS
 # Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
 import CommonFunctions as xbmc_common
-import sys
 
 class Topics:
 
@@ -19,9 +18,7 @@ class Topics:
     def get_talks(self, url):
         url = url + "?page=%s"
         page_index = 1
-	import sys
         html = self.get_HTML(url % (page_index))
-	sys.stderr.write(url)
         
         # Have to know when to stop paging, see condition for loop exit below.
         found_titles = set()

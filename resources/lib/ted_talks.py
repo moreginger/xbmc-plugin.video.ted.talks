@@ -110,34 +110,23 @@ class UI:
             self.addItem(title=talk['title'], mode='playVideo', url=talk['link'], img=talk['thumb'], video_info=talk, isFolder=False)
         self.endofdirectory(sortMethod='date')
 
-
     def speakerVids(self, url):
         talks_generator = Speakers(self.get_HTML).get_talks_for_speaker(url)
         for title, link, img in talks_generator:
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         self.endofdirectory()
 
-    def topics(self):
-        topics = Topics(self.get_HTML)
-        for title, link in topics.get_topics():
-            self.addItem(title, 'topicVids', link, isFolder=True)
-        self.endofdirectory()
-
-    def topicVids(self, url):
-        topics = Topics(self.get_HTML)
-        for title, link, img in topics.get_talks(url):
-            self.addItem(title, 'playVideo', link, img, isFolder=False)
-        self.endofdirectory()
 
 class Action(object):
     '''
     Some action that can be executed by the user.
     '''
 
-    def __init__(self, mode, required_args, logger=None, *args, **kwargs):
+    def __init__(self, mode, required_args, logger=None, get_HTML=None, *args, **kwargs):
         self.mode = mode
         self.required_args = set(required_args)
         self.logger = logger
+        self.get_HTML = get_HTML
 
     def run(self, args):
         good = self.required_args.issubset(args.keys())
@@ -232,24 +221,30 @@ class TopicsAction(Action):
         self.ui = ui
 
     def run_internal(self, args):
-        self.ui.topics()
+        topics = Topics(self.get_HTML, self.logger)
+        for title, link in topics.get_topics():
+            self.ui.addItem(title, 'topicVids', link, isFolder=True)
+        self.ui.endofdirectory()
 
 
 class TopicVideosAction(Action):
 
     def __init__(self, ui, *args, **kwargs):
-        super(TopicVideosAction, self).__init__('topicVids', ['url'], *args, **kwargs)
+        super(TopicVideosAction, self).__init__('topicVids', ['topic'], *args, **kwargs)
         self.ui = ui
 
     def run_internal(self, args):
-        self.ui.topicVids(args['url'])
+        topics = Topics(self.get_HTML, self.logger)
+        for title, link, img, speaker in topics.get_talks(args['topic']):
+            self.ui.addItem(title, 'playVideo', link, img, isFolder=False, videoInfo={'author' : speaker})
+        self.ui.endofdirectory()
+
 
 class SearchActionBase(Action):
 
-    def __init__(self, ui, get_HTML, *args, **kwargs):
+    def __init__(self, ui, *args, **kwargs):
         super(SearchActionBase, self).__init__(*args, **kwargs)
         self.ui = ui
-        self.get_HTML = get_HTML
 
     def __add_items__(self, search_term, page, current_items, update_listing):
         talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, page)
@@ -307,16 +302,16 @@ class Main:
             ui.showCategories()
         else:
             modes = [
-                PlayVideoAction(ui, logger=plugin.report),
-                NewTalksAction(ui, logger=plugin.report),
-                SearchAction(ui, self.get_HTML, logger=plugin.report),
-                SearchMoreAction(ui, self.get_HTML, logger=plugin.report),
-                SpeakersAction(ui, self.get_HTML, logger=plugin.report),
-                SpeakerGroupAction(ui, self.get_HTML, logger=plugin.report),
-                SpeakerVideosAction(ui, logger=plugin.report),
-                ThemeVideosAction(ui, logger=plugin.report),
-                TopicsAction(ui, logger=plugin.report),
-                TopicVideosAction(ui, logger=plugin.report)
+                PlayVideoAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                NewTalksAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                SearchAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                SearchMoreAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                SpeakersAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                SpeakerGroupAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                SpeakerVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                ThemeVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                TopicsAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
+                TopicVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML)
             ]
             modes = dict([(m.mode, m) for m in modes])
             mode = self.args_map['mode']

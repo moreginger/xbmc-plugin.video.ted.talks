@@ -4,47 +4,50 @@ import CommonFunctions as xbmc_common
 
 class Topics:
 
-    def __init__(self, get_HTML):
+    def __init__(self, get_HTML, logger):
         self.get_HTML = get_HTML
+        self.logger = logger
 
     def get_topics(self):
         html = self.get_HTML(URLTOPICS)
         for topic_div in xbmc_common.parseDOM(html, 'div', {'class':'topics__list__topic'}):
             title = xbmc_common.parseDOM(topic_div, 'a')[0]
             link = xbmc_common.parseDOM(topic_div, 'a', ret='href')[0]
-            yield title, URLTED + link
+            topic = link.split('/')[-1]
+            yield title, topic
 
 
-    def get_talks(self, url):
-        url = url + "?page=%s"
-        page_index = 1
-        html = self.get_HTML(url % (page_index))
-        
-        # Have to know when to stop paging, see condition for loop exit below.
-        found_titles = set()
-        found_on_last_page = 0
+    def get_talks(self, topic):
+        page = 0
 
         while True:
-            talk_box = xbmc_common.parseDOM(html, 'div', {'class':'box talks'})[0]
-            talk_list = xbmc_common.parseDOM(talk_box, 'ul')[0]
-            found_before = len(found_titles)
-            for talk in xbmc_common.parseDOM(talk_list, 'li'):
-                title = xbmc_common.parseDOM(talk, 'a', ret='title')[0].strip()
-                if title not in found_titles:
-                    found_titles.add(title)
-                    link = xbmc_common.parseDOM(talk, 'a', ret='href')[0]
-                    for img_link in xbmc_common.parseDOM(talk, 'img', ret='src'):
-                        if 'images.ted.com' in img_link:
-                            yield title, URLTED + link, img_link
-                            break
-
-            # Results on last page == results on (last page + 1), _not_ 0 as you might hope.
-            # The second clause allows us to skip looking at last page + 1 if the last page contains
-            # fewer results than that before it; which is usually but not always the case.
-            found_on_this_page = len(found_titles) - found_before
-            if found_on_this_page and found_on_this_page >= found_on_last_page:
-                page_index += 1
-                found_on_last_page = found_on_this_page
-                html = self.get_HTML(url % (page_index))
-            else:
+            page += 1
+            url = URLTED + '/talks?page={page}&topics%5B%5D={topic}'.format(page=page, topic=topic)
+            html = self.get_HTML(url)
+            talks = xbmc_common.parseDOM(html, 'div', {'class':'talk-link'})
+            if not talks:
+                self.logger('Empty page requested? Please report this message.')
                 break
+
+            for talk in talks:
+                link = [href for href in xbmc_common.parseDOM(talk, 'a', ret='href') if '/talks' in href][0]
+                title = img = speaker = None
+                description = xbmc_common.parseDOM(talk, 'div', {'class':'media__message'})
+                if description:
+                    anchors = xbmc_common.parseDOM(description, 'a')
+                    if anchors:
+                        title = anchors[0]
+                    speakers = xbmc_common.parseDOM(description, 'h4', {'class':'[^\'"]*talk-link__speaker[^\'"]*'})
+                    if speakers:
+                        speaker = speakers[0]
+                    imgs = [src for src in xbmc_common.parseDOM(talk, 'img', ret='src') if 'images.ted.com' in src]
+                    if imgs:
+                        img = imgs[0]
+
+                yield title, URLTED + link, img, speaker
+
+            next_link = xbmc_common.parseDOM(html, 'span', {'class':'[^\'"]*pagination__next[^\'"]*'}, ret='class')
+            if next_link:
+                if 'disabled' in next_link[0]:
+                    # On last page, stop loop.
+                    return

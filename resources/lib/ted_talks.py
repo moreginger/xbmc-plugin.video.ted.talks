@@ -222,8 +222,8 @@ class TopicsAction(Action):
 
     def run_internal(self, args):
         topics = Topics(self.get_HTML, self.logger)
-        for title, link in topics.get_topics():
-            self.ui.addItem(title, 'topicVids', link, isFolder=True)
+        for title, topic in topics.get_topics():
+            self.ui.addItem(title, 'topicVids', args={ 'topic': topic }, isFolder=True)
         self.ui.endofdirectory()
 
 
@@ -236,7 +236,7 @@ class TopicVideosAction(Action):
     def run_internal(self, args):
         topics = Topics(self.get_HTML, self.logger)
         for title, link, img, speaker in topics.get_talks(args['topic']):
-            self.ui.addItem(title, 'playVideo', link, img, isFolder=False, videoInfo={'author' : speaker})
+            self.ui.addItem(title, 'playVideo', link, img, isFolder=False, video_info={ 'author': speaker })
         self.ui.endofdirectory()
 
 
@@ -309,7 +309,6 @@ class Main:
                 SpeakersAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
                 SpeakerGroupAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
                 SpeakerVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                ThemeVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
                 TopicsAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
                 TopicVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML)
             ]

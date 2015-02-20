@@ -6,7 +6,6 @@ import settings
 from model.fetcher import Fetcher
 from model.rss_scraper import NewTalksRss
 from model.speakers_scraper import Speakers
-from model.themes_scraper import Themes
 from model.util import resizeImage
 from model.search_scraper import Search
 from model.topics_scraper import Topics
@@ -101,7 +100,6 @@ class UI:
     def showCategories(self):
         self.addItem(plugin.getLS(30001), 'newTalksRss', video_info={'Plot':plugin.getLS(30031)})
         self.addItem(plugin.getLS(30002), 'speakers', video_info={'Plot':plugin.getLS(30032)})
-        self.addItem(plugin.getLS(30003), 'themes', video_info={'Plot':plugin.getLS(30033)})
         self.addItem(plugin.getLS(30004) + "...", 'search', video_info={'Plot':plugin.getLS(30034)})
         self.addItem(plugin.getLS(30007), 'topics', video_info={'Plot':plugin.getLS(30033)})
         self.endofdirectory()
@@ -116,19 +114,6 @@ class UI:
     def speakerVids(self, url):
         talks_generator = Speakers(self.get_HTML).get_talks_for_speaker(url)
         for title, link, img in talks_generator:
-            self.addItem(title, 'playVideo', link, img, isFolder=False)
-        self.endofdirectory()
-
-    def themes(self):
-        themes = Themes(self.get_HTML)
-        for title, link, img, count in themes.get_themes():
-            # Need to associate count with the item so that we can use it when that one selected.
-            self.addItem(title, 'themeVids', link, img, isFolder=True)
-        self.endofdirectory()
-
-    def themeVids(self, url):
-        themes = Themes(self.get_HTML)
-        for title, link, img in themes.get_talks(url):
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         self.endofdirectory()
 
@@ -240,25 +225,6 @@ class SpeakerVideosAction(Action):
         self.ui.speakerVids(args['url'])
 
 
-class ThemesAction(Action):
-
-    def __init__(self, ui, *args, **kwargs):
-        super(ThemesAction, self).__init__('themes', [], *args, **kwargs)
-        self.ui = ui
-
-    def run_internal(self, args):
-        self.ui.themes()
-
-
-class ThemeVideosAction(Action):
-
-    def __init__(self, ui, *args, **kwargs):
-        super(ThemeVideosAction, self).__init__('themeVids', ['url'], *args, **kwargs)
-        self.ui = ui
-
-    def run_internal(self, args):
-        self.ui.themeVids(args['url'])
-
 class TopicsAction(Action):
 
     def __init__(self, ui, *args, **kwargs):
@@ -348,7 +314,6 @@ class Main:
                 SpeakersAction(ui, self.get_HTML, logger=plugin.report),
                 SpeakerGroupAction(ui, self.get_HTML, logger=plugin.report),
                 SpeakerVideosAction(ui, logger=plugin.report),
-                ThemesAction(ui, logger=plugin.report),
                 ThemeVideosAction(ui, logger=plugin.report),
                 TopicsAction(ui, logger=plugin.report),
                 TopicVideosAction(ui, logger=plugin.report)

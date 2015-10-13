@@ -40,7 +40,7 @@ class Topics:
                     speakers = xbmc_common.parseDOM(description, 'h4', {'class':'[^\'"]*talk-link__speaker[^\'"]*'})
                     if speakers:
                         speaker = speakers[0]
-                    imgs = [src for src in xbmc_common.parseDOM(talk, 'img', ret='src') if 'images.ted.com' in src]
+                    imgs = [src for src in xbmc_common.parseDOM(talk, 'img', ret='src') if 'images/ted' in src]
                     if imgs:
                         img = imgs[0]
 

@@ -1,4 +1,7 @@
 [B]Version 4.2.5[/B]
+Fix topics (issue#54)
+
+[B]Version 4.2.5[/B]
 Added topics browsing (pull#52 thanks to Tibo-lg)
 Removed themes category which has been replaced by topics (issue#53)
 

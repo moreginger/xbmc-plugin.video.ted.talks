@@ -1,4 +1,4 @@
-[B]Version 4.2.5[/B]
+[B]Version 4.2.6[/B]
 Fix topics (issue#54)
 
 [B]Version 4.2.5[/B]

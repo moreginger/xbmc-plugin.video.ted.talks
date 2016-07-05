@@ -1,0 +1,6 @@
+language: python
+python:
+  - "2.7"
+install: pip install
+before_script: PYTHONPATH=$PYTHONPATH
+script: nosetests

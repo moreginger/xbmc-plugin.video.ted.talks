@@ -2,5 +2,6 @@ language: python
 python:
   - "2.7"
 install: pip install
-before_script: PYTHONPATH=$PYTHONPATH
+before_script:
+  - PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/testSupport
 script: nosetests

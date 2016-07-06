@@ -4,5 +4,4 @@ python:
 install: pip install
 before_script:
   - export PYTHONPATH=$PYTHONPATH:$TRAVIS_BUILD_DIR/testSupport
-  - echo $PYTHONPATH
 script: nosetests

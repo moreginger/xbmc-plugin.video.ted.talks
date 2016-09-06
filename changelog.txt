@@ -1,4 +1,5 @@
 [B]Version 4.2.9[/B]
+Fix topics (issue#60)
 Removed vestiges of Vimeo support
 
 [B]Version 4.2.8[/B]

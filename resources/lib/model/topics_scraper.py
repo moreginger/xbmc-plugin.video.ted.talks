@@ -10,10 +10,10 @@ class Topics:
 
     def get_topics(self):
         html = self.get_HTML(URLTOPICS)
-        for li in xbmc_common.parseDOM(html, 'li'):
+        for li in xbmc_common.parseDOM(html, 'li', attrs={'class':'d:b'}):
             link = xbmc_common.parseDOM(li, 'a', ret='href')
             if link and link[0].startswith('/topics/'):
-                title = xbmc_common.parseDOM(li, 'a')[0]
+                title = xbmc_common.parseDOM(li, 'span')[0]
                 topic = link[0][len('/topics/'):]
                 yield title, topic
 

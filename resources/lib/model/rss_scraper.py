@@ -54,7 +54,7 @@ class NewTalksRss:
             date = time.localtime()
         date = time.strftime("%d.%m.%Y", date)
 
-        return {'title':title, 'author':author, 'thumb':pic, 'plot':plot, 'duration':duration_seconds, 'date':date, 'link':link}
+        return {'title':title, 'author':author, 'thumb':pic, 'plot':plot, 'duration':duration_seconds, 'date':date, 'link':link, 'mediatype': "video"}
 
     def __total_seconds__(self, delta):
         try:

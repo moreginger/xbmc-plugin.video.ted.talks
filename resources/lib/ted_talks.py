@@ -15,7 +15,6 @@ import time
 import xbmc
 import xbmcplugin
 import xbmcgui
-import xbmcaddon
 import itertools
 
 
@@ -24,7 +23,6 @@ class UI:
     def __init__(self, get_HTML, ted_talks):
         self.get_HTML = get_HTML
         self.ted_talks = ted_talks
-        xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
     def endofdirectory(self, sortMethod='title', updateListing=False):
         # set sortmethod to something xbmc can use
@@ -42,7 +40,7 @@ class UI:
 
     def addItem(self, title, mode, url=None, img='', args={}, video_info={}, isFolder=True, total_items=0):
         # Create action url
-        args['mode'] = mode;
+        args['mode'] = mode
         if url:
             args['url'] = url
         if img:
@@ -52,7 +50,7 @@ class UI:
         action_url = sys.argv[0] + '?' + "&".join(args)
 
         li = xbmcgui.ListItem(label=title, iconImage=img, thumbnailImage=img)
-        video_info = dict((k, v) for k, v in video_info.iteritems() if k in ['date', 'plot'])
+        video_info = dict((k, v) for k, v in video_info.iteritems() if k in ['date', 'plot', 'mediatype'])
         if video_info:
             li.setInfo('video', video_info)
         if 'duration' in video_info:
@@ -86,7 +84,7 @@ class UI:
             while not player.isPlaying() and time.time() - start_time < 30:
                 time.sleep(1)
             if player.isPlaying():
-                xbmc.Player().setSubtitles(subs_file);
+                xbmc.Player().setSubtitles(subs_file)
             else:
                 # No user message: user was probably already notified of a problem with the stream.
                 plugin.report('Could not show subtitles: timed out waiting for player to start.')
@@ -108,12 +106,14 @@ class UI:
         newTalks = NewTalksRss(plugin.report)
         for talk in newTalks.get_new_talks():
             self.addItem(title=talk['title'], mode='playVideo', url=talk['link'], img=talk['thumb'], video_info=talk, isFolder=False)
+        xbmcplugin.setContent(int(sys.argv[1]), 'videos')
         self.endofdirectory(sortMethod='date')
 
     def speakerVids(self, url):
         talks_generator = Speakers(self.get_HTML).get_talks_for_speaker(url)
         for title, link, img in talks_generator:
             self.addItem(title, 'playVideo', link, img, isFolder=False)
+        xbmcplugin.setContent(int(sys.argv[1]), 'videos')
         self.endofdirectory()
 
 
@@ -201,6 +201,7 @@ class SpeakerGroupAction(Action):
         if pages[-1] < pages_count:
             label = '%s-%s' % (pages[-1] + 1, min(pages_count, pages[-1] * 2 - pages[0]))
             self.ui.addItem(label + '...', 'speakerGroup', label, isFolder=True)
+        xbmcplugin.setContent(int(sys.argv[1]), 'actors')
         self.ui.endofdirectory(sortMethod='none')
 
 
@@ -224,6 +225,7 @@ class TopicsAction(Action):
         topics = Topics(self.get_HTML, self.logger)
         for title, topic in topics.get_topics():
             self.ui.addItem(title, 'topicVids', args={ 'topic': topic }, isFolder=True)
+        xbmcplugin.setContent(int(sys.argv[1]), 'genres')
         self.ui.endofdirectory()
 
 
@@ -236,7 +238,8 @@ class TopicVideosAction(Action):
     def run_internal(self, args):
         topics = Topics(self.get_HTML, self.logger)
         for title, link, img, speaker in topics.get_talks(args['topic']):
-            self.ui.addItem(title, 'playVideo', link, img, isFolder=False, video_info={ 'author': speaker })
+            self.ui.addItem(title, 'playVideo', link, img, isFolder=False, video_info={ 'author': speaker, 'mediatype': "video" })
+        xbmcplugin.setContent(int(sys.argv[1]), 'videos')
         self.ui.endofdirectory()
 
 
@@ -251,9 +254,10 @@ class SearchActionBase(Action):
         remaining_talks = itertools.islice(talks_generator, 1).next()
         search_results = list(itertools.chain(current_items, talks_generator))
         for title, link, img in search_results:
-            self.ui.addItem(title, 'playVideo', link, img, isFolder=False)
+            self.ui.addItem(title, 'playVideo', link, img, isFolder=False, video_info={ 'mediatype': "video" })
         if remaining_talks:
             self.ui.addItem(plugin.getLS(30022), 'searchMore', args={'search_term': search_term, 'page': str(page + 1)})
+        xbmcplugin.setContent(int(sys.argv[1]), 'videos')
         self.ui.endofdirectory(sortMethod='none', updateListing=update_listing)
 
         return search_results

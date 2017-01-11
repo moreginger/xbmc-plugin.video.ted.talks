@@ -59,9 +59,9 @@ class UI:
         if not isFolder:
             li.setProperty("IsPlayable", "true")  # let xbmc know this can be played, unlike a folder.
             context_menu = menu_util.create_context_menu(getLS=plugin.getLS)
-            li.addContextMenuItems(context_menu, replaceItems=True)
+            li.addContextMenuItems(context_menu, replaceItems=False)
         else:
-            li.addContextMenuItems([], replaceItems=True)
+            li.addContextMenuItems([], replaceItems=False)
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=action_url, listitem=li, isFolder=isFolder, totalItems=total_items)
 
     def playVideo(self, url, icon):

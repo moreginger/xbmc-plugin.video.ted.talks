@@ -1,3 +1,7 @@
+[B]Version 4.2.10[/B]
+Correct media type for items (pull#61 thanks to phil65)
+Keep default context menu items (issue#62)
+
 [B]Version 4.2.9[/B]
 Fix topics (issue#60)
 Removed vestiges of Vimeo support

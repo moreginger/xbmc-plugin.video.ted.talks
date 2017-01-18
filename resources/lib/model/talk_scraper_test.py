@@ -1,7 +1,8 @@
-import unittest
+import requests
 import talk_scraper
 import test_util
 import timeit
+import unittest
 
 
 class TestTalkScraper(unittest.TestCase):
@@ -29,7 +30,7 @@ class TestTalkScraper(unittest.TestCase):
         else:
             self.assertIsNone(talk_json)
 
-    def test_get_custom_quality_video(self):
+    def test_get_custom_quality_video_pre_2017(self):
         html = test_util.get_HTML("http://www.ted.com/talks/edith_widder_how_we_found_the_giant_squid.html")
         # Note not customized. Should be a useful fallback if this code goes haywire.
         self.assert_custom_quality_url(html, "320kbps", "https://download.ted.com/talks/EdithWidder_2013-320k.mp4?dnt")
@@ -44,8 +45,24 @@ class TestTalkScraper(unittest.TestCase):
         # Fall back to standard URL when custom URL 404s
         self.assert_custom_quality_url(html, "42kbps", "https://download.ted.com/talks/EdithWidder_2013-320k.mp4?dnt")
 
+    def test_get_custom_quality_video_2017(self):
+        html = test_util.get_HTML("https://www.ted.com/talks/dan_bricklin_meet_the_inventor_of_the_electronic_spreadsheet")
+        # Note not customized. Should be a useful fallback if this code goes haywire.
+        self.assert_custom_quality_url(html, "320kbps", "https://download.ted.com/talks/DanBricklin_2016X-320k.mp4?dnt")
+
+        self.assert_custom_quality_url(html, "64kbps", "https://download.ted.com/talks/DanBricklin_2016X-64k.mp4?dnt")
+        self.assert_custom_quality_url(html, "180kbps", "https://download.ted.com/talks/DanBricklin_2016X-180k.mp4?dnt")
+        self.assert_custom_quality_url(html, "450kbps", "https://download.ted.com/talks/DanBricklin_2016X-450k.mp4?dnt")
+        self.assert_custom_quality_url(html, "600kbps", "https://download.ted.com/talks/DanBricklin_2016X-600k.mp4?dnt")
+        self.assert_custom_quality_url(html, "950kbps", "https://download.ted.com/talks/DanBricklin_2016X-900k.mp4?dnt")
+        self.assert_custom_quality_url(html, "1500kbps", "https://download.ted.com/talks/DanBricklin_2016X-1500k.mp4?dnt")
+
+        # Fall back to standard URL when custom URL 404s
+        self.assert_custom_quality_url(html, "42kbps", "https://download.ted.com/talks/DanBricklin_2016X-320k.mp4?dnt")
+
     def assert_custom_quality_url(self, talk_html, video_quality, expected_video_url):
         video_url, title, speaker, plot, talk_json = talk_scraper.get(talk_html, video_quality)
+        self.assertEqual(200, requests.head(video_url, allow_redirects=True).status_code)
         self.assertEqual(expected_video_url, video_url)
 
     def test_performance(self):

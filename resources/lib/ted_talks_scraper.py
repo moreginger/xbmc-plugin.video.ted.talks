@@ -12,10 +12,10 @@ class TedTalks:
         self.getHTML = getHTML
         self.logger = logger
 
-    def getVideoDetails(self, url, video_quality, subs_language=None):
+    def getVideoDetails(self, url, subs_language=None):
         talk_html = self.getHTML(url)
         try:
-            video_url, title, speaker, plot, talk_json = talk_scraper.get(talk_html, video_quality)
+            video_url, title, speaker, plot, talk_json = talk_scraper.get(talk_html)
         except Exception, e:
             raise type(e)(e.message + "\nfor url '%s'" % (url))
 

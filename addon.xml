@@ -4,6 +4,7 @@
     <import addon="xbmc.python" version="2.24.0"/>
     <import addon="script.module.elementtree" version="1.2.7"/>
     <import addon="script.module.parsedom" version="0.9.1"/>
+    <import addon="script.module.m3u8" version="0.2.10"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>

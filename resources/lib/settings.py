@@ -13,7 +13,6 @@ __current_search_results__ = 'current_search_results'
 profile_path = '~/.xbmc/userdata/addon_data/plugin.video.ted.talks'
 download_mode = True
 download_path = '/tmp/'
-video_quality = 3
 enable_subtitles = True
 xbmc_language = 'English'
 subtitle_language = 'en'
@@ -27,7 +26,6 @@ def init():
         os.makedirs(profile_path)
     download_mode = addon.getSetting('downloadMode')
     download_path = addon.getSetting('downloadPath')
-    video_quality = addon.getSetting('video_quality')
     enable_subtitles = addon.getSetting('enable_subtitles')
     xbmc_language = xbmc.getLanguage()
     subtitle_language = addon.getSetting('subtitle_language')

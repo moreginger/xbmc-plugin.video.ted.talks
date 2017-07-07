@@ -15,8 +15,10 @@ import time
 import xbmc
 import xbmcplugin
 import xbmcgui
+import xbmcaddon
 import itertools
 
+from ted_talks_const import ADDON, DATE, VERSION
 
 class UI:
 
@@ -43,9 +45,12 @@ class UI:
         args['mode'] = mode
         if url:
             args['url'] = url
-        if img:
-            img = resizeImage(img)
-            args['icon'] = img
+
+        # The resizeImage method seems to fubar the thumbnails, let's turn that off
+        # if img:
+        #     img = resizeImage(img)
+        #     args['icon'] = img
+
         args = [k + '=' + urllib.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.iteritems()]
         action_url = sys.argv[0] + '?' + "&".join(args)
 
@@ -65,6 +70,11 @@ class UI:
         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=action_url, listitem=li, isFolder=isFolder, totalItems=total_items)
 
     def playVideo(self, url, icon):
+
+        xbmc.log(
+            "[ADDON] %s v%s (%s) debug mode, %s = %s" % (ADDON, VERSION, DATE, "url", str(url)),
+            xbmc.LOGDEBUG)
+
         subs_language = settings.get_subtitle_languages()
         title, url, subs, info_labels = self.ted_talks.getVideoDetails(url=url, video_quality=settings.video_quality, subs_language=subs_language)
         li = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon, path=url)

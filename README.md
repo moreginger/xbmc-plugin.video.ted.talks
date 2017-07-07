@@ -1,4 +1,4 @@
-xbmc-plugin.video.ted.talks
+plugin.video.ted.talks
 ===========================
 This is a fork of the project started by rwparris, see
 [here](http://forum.xbmc.org/showthread.php?tid=36866).

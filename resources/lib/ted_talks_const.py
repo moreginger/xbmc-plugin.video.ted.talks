@@ -5,5 +5,5 @@
 # Constants
 # 
 ADDON = "plugin.video.ted.talks"
-DATE = "2017-05-25"
-VERSION = "4.2.10"
+DATE = "2017-05-26"
+VERSION = "4.2.12-SNAPSHOT"

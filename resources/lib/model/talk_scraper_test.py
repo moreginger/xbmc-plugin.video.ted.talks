@@ -65,7 +65,7 @@ class TestTalkScraper(unittest.TestCase):
         self.assertEqual(200, requests.head(video_url, allow_redirects=True).status_code)
         self.assertEqual(expected_video_url, video_url)
 
-    @unittest.skip("rate limiting")
+    @test_util.skip_ted_rate_limited
     def test_performance(self):
         html = test_util.get_HTML("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")
 

@@ -12,6 +12,7 @@ class TestTopicsScraper(unittest.TestCase):
         sample_topic = [t for t in e_topics if t[0] == 'Activism'][0]
         self.assertEqual('activism', sample_topic[1])
 
+    @unittest.skip("rate limiting")
     def test_get_topics_performance(self):
         scraper = Topics(test_util.CachedHTMLProvider().get_HTML, None)
         # Run once to cache.
@@ -36,6 +37,7 @@ class TestTopicsScraper(unittest.TestCase):
         self.assertEqual('https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/58068_800x600.jpg?quality=89&amp;w=320', sample_talk[2])
         self.assertEqual('John Francis', sample_talk[3])
 
+    @unittest.skip("rate limiting")
     def test_get_talks_performance(self):
         scraper = Topics(test_util.CachedHTMLProvider().get_HTML, None)
         # Run once to cache.

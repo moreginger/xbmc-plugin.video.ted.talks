@@ -12,9 +12,36 @@ def get(html, video_quality='320kbps'):
     """Extract talk details from talk html
        @param video_quality string in form '\d+kbps' that should match one of the provided TED bitrates.
     """
+
+    # xbmc.log(
+    #     "[ADDON] %s v%s (%s) debug mode, %s = %s" % (ADDON, VERSION, DATE, "html", str(html)),
+    #     xbmc.LOGDEBUG)
+
     init_scripts = [script for script in xbmc_common.parseDOM(html, 'script') if '"talkPage.init"' in script]
     if init_scripts:
-        init_json = json.loads(re.compile(r'q[(]"talkPage.init",(.+)[)]').search(init_scripts[0]).group(1))
+
+        xbmc.log("[ADDON] %s v%s (%s) debug mode, %s = %s" % (ADDON, VERSION, DATE, "init_scripts", str(init_scripts)),
+            xbmc.LOGDEBUG)
+
+        # init_json = json.loads(re.compile(r'q[(]"talkPage.init",(.+)[)]').search(init_scripts[0]).group(1))
+        # let's do this some other way
+        init_scripts_start_pos = str(init_scripts).find("{")
+        init_scripts = str(init_scripts)[init_scripts_start_pos:]
+        init_scripts = init_scripts + '}'
+
+        xbmc.log("[ADDON] %s v%s (%s) debug mode, %s = %s" % (ADDON, VERSION, DATE, "init_scripts altered", str(init_scripts)),
+                 xbmc.LOGDEBUG)
+
+        #let's remove some json breaking invalid characters
+        init_scripts = init_scripts.replace("\\n\\t","")
+        init_scripts = init_scripts.replace("\\n})']","")
+        init_scripts = init_scripts.replace('\\\\"','')
+        init_scripts = init_scripts.replace("\\","")
+
+        xbmc.log("[ADDON] %s v%s (%s) debug mode, %s = %s" % (ADDON, VERSION, DATE, "init_scripts sliced", str(init_scripts)),
+                 xbmc.LOGDEBUG)
+
+        init_json = json.loads(str(init_scripts),strict=False)
         talk_json = init_json['__INITIAL_DATA__']['talks'][0]
         title = talk_json['player_talks'][0]['title']
 

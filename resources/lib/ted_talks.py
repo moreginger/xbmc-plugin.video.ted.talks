@@ -1,4 +1,3 @@
-import sys
 import urllib
 import ted_talks_scraper
 import plugin
@@ -17,6 +16,7 @@ import xbmcplugin
 import xbmcgui
 import xbmcaddon
 import itertools
+import sys
 
 from ted_talks_const import ADDON, DATE, VERSION
 

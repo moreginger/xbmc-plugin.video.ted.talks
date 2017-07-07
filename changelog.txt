@@ -1,5 +1,6 @@
-Version 4.2.12-SNAPSHOT (2027-06-27)
+Version 4.2.12-SNAPSHOT (2017-07-06)
 Small text fixes
+Fixed video playback (json changed in website)
 
 Version 4.2.11 (Skipmode A1: It seems the developer moreginger isn't active anymore :/. Therefore i made this version.)
 Fixed video playback (json changed in website)

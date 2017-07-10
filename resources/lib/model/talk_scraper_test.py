@@ -1,8 +1,11 @@
-import requests
-import talk_scraper
-import test_util
 import timeit
 import unittest
+
+import mock
+import requests
+
+import talk_scraper
+import test_util
 
 
 class TestTalkScraper(unittest.TestCase):
@@ -11,16 +14,18 @@ class TestTalkScraper(unittest.TestCase):
         self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "https://download.ted.com/talks/ArielGarten_2011X-320k.mp4?dnt", "Know thyself, with a brain scanner", "Ariel Garten", True, True)
         self.assert_talk_details("http://www.ted.com/talks/tom_shannon_s_magnetic_sculpture.html", "https://download.ted.com/talks/TomShannon_2003-320k.mp4?dnt", "Anti-gravity sculpture", "Tom Shannon", True, True);
 
+    @test_util.skip_ted_rate_limited
     def test_get_youtube_video(self):
         self.assert_talk_details("http://www.ted.com/talks/seth_godin_this_is_broken_1.html", "plugin://plugin.video.youtube/?action=play_video&videoid=aNDiHSHYI_c", "This is broken", "Seth Godin", False, True)
 
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker, expect_plot, expect_json):
-        video_url, title, speaker, plot, talk_json = talk_scraper.get(test_util.get_HTML(talk_url))
+        logger = mock.MagicMock()
+        video_url, title, speaker, plot, talk_json = talk_scraper.get(test_util.get_HTML(talk_url), logger)
         self.assertEqual(expected_video_url, video_url)
         self.assertEqual(expected_title, title)
         self.assertEqual(expected_speaker, speaker)
 
-        if (expect_plot):
+        if expect_plot:
             self.assertTrue(plot)  # Not None or empty
         else:
             self.assertIsNone(plot)
@@ -68,9 +73,10 @@ class TestTalkScraper(unittest.TestCase):
     @test_util.skip_ted_rate_limited
     def test_performance(self):
         html = test_util.get_HTML("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")
+        logger = mock.MagicMock()
 
         def test():
-            talk_scraper.get(html);
+            talk_scraper.get(html, logger)
 
         t = timeit.Timer(test)
         repeats = 10

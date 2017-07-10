@@ -18,7 +18,6 @@ import xbmcaddon
 import itertools
 import sys
 
-from ted_talks_const import ADDON, DATE, VERSION
 
 class UI:
 
@@ -60,7 +59,7 @@ class UI:
             li.setInfo('video', video_info)
         if 'duration' in video_info:
             # To set with second granularity must do this rather than via setInfo
-            li.addStreamInfo('video', { 'duration' : video_info['duration'] })
+            li.addStreamInfo('video', {'duration' : video_info['duration']})
         if not isFolder:
             li.setProperty("IsPlayable", "true")  # let xbmc know this can be played, unlike a folder.
             context_menu = menu_util.create_context_menu(getLS=plugin.getLS)
@@ -71,9 +70,7 @@ class UI:
 
     def playVideo(self, url, icon):
 
-        xbmc.log(
-            "[ADDON] %s v%s (%s) debug mode, %s = %s" % (ADDON, VERSION, DATE, "url", str(url)),
-            xbmc.LOGDEBUG)
+        plugin.report('%s = %s' % ('url', str(url)), level='debug')
 
         subs_language = settings.get_subtitle_languages()
         title, url, subs, info_labels = self.ted_talks.getVideoDetails(url=url, video_quality=settings.video_quality, subs_language=subs_language)

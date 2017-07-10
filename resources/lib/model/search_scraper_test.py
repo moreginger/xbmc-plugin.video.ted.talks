@@ -27,6 +27,7 @@ class TestSearchScraper(unittest.TestCase):
         self.assertEqual(0, remaining_talks)
         self.assertLess(0, len(talks))
 
+    @test_util.skip_ted_rate_limited
     def test_get_talks_for_search_decodes_entities(self):
         scraper = Search(test_util.get_HTML)
         talks_generator = scraper.get_talks_for_search('Onora', 1)

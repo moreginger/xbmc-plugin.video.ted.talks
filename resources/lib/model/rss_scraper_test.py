@@ -49,7 +49,7 @@ class TestNewTalksRss(unittest.TestCase):
         details = self.talks.get_talk_details(document)
         date_now = datetime.strftime(datetime.now(), '%d.%m.%Y')
         self.assertEqual(date_now, details['date'])
-        self.logger.assert_called_with("Could not parse date 'Sat, 04 02 2012 08'", level=debug)
+        self.logger.assert_called_with("Could not parse date 'Sat, 04 02 2012 08': time data 'Sat, 04 02 2012 08' does not match format '%a, %d %b %Y %H:%M:%S'")
 
     def test_smoke(self):
         talks = list(self.talks.get_new_talks())

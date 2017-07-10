@@ -47,13 +47,13 @@ def get_subtitles_for_talk(talk_json, accepted_languages, logger):
     talk_id = talk_json['id']
     intro_duration = talk_json['player_talks'][0]['introDuration']
 
-    logger('%s = %s' % ('intro_duration', str(intro_duration)), level='debug')
+    logger('%s = %s' % ('intro_duration', intro_duration), level='debug')
 
     try:
         languages = __get_languages__(talk_json)
 
-        logger('%s = %s' % ('languages', str(languages)), level='debug')
-        logger('%s = %s' % ('accepted_languages', str(accepted_languages)), level='debug')
+        logger('%s = %s' % ('languages', languages), level='debug')
+        logger('%s = %s' % ('accepted_languages', accepted_languages), level='debug')
 
         if len(languages) == 0:
             msg = 'No subtitles found'

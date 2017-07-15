@@ -1,11 +1,11 @@
-Version 4.2.12-SNAPSHOT (2017-07-06)
-Small text fixes
-Fixed video playback (json changed in website)
+Version 4.2.12
+Updates to support new TED site
 
-Version 4.2.11 (Skipmode A1: It seems the developer moreginger isn't active anymore :/. Therefore i made this version.)
-Fixed video playback (json changed in website)
-Fixed subtitles (json changed in website)
-Fixed thumbnails (resizeImage method fubared the thumbs)
+Version 4.2.11
+This version all thanks to Skipmode A1 :)
+Fixed video playback
+Fixed subtitles
+Fixed thumbnails
 Changed icon
 
 Version 4.2.10

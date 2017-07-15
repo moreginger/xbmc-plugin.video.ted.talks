@@ -5,7 +5,6 @@ import settings
 from model.fetcher import Fetcher
 from model.rss_scraper import NewTalksRss
 from model.speakers_scraper import Speakers
-from model.util import resizeImage
 from model.search_scraper import Search
 from model.topics_scraper import Topics
 import menu_util
@@ -44,11 +43,6 @@ class UI:
         args['mode'] = mode
         if url:
             args['url'] = url
-
-        # The resizeImage method seems to fubar the thumbnails, let's turn that off
-        # if img:
-        #     img = resizeImage(img)
-        #     args['icon'] = img
 
         args = [k + '=' + urllib.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.iteritems()]
         action_url = sys.argv[0] + '?' + "&".join(args)

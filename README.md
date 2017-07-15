@@ -13,6 +13,7 @@ The currently supported browsing options are:
 * Speakers
 * Topics
 
+
 Settings
 ========
 
@@ -28,7 +29,15 @@ __Custom language code__: Set a custom language code (ISO639-1) if required.
 It is also possible to enter a comma separated list of language codes (e.g. _pt-br,pt,en_)
 which will show subtitles in the first language which matches.
 
+
+Known issues
+============
+
+Plugin will fail with certain versions of pyOpenSSL, see
+https://github.com/jdf76/plugin.video.youtube/issues/14
+
+
 Bugs
-----
-Known bugs and enhancement suggestions are tracked
+====
+Bugs and enhancement suggestions can be reported
 [here](https://github.com/moreginger/xbmc-plugin.video.ted.talks/issues).

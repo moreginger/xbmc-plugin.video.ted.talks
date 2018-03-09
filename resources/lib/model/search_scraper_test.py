@@ -37,6 +37,7 @@ class TestSearchScraper(unittest.TestCase):
         timeit.itertools.islice(talks_generator, 1).next()
         self.assertTrue("Onora O'Neill: What we don't understand about trust" in [t[0] for t in list(talks_generator)])  # "'" is encoded so we need to decode it
 
+    @skip_ted_rate_limited
     def test_search_for_speaker_name(self):
         talks_generator = self.sut.get_talks_for_search('Christopher Soghoian', 1)  # Random name I haven't heard of
         self.assertEqual(0, timeit.itertools.islice(talks_generator, 1).next())  # Should be uncommon enough to have all results

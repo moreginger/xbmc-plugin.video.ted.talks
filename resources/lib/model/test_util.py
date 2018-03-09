@@ -8,6 +8,8 @@ def get_HTML(url):
 
 EXCLUDE_RATE_LIMITED = os.environ.get('EXCLUDE_RATE_LIMITED') != 'false'
 
+skip_ted_rate_limited = unittest.skipIf(EXCLUDE_RATE_LIMITED, 'Minimal TED website requests.')
+
 __cache__ = {}
 
 class CachedHTMLProvider:
@@ -18,8 +20,7 @@ class CachedHTMLProvider:
         '''
         if url not in __cache__:
             __cache__[url] = get_HTML(url)
-            # Aggressive TED rate limiting :'(
-            time.sleep(5)
+            if not EXCLUDE_RATE_LIMITED:
+                # Aggressive TED rate limiting :'(
+                time.sleep(15)
         return __cache__[url]
-
-skip_ted_rate_limited = unittest.skipIf(EXCLUDE_RATE_LIMITED, 'Minimal TED website requests.')

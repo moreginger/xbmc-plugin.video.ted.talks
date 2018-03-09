@@ -14,13 +14,13 @@ class TestSpeakersScraper(unittest.TestCase):
         self.assertLessEqual(64, count)
 
     def test_get_speakers_for_pages(self):
-        speakers_generator = self.sut.get_speakers_for_pages([1, 2])
+        speakers_generator = self.sut.get_speakers_for_pages([1])
         self.assertTrue(timeit.itertools.islice(speakers_generator, 1).next() > 1)
 
         e_speakers = list(speakers_generator)
 
         self.assertTrue(len(e_speakers) > 0)
-        self.assertEqual(60, len(e_speakers))  # 30 per page
+        self.assertEqual(30, len(e_speakers))  # 30 per page
 
         sample_speaker = [s for s in e_speakers if s[0] == 'Sandra Aamodt'][0]
         self.assertEqual('http://www.ted.com/speakers/sandra_aamodt', sample_speaker[1])

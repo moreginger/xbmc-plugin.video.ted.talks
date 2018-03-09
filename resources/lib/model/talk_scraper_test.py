@@ -12,10 +12,13 @@ class TestTalkScraper(unittest.TestCase):
 
     def test_get_ted_video(self):
         self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "https://download.ted.com/talks/ArielGarten_2011X-320k.mp4", "Know thyself, with a brain scanner", "Ariel Garten", True, True)
-        self.assert_talk_details("http://www.ted.com/talks/tom_shannon_s_magnetic_sculpture.html", "https://download.ted.com/talks/TomShannon_2003-320k.mp4", "Anti-gravity sculpture", "Tom Shannon", True, True);
 
     @skip_ted_rate_limited
-    def test_get_youtube_video(self):
+    def test_get_ted_video_more(self):
+        # More examples?
+        self.assert_talk_details("http://www.ted.com/talks/tom_shannon_s_magnetic_sculpture.html", "https://download.ted.com/talks/TomShannon_2003-320k.mp4", "Anti-gravity sculpture", "Tom Shannon", True, True);
+
+        # youtube link - not supported
         self.assert_talk_details("http://www.ted.com/talks/seth_godin_this_is_broken_1.html", "plugin://plugin.video.youtube/?action=play_video&videoid=aNDiHSHYI_c", "This is broken", "Seth Godin", False, True)
 
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker, expect_plot, expect_json):
@@ -58,7 +61,7 @@ class TestTalkScraper(unittest.TestCase):
         self.assert_custom_quality_url(html, "64kbps", "https://download.ted.com/talks/DanBricklin_2016X-64k.mp4")
         self.assert_custom_quality_url(html, "180kbps", "https://download.ted.com/talks/DanBricklin_2016X-180k.mp4")
         self.assert_custom_quality_url(html, "450kbps", "https://download.ted.com/talks/DanBricklin_2016X-450k.mp4")
-        self.assert_custom_quality_url(html, "600kbps", "https://download.ted.com/talks/DanBricklin_2016X-600k.mp4")
+        self.assert_custom_quality_url(html, "600kbps", "https://download.ted.com/talks/DanBricklin_2016X-600k.mp4")  # 403! Weird.
         self.assert_custom_quality_url(html, "950kbps", "https://download.ted.com/talks/DanBricklin_2016X-950k.mp4")
         self.assert_custom_quality_url(html, "1500kbps", "https://download.ted.com/talks/DanBricklin_2016X-1500k.mp4")
 

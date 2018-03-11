@@ -11,7 +11,7 @@ from test_util import skip_ted_rate_limited, CachedHTMLProvider, EXCLUDE_RATE_LI
 class TestTalkScraper(unittest.TestCase):
 
     def test_get_ted_video(self):
-        self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "https://download.ted.com/talks/ArielGarten_2011X-320k.mp4", "Know thyself, with a brain scanner", "Ariel Garten", True, True)
+        self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "https://pc.tedcdn.com/talk/stream/2011X/Blank/ArielGarten_2011X-320k.mp4", "Know thyself, with a brain scanner", "Ariel Garten", True, True)
 
     @skip_ted_rate_limited
     def test_get_ted_video_more(self):

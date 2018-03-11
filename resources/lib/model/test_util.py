@@ -20,7 +20,9 @@ class CachedHTMLProvider:
         '''
         if url not in __cache__:
             __cache__[url] = get_HTML(url)
+            # Aggressive TED rate limiting :'(
             if not EXCLUDE_RATE_LIMITED:
-                # Aggressive TED rate limiting :'(
                 time.sleep(15)
+            else:
+                time.sleep(10)
         return __cache__[url]

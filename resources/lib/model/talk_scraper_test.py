@@ -11,12 +11,12 @@ from test_util import skip_ted_rate_limited, CachedHTMLProvider, EXCLUDE_RATE_LI
 class TestTalkScraper(unittest.TestCase):
 
     def test_get_ted_video(self):
-        self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "https://pc.tedcdn.com/talk/stream/2011X/Blank/ArielGarten_2011X-320k.mp4", "Know thyself, with a brain scanner", "Ariel Garten", True, True)
+        self.assert_talk_details("http://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html", "/ArielGarten_2011X-320k.mp4", "Know thyself, with a brain scanner", "Ariel Garten", True, True)
 
     @skip_ted_rate_limited
     def test_get_ted_video_more(self):
         # More examples?
-        self.assert_talk_details("http://www.ted.com/talks/tom_shannon_s_magnetic_sculpture.html", "https://download.ted.com/talks/TomShannon_2003-320k.mp4", "Anti-gravity sculpture", "Tom Shannon", True, True);
+        self.assert_talk_details("http://www.ted.com/talks/tom_shannon_s_magnetic_sculpture.html", "/TomShannon_2003-320k.mp4", "Anti-gravity sculpture", "Tom Shannon", True, True);
 
         # youtube link - not supported
         self.assert_talk_details("http://www.ted.com/talks/seth_godin_this_is_broken_1.html", "plugin://plugin.video.youtube/?action=play_video&videoid=aNDiHSHYI_c", "This is broken", "Seth Godin", False, True)
@@ -24,7 +24,7 @@ class TestTalkScraper(unittest.TestCase):
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker, expect_plot, expect_json):
         logger = mock.MagicMock()
         video_url, title, speaker, plot, talk_json = talk_scraper.get(CachedHTMLProvider().get_HTML(talk_url), logger)
-        self.assertEqual(expected_video_url, video_url)
+        self.assertTrue(video_url.endswith(expected_video_url))
         self.assertEqual(expected_title, title)
         self.assertEqual(expected_speaker, speaker)
 

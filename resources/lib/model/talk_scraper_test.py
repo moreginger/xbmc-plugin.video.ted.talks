@@ -41,39 +41,39 @@ class TestTalkScraper(unittest.TestCase):
     def test_get_custom_quality_video_pre_2017(self):
         html = CachedHTMLProvider().get_HTML("http://www.ted.com/talks/edith_widder_how_we_found_the_giant_squid.html")
         # Note not customized. Should be a useful fallback if this code goes haywire.
-        self.assert_custom_quality_url(html, "320kbps", "https://download.ted.com/talks/EdithWidder_2013-320k.mp4")
+        self.assert_custom_quality_url(html, "320kbps", "/EdithWidder_2013-320k.mp4")
 
-        self.assert_custom_quality_url(html, "64kbps", "https://download.ted.com/talks/EdithWidder_2013-64k.mp4")
-        self.assert_custom_quality_url(html, "180kbps", "https://download.ted.com/talks/EdithWidder_2013-180k.mp4")
-        self.assert_custom_quality_url(html, "450kbps", "https://download.ted.com/talks/EdithWidder_2013-450k.mp4")
-        self.assert_custom_quality_url(html, "600kbps", "https://download.ted.com/talks/EdithWidder_2013-600k.mp4")
-        self.assert_custom_quality_url(html, "950kbps", "https://download.ted.com/talks/EdithWidder_2013-950k.mp4")
-        self.assert_custom_quality_url(html, "1500kbps", "https://download.ted.com/talks/EdithWidder_2013-1500k.mp4")
+        self.assert_custom_quality_url(html, "64kbps", "/EdithWidder_2013-64k.mp4")
+        self.assert_custom_quality_url(html, "180kbps", "/EdithWidder_2013-180k.mp4")
+        self.assert_custom_quality_url(html, "450kbps", "/EdithWidder_2013-450k.mp4")
+        self.assert_custom_quality_url(html, "600kbps", "/EdithWidder_2013-600k.mp4")
+        self.assert_custom_quality_url(html, "950kbps", "/EdithWidder_2013-950k.mp4")
+        self.assert_custom_quality_url(html, "1500kbps", "/EdithWidder_2013-1500k.mp4")
 
         # Fall back to standard URL when custom URL 404s
-        self.assert_custom_quality_url(html, "42kbps", "https://download.ted.com/talks/EdithWidder_2013-320k.mp4")
+        self.assert_custom_quality_url(html, "42kbps", "/EdithWidder_2013-320k.mp4")
 
     def test_get_custom_quality_video_2017(self):
         html = CachedHTMLProvider().get_HTML("https://www.ted.com/talks/dan_bricklin_meet_the_inventor_of_the_electronic_spreadsheet")
         # Note not customized. Should be a useful fallback if this code goes haywire.
-        self.assert_custom_quality_url(html, "320kbps", "https://download.ted.com/talks/DanBricklin_2016X-320k.mp4")
+        self.assert_custom_quality_url(html, "320kbps", "/DanBricklin_2016X-320k.mp4")
 
-        self.assert_custom_quality_url(html, "64kbps", "https://download.ted.com/talks/DanBricklin_2016X-64k.mp4")
-        self.assert_custom_quality_url(html, "180kbps", "https://download.ted.com/talks/DanBricklin_2016X-180k.mp4")
-        self.assert_custom_quality_url(html, "450kbps", "https://download.ted.com/talks/DanBricklin_2016X-450k.mp4")
-        self.assert_custom_quality_url(html, "600kbps", "https://download.ted.com/talks/DanBricklin_2016X-600k.mp4")  # 403! Weird.
-        self.assert_custom_quality_url(html, "950kbps", "https://download.ted.com/talks/DanBricklin_2016X-950k.mp4")
-        self.assert_custom_quality_url(html, "1500kbps", "https://download.ted.com/talks/DanBricklin_2016X-1500k.mp4")
+        self.assert_custom_quality_url(html, "64kbps", "/DanBricklin_2016X-64k.mp4")
+        self.assert_custom_quality_url(html, "180kbps", "/DanBricklin_2016X-180k.mp4")
+        self.assert_custom_quality_url(html, "450kbps", "/DanBricklin_2016X-450k.mp4")
+        self.assert_custom_quality_url(html, "600kbps", "/DanBricklin_2016X-600k.mp4")  # 403! Weird.
+        self.assert_custom_quality_url(html, "950kbps", "/DanBricklin_2016X-950k.mp4")
+        self.assert_custom_quality_url(html, "1500kbps", "/DanBricklin_2016X-1500k.mp4")
 
         # Fall back to standard URL when custom URL 404s
-        self.assert_custom_quality_url(html, "42kbps", "https://download.ted.com/talks/DanBricklin_2016X-320k.mp4")
+        self.assert_custom_quality_url(html, "42kbps", "/DanBricklin_2016X-320k.mp4")
 
     def assert_custom_quality_url(self, talk_html, video_quality, expected_video_url):
         logger = mock.MagicMock()
         video_url, title, speaker, plot, talk_json = talk_scraper.get(talk_html, logger, video_quality)
         if not EXCLUDE_RATE_LIMITED:
             self.assertEqual(200, requests.head(video_url, allow_redirects=True).status_code)
-        self.assertEqual(expected_video_url, video_url)
+        self.assertTrue(video_url.endswith(expected_video_url))
 
     @skip_ted_rate_limited
     def test_performance(self):

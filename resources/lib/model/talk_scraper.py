@@ -12,7 +12,7 @@ def get(html, logger, video_quality='320kbps'):
        @param video_quality string in form '\\d+kbps' that should match one of the provided TED bitrates.
     '''
 
-    init_scripts = [script for script in xbmc_common.parseDOM(html, 'script') if '"talkPage.init"' in script]
+    init_scripts = [script for script in xbmc_common.parseDOM(html, 'script', {'data-spec':'q' } ) if '"talkPage.init"' in script]
     if init_scripts:
 
         logger('%s = %s' % ('init_scripts', init_scripts), level='debug')
@@ -32,6 +32,7 @@ def get(html, logger, video_quality='320kbps'):
         init_scripts = init_scripts.replace('\\', '')
 
         logger('%s = %s' % ('init_scripts sliced', init_scripts), level='debug')
+        init_scripts = init_scripts[:-4]
 
         init_json = json.loads(str(init_scripts), strict=False)
         talk_json = init_json['__INITIAL_DATA__']['talks'][0]

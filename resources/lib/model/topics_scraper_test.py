@@ -40,7 +40,7 @@ class TestTopicsScraper(unittest.TestCase):
         self.assertLessEqual(47, len(e_talks))
         sample_talk = [t for t in e_talks if t[0] == 'How radio telescopes show us unseen galaxies'][0]
         self.assertEqual('http://www.ted.com/talks/natasha_hurley_walker_how_radio_telescopes_show_us_unseen_galaxies', sample_talk[1])
-        self.assertEqual('https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/4d92d229412791ad69ddb89fc52aea0079aed8d6_2880x1620.jpg?quality=89&amp;w=320', sample_talk[2])
+        self.assertEqual('https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/6bfb7a5c-288a-4bc2-92e4-5dfb7257c0f5/NatashaHurleyWalker_2016X-embed.jpg?quality=89&amp;w=320', sample_talk[2])
         self.assertEqual('Natasha Hurley-Walker', sample_talk[3])
 
     @skip_ted_rate_limited

@@ -2,7 +2,7 @@
 
 Run core tests (note some tests skipped at end) with:
 
-`PYTHONPATH=$PYTHONPATH:$PWD/testSupport python2 -m "unittest" discover -s ./resources/lib/ -p "*_test.py"`
+`./run_tests.sh`
 
 To run all tests. This may incur TED rate-limiting:
 

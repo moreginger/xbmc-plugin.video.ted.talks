@@ -19,7 +19,8 @@ class Search:
         Yields number of results left to show after this page,
         then tuples of title, link, img for results on this page.
         '''
-        # TODO Read result count and use for paging control
+
+        # TODO yield speakers, topics
 
         search_string = urllib.quote_plus(search_string)
         html = self.get_HTML(URLSEARCH % (search_string, page_index))
@@ -30,8 +31,11 @@ class Search:
         html_parser = HTMLParser.HTMLParser()
         for result in results:
             header = xbmc_common.parseDOM(result, 'h3')[0]
+            url = xbmc_common.parseDOM(header, 'a', ret='href')[0]
+            if not url.startswith('/talks/'):
+                continue
+            url = URLTED + url
             title = html_parser.unescape(xbmc_common.parseDOM(header, 'a')[0].strip())
-            url = URLTED + xbmc_common.parseDOM(header, 'a', ret='href')[0]
             img = xbmc_common.parseDOM(result, 'img', ret='src')[0]
             yield title, url, img
 

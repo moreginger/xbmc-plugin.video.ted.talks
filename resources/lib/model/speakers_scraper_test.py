@@ -44,7 +44,6 @@ class TestSpeakersScraper(unittest.TestCase):
 
     def test_get_talks_for_speaker(self):
         talks = list(self.sut.get_talks_for_speaker("http://www.ted.com/speakers/janine_benyus"))
-        print "%s talks for speaker found" % (len(talks))
         self.assertLessEqual(0, len(talks))
         self.assertLessEqual(2, len(talks))  # 2 at time of writing
 

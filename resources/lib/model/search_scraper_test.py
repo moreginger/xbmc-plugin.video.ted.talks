@@ -18,8 +18,7 @@ class TestSearchScraper(unittest.TestCase):
         self.assertLess(100, remaining_talks)  # 111 remaining at last check, just make sure we have a decent number remaining.
 
         talks = list(talks_generator)
-        talks_per_page = 30.0
-        self.assertEqual(talks_per_page, len(talks))
+        self.assertEqual(30, len(talks))
         # Actually no quarantee this talk is in top ten results. It is today.
         sample_talk = [s for s in talks if s[0] == 'Taylor Wilson: Yup, I built a nuclear fusion reactor'][0]
         self.assertEqual('http://www.ted.com/talks/taylor_wilson_yup_i_built_a_nuclear_fusion_reactor', sample_talk[1])

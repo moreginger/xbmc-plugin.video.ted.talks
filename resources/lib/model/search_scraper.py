@@ -6,7 +6,7 @@ import CommonFunctions as xbmc_common
 
 from url_constants import URLTED, URLSEARCH
 
-__results_count_re__ = re.compile(r'.*?(\d+) - \d+ of (\d+) results.*') # "331 - 360 of 333 results"
+__results_count_re__ = re.compile(r'.*?\d+ - (\d+) of (\d+) results.*') # "331 - 360 of 333 results"
 __result_count_re__ = re.compile(r'.*?\d+ +results?.*') # Two spaces at the moment i.e. "1  result"
 
 class Search:
@@ -43,8 +43,9 @@ class Search:
         results_count_matches = __results_count_re__.findall(html)
         if results_count_matches:
             match = results_count_matches[0]
-            results += int(match[0]) - 1
-            return int(match[1]) - results
+            last_on_page = int(match[0])
+            total_results = int(match[1])
+            return max(0, total_results - last_on_page)
         if __result_count_re__.findall(html):
             return 0  # All results on this page
         return 1 # We don't know so just make sure that it is positive so that we keep paging.

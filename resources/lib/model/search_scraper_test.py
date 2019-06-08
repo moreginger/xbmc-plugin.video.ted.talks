@@ -15,10 +15,12 @@ class TestSearchScraper(unittest.TestCase):
         talks_generator = self.sut.get_talks_for_search('nuclear', 1)
         remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
 
-        self.assertLess(100, remaining_talks)  # 111 remaining at last check, just make sure we have a decent number remaining.
+        self.assertLess(100, remaining_talks)  # 131 remaining at last check, just make sure we have a decent number remaining.
 
         talks = list(talks_generator)
-        self.assertEqual(30, len(talks))
+        talks_per_page = 30
+        self.assertEqual(talks_per_page, len(talks))
+        total_talks = len(talks) + remaining_talks
         # Actually no quarantee this talk is in top ten results. It is today.
         sample_talk = [s for s in talks if s[0] == 'Taylor Wilson: Yup, I built a nuclear fusion reactor'][0]
         self.assertEqual('http://www.ted.com/talks/taylor_wilson_yup_i_built_a_nuclear_fusion_reactor', sample_talk[1])
@@ -27,7 +29,7 @@ class TestSearchScraper(unittest.TestCase):
         last_page = 1 + int(math.ceil(remaining_talks / talks_per_page))
         talks_generator = self.sut.get_talks_for_search('nuclear', last_page)
         remaining_talks = timeit.itertools.islice(talks_generator, 1).next()
-        self.assertEqual(0, remaining_talks)
+        self.assertEqual(total_talks - (last_page * talks_per_page), remaining_talks)
         self.assertLess(0, len(talks))
 
     @skip_ted_rate_limited

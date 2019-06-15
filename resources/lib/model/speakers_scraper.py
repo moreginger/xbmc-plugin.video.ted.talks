@@ -42,7 +42,8 @@ class Speakers:
                 url = URLTED + result[0]
                 header = xbmc_common.parseDOM(result[1], 'h4')[0]
                 title = ' '.join(header.replace('<br>', ' ').split())
-                img = xbmc_common.parseDOM(result[1], 'img', ret='src')[0]
+                img = xbmc_common.parseDOM(result[1], 'img', ret='src')
+                img = img[0] if img else None # Speakers page going away? Some images appear to be missing and no link from main page.
                 yield title, url, img
 
     def get_talks_for_speaker(self, url):

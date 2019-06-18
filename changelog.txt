@@ -1,9 +1,7 @@
 Version 4.3.1
 Dropped support for Kodi versions older than 17 (Krypton)
 High resolution plugin icon (pull#71 thanks to MarhyCZ)
-Fixed video playback (pull#64 thanks to and3md)
-Fixed search
-Fixed topics images
+Updates to support new TED site (pull#64 thanks to and3md)
 
 Version 4.2.12
 Updates to support new TED site

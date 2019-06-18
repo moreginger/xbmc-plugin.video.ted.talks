@@ -31,7 +31,7 @@ class TestSpeakersScraper(unittest.TestCase):
         scraper = self.sut
         # Run once to cache.
         speakers = list(scraper.get_speakers_for_pages([3, 4]))
-        print "%s speakers found" % (len(speakers) - 1)  # -1 because we yield #pages first
+        print("%s speakers found" % (len(speakers) - 1))  # -1 because we yield #pages first
 
         def test():
             self.assertEqual(len(speakers), len(list(scraper.get_speakers_for_pages([3, 4]))))
@@ -39,7 +39,7 @@ class TestSpeakersScraper(unittest.TestCase):
         t = timeit.Timer(test)
         repeats = 2
         time = t.timeit(repeats) / repeats
-        print "Getting speakers list took %s seconds per run" % (time)
+        print("Getting speakers list took %s seconds per run" % (time))
         self.assertGreater(1, time)
 
     def test_get_talks_for_speaker(self):

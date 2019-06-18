@@ -78,6 +78,6 @@ class TestTalkScraper(unittest.TestCase):
         t = timeit.Timer(test)
         repeats = 10
         time = t.timeit(repeats)
-        print "Extracting talk details took %s seconds per run" % (time / repeats)
+        print("Extracting talk details took %s seconds per run" % (time / repeats))
         self.assertGreater(4, time)
 

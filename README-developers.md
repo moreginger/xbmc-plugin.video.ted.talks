@@ -19,3 +19,5 @@ To run all tests. This may incur TED rate-limiting:
 - Add to `CHANGELOG.md`
 - Update `<news>` in `addon.xml`
 - Update readme
+- Run `build.sh`
+- Unzip dist into `repo-plugins/plugin.video.ted.talks`

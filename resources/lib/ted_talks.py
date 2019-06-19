@@ -47,7 +47,8 @@ class UI:
         args = [k + '=' + urllib.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.iteritems()]
         action_url = sys.argv[0] + '?' + "&".join(args)
 
-        li = xbmcgui.ListItem(label=title, iconImage=img, thumbnailImage=img)
+        li = xbmcgui.ListItem(label=title)
+        li.setArt({'icon': img, 'thumb': img})
         video_info = dict((k, v) for k, v in video_info.iteritems() if k in ['date', 'plot', 'mediatype'])
         if video_info:
             li.setInfo('video', video_info)
@@ -68,7 +69,8 @@ class UI:
 
         subs_language = settings.get_subtitle_languages()
         title, url, subs, info_labels = self.ted_talks.getVideoDetails(url=url, video_quality=settings.video_quality, subs_language=subs_language)
-        li = xbmcgui.ListItem(title, iconImage=icon, thumbnailImage=icon, path=url)
+        li = xbmcgui.ListItem(title, path=url)
+        li.setArt({'icon': icon, 'thumb': icon})
         li.setInfo(type='Video', infoLabels=info_labels)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
         if subs:

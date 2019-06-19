@@ -13,7 +13,7 @@
     <!-- There are subtitles on TED in many languages,
     and this plugin is (partially) internationalized in several,
     but it seems better to claim the one we are sure of for now. -->
-    <language>en_GB</language>
+    <language>en</language>
     <summary lang="en_GB">Watch talks from TED.com, a site dedicated to 'Ideas Worth Spreading'</summary>
     <summary lang="hu_HU">Beszédek megtekintése a TED.com-ról</summary>
     <summary lang="pt_PT">Veja debates de TED.com, um site dedicado a 'Ideias com Valor'</summary>

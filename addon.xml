@@ -22,6 +22,12 @@
     <description lang="pt_PT">TED é uma organização sem fins lucrativos dedicada a 'Ideias com Valor'. Foi iniciada em 1984 como uma conferência que pretendia juntar pessoas de três mundos: Tecnologia, Entretenimento e Design. Desde ai tornou-se muito mais abrangente.</description>
     <platform>all</platform>
     <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <news>
+v4.3.1
+- Dropped support for Kodi versions older than 17 (Krypton)
+- High resolution plugin icon (pull#71 thanks to MarhyCZ)
+- Updates to support new TED site (pull#64 thanks to and3md)
+    </news>
     <forum>https://forum.kodi.tv/showthread.php?tid=36866</forum>
     <website>https://github.com/moreginger/xbmc-plugin.video.ted.talks</website>
     <source>https://github.com/moreginger/xbmc-plugin.video.ted.talks</source>

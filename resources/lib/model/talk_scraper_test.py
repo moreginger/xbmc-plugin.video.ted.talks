@@ -4,8 +4,8 @@ import unittest
 import mock
 import requests
 
-import talk_scraper
-from test_util import skip_ted_rate_limited, CachedHTMLProvider, EXCLUDE_RATE_LIMITED
+from . import talk_scraper
+from .test_util import skip_ted_rate_limited, CachedHTMLProvider, EXCLUDE_RATE_LIMITED
 
 
 class TestTalkScraper(unittest.TestCase):
@@ -78,6 +78,6 @@ class TestTalkScraper(unittest.TestCase):
         t = timeit.Timer(test)
         repeats = 10
         time = t.timeit(repeats)
-        print("Extracting talk details took %s seconds per run" % (time / repeats))
+        print(("Extracting talk details took %s seconds per run" % (time / repeats)))
         self.assertGreater(4, time)
 

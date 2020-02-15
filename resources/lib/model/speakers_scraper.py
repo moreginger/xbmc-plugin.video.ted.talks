@@ -1,4 +1,4 @@
-from url_constants import URLTED
+from .url_constants import URLTED
 # Custom xbmc thing for fast parsing. Can't rely on lxml being available as of 2012-03.
 import CommonFunctions as xbmc_common
 

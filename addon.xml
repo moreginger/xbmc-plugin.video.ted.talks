@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.ted.talks" name="TED Talks" version="4.3.1" provider-name="moreginger, rwparris2">
+<addon id="plugin.video.ted.talks" name="TED Talks" version="4.3.2" provider-name="moreginger, rwparris2">
   <requires>
     <import addon="xbmc.python" version="2.25.0"/>
+    <import addon="script.module.future" version="0.17.1"/>
     <import addon="script.module.requests" version="2.22.0"/>
     <import addon="script.module.elementtree" version="1.2.8"/>
     <import addon="script.module.parsedom" version="2.5.2"/>
@@ -23,10 +24,8 @@
     <platform>all</platform>
     <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
     <news>
-v4.3.1
-- Dropped support for Kodi versions older than 17 (Krypton)
-- High resolution plugin icon (pull#71 thanks to MarhyCZ)
-- Updates to support new TED site (pull#64 thanks to and3md)
+v4.4.0
+- Mostly support Python 3
     </news>
     <forum>https://forum.kodi.tv/showthread.php?tid=36866</forum>
     <website>https://github.com/moreginger/xbmc-plugin.video.ted.talks</website>

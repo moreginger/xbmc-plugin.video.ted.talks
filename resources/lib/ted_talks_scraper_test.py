@@ -1,10 +1,13 @@
+from future.standard_library import install_aliases
+install_aliases()
+
 import unittest
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 from mock import MagicMock
 
-from model.test_util import CachedHTMLProvider
-import ted_talks_scraper
+from .model.test_util import CachedHTMLProvider
+from . import ted_talks_scraper
 
 
 class TestTedTalks(unittest.TestCase):

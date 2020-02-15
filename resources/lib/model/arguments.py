@@ -1,4 +1,7 @@
-import urllib
+from future.standard_library import install_aliases
+install_aliases()
+
+import urllib.parse
 
 def parse_arguments(custom_args):
     args_map = {}
@@ -7,5 +10,5 @@ def parse_arguments(custom_args):
         for arg in args:
             if len(arg) > 0:
                 split = arg.split('=')
-                args_map[split[0]] = urllib.unquote_plus(split[1])
+                args_map[split[0]] = urllib.parse.unquote_plus(split[1])
     return args_map

@@ -1,5 +1,5 @@
 import unittest
-import arguments
+from . import arguments
 
 class TestArguments(unittest.TestCase):
     

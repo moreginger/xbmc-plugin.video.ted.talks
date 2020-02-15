@@ -1,5 +1,8 @@
-import urllib2
-import cookielib
+from future.standard_library import install_aliases
+install_aliases()
+
+import urllib.request, urllib.error, urllib.parse
+import http.cookiejar
 import os.path
 
 class Fetcher:
@@ -25,7 +28,7 @@ class Fetcher:
             headers = headers + [('Content-type', 'application/x-www-form-urlencoded')]
 
         # create cookiejar
-        cj = cookielib.LWPCookieJar()
+        cj = http.cookiejar.LWPCookieJar()
         cookiefile = self.getTranslatedPath('special://temp/ted-cookies.lwp')
         # load any existing cookies
         if os.path.isfile(cookiefile):
@@ -35,7 +38,7 @@ class Fetcher:
                 self.logger('loaded cookie : %s from %s' % (cookie, cookiefile))
 
         # build opener with automagic cookie handling abilities.
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
         opener.addheaders = headers
         try:
             usock = opener.open(url, data)
@@ -43,7 +46,7 @@ class Fetcher:
             usock.close()
             cj.save(cookiefile)
             return response
-        except urllib2.HTTPError as error:
+        except urllib.error.HTTPError as error:
             self.logger('%s error:\n%s\n%s\n%s' % (__name__, error.code, error.msg, error.geturl()))
         except Exception as error:
             import xbmc

@@ -1,10 +1,13 @@
+from future.standard_library import install_aliases
+install_aliases()
+
 import HTMLParser
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import CommonFunctions as xbmc_common
 
-from url_constants import URLTED, URLSEARCH
+from .url_constants import URLTED, URLSEARCH
 
 __results_count_re__ = re.compile(r'.*?\d+ - (\d+) of (\d+) results.*') # "331 - 360 of 333 results"
 __result_count_re__ = re.compile(r'.*?\d+ +results?.*') # Two spaces at the moment i.e. "1  result"
@@ -22,7 +25,7 @@ class Search:
 
         # TODO yield speakers, topics
 
-        search_string = urllib.quote_plus(search_string)
+        search_string = urllib.parse.quote_plus(search_string)
         html = self.get_HTML(URLSEARCH % (search_string, page_index))
 
         results = xbmc_common.parseDOM(html, 'article', {'class': 'm1 search__result'})

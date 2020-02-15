@@ -6,7 +6,7 @@ except ImportError:
 import unittest
 from mock import MagicMock
 
-from rss_scraper import NewTalksRss
+from .rss_scraper import NewTalksRss
 
 minimal_item = """
 <item xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:media="http://search.yahoo.com/mrss/">

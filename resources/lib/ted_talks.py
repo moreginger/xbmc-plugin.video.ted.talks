@@ -1,13 +1,16 @@
-import urllib
-import ted_talks_scraper
-import plugin
-import settings
-from model.fetcher import Fetcher
-from model.rss_scraper import NewTalksRss
-from model.speakers_scraper import Speakers
-from model.search_scraper import Search
-from model.topics_scraper import Topics
-import menu_util
+from future.standard_library import install_aliases
+install_aliases()
+
+import urllib.request, urllib.parse, urllib.error
+from . import ted_talks_scraper
+from . import plugin
+from . import settings
+from .model.fetcher import Fetcher
+from .model.rss_scraper import NewTalksRss
+from .model.speakers_scraper import Speakers
+from .model.search_scraper import Search
+from .model.topics_scraper import Topics
+from . import menu_util
 import os
 import time
 import xbmc
@@ -44,12 +47,12 @@ class UI:
         if url:
             args['url'] = url
 
-        args = [k + '=' + urllib.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.iteritems()]
+        args = [k + '=' + urllib.parse.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.items()]
         action_url = sys.argv[0] + '?' + "&".join(args)
 
         li = xbmcgui.ListItem(label=title)
         li.setArt({'icon': img, 'thumb': img})
-        video_info = dict((k, v) for k, v in video_info.iteritems() if k in ['date', 'plot', 'mediatype'])
+        video_info = dict((k, v) for k, v in video_info.items() if k in ['date', 'plot', 'mediatype'])
         if video_info:
             li.setInfo('video', video_info)
         if 'duration' in video_info:
@@ -133,7 +136,7 @@ class Action(object):
         self.get_HTML = get_HTML
 
     def run(self, args):
-        good = self.required_args.issubset(args.keys())
+        good = self.required_args.issubset(list(args.keys()))
         if good:
             self.run_internal(args)
         else:
@@ -196,9 +199,9 @@ class SpeakerGroupAction(Action):
     def run_internal(self, args):
         pages = args['url']
         pages = pages.split('-')
-        pages = range(int(pages[0]), int(pages[1]) + 1)
+        pages = list(range(int(pages[0]), int(pages[1]) + 1))
         generator = Speakers(self.get_HTML).get_speakers_for_pages(pages)
-        pages_count = itertools.islice(generator, 1).next()
+        pages_count = next(itertools.islice(generator, 1))
         for title, link, img in generator:
             self.ui.addItem(title, 'speakerVids', link, img=img, isFolder=True, total_items=120)
 
@@ -255,7 +258,7 @@ class SearchActionBase(Action):
 
     def __add_items__(self, search_term, page, current_items, update_listing):
         talks_generator = Search(self.get_HTML).get_talks_for_search(search_term, page)
-        remaining_talks = itertools.islice(talks_generator, 1).next()
+        remaining_talks = next(itertools.islice(talks_generator, 1))
         search_results = list(itertools.chain(current_items, talks_generator))
         for title, link, img in search_results:
             self.ui.addItem(title, 'playVideo', link, img, isFolder=False, video_info={ 'mediatype': "video" })

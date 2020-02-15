@@ -1,13 +1,16 @@
+from future.standard_library import install_aliases
+install_aliases()
+
 import sys
 import time
 import unittest
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from mock import MagicMock
 
-import subtitles_scraper
-import talk_scraper
-import test_util
+from . import subtitles_scraper
+from . import talk_scraper
+from . import test_util
 
 
 class TestSubtitlesScraper(unittest.TestCase):
@@ -22,7 +25,7 @@ class TestSubtitlesScraper(unittest.TestCase):
     def test_format_subtitles(self):
         subtitles = [{'content': 'Hello', 'start': 500, 'duration': 2500}, {'content': 'World', 'start': 3000, 'duration': 2500}]
         formatted_subs = subtitles_scraper.format_subtitles(subtitles, 666)
-        self.assertEquals('''1
+        self.assertEqual('''1
 00:00:01,166 --> 00:00:03,666
 Hello
 

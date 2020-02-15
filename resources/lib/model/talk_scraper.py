@@ -3,7 +3,7 @@
 import CommonFunctions as xbmc_common
 import json
 import requests
-import urlparse
+import urllib.parse
 
 
 def get(html, logger, video_quality='180kbps'):

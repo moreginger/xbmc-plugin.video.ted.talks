@@ -3,10 +3,12 @@ Grab new talks from RSS feed. Yes we can just add an rss: source in XBMC,
 but this allows us a little more power to tweak things how we want them,
 so keep it for now.
 """
+from future.standard_library import install_aliases
+install_aliases()
 
 from datetime import timedelta
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 try:
@@ -18,7 +20,7 @@ def get_document(url):
     """
     Return document at given URL.
     """
-    usock = urllib2.urlopen(url)
+    usock = urllib.request.urlopen(url)
     try:
         return usock.read()
     finally:
@@ -77,5 +79,5 @@ class NewTalksRss(object):
             talk = self.get_talk_details(item)
             talks_by_title[talk['title']] = talk
 
-        return talks_by_title.itervalues()
+        return iter(talks_by_title.values())
 

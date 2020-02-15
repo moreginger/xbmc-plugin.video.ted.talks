@@ -1,5 +1,5 @@
-import model.subtitles_scraper as subtitles_scraper
-import model.talk_scraper as talk_scraper
+from .model import subtitles_scraper
+from .model import talk_scraper
 
 # MAIN URLS
 URLSPEAKERS = 'http://www.ted.com/speakers/atoz/page/'

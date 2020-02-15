@@ -1,5 +1,5 @@
 import unittest
-import settings
+from . import settings
 
 class TestSettings(unittest.TestCase):
 

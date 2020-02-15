@@ -19,4 +19,5 @@ To run all tests. This may incur TED rate-limiting:
 - Update `<news>` in `addon.xml`
 - Update readme
 - Run `build.sh`
+  - Install as zip
 - Unzip dist into `repo-plugins/plugin.video.ted.talks`

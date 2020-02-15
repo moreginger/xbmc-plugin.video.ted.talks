@@ -1,5 +1,5 @@
 import unittest
-import language_mapping
+from . import language_mapping
 
 class TestLanguageMapping(unittest.TestCase):
 

@@ -4,8 +4,11 @@ Inspired by code of Esteban Ordano
 http://estebanordano.com/ted-talks-download-subtitles/
 http://estebanordano.com.ar/wp-content/uploads/2010/01/TEDTalkSubtitles.py_.zip
 '''
+from future.standard_library import install_aliases
+install_aliases()
+
 import json
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 __friendly_message__ = 'Error showing subtitles'
 __talkIdKey__ = 'id'
@@ -34,7 +37,7 @@ def __get_languages__(talk_json):
 
 def get_subtitles(talk_id, language, logger):
     url = 'http://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)
-    subs = json.loads(urllib.urlopen(url).read())
+    subs = json.loads(urllib.request.urlopen(url).read())
     captions = []
     for caption in subs['captions']:
         captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]

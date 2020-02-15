@@ -1,10 +1,13 @@
+from future.standard_library import install_aliases
+install_aliases()
+
 import os
 import time
 import unittest
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 def get_HTML(url):
-    return urllib2.urlopen(url).read()
+    return urllib.request.urlopen(url).read()
 
 EXCLUDE_RATE_LIMITED = os.environ.get('EXCLUDE_RATE_LIMITED') != 'false'
 RATE_LIMIT_WAIT_SECONDS = 10

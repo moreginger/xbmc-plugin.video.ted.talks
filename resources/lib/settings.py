@@ -2,9 +2,10 @@
 Contains constants that we initialize to the correct values at runtime.
 Should be usable as a testing shim.
 """
-import model.language_mapping as language_mapping
 import pickle
 import os
+
+from .model import language_mapping
 
 __plugin_id__ = 'plugin.video.ted.talks'
 __current_search__ = 'current_search'

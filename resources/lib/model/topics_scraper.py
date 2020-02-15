@@ -2,7 +2,7 @@ import HTMLParser
 
 import CommonFunctions as xbmc_common
 
-from url_constants import URLTED, URLTOPICS
+from .url_constants import URLTED, URLTOPICS
 
 class Topics:
 

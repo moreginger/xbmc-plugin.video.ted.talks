@@ -1,3 +1,7 @@
+## [4.3.2]
+### Changed
+- Mostly support Python 3
+
 ## [4.3.1]
 ### Changed
 - High resolution plugin icon (pull#71 thanks to MarhyCZ)

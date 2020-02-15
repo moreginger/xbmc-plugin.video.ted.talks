@@ -1,6 +1,4 @@
 '''
-   Hacked-up version for testing, removing some xbmc requirements.
-
    Parsedom for XBMC plugins
    Copyright (C) 2010-2011 Tobias Ussing And Henrik Mosgaard Jensen
 
@@ -31,35 +29,9 @@ import json
 
 version = u"2.5.1"
 plugin = u"CommonFunctions-" + version
-print(plugin)
+print plugin
 
 USERAGENT = u"Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1"
-
-if hasattr(sys.modules["__main__"], "xbmc"):
-    xbmc = sys.modules["__main__"].xbmc
-else:
-    # [tmm] import xbmc
-    pass
-
-if hasattr(sys.modules["__main__"], "xbmcgui"):
-    xbmcgui = sys.modules["__main__"].xbmcgui
-else:
-    # [tmm] import xbmcgui
-    pass
-
-if hasattr(sys.modules["__main__"], "dbg"):
-    dbg = sys.modules["__main__"].dbg
-else:
-    dbg = False
-
-if hasattr(sys.modules["__main__"], "dbglevel"):
-    dbglevel = sys.modules["__main__"].dbglevel
-else:
-    dbglevel = 3
-
-if hasattr(sys.modules["__main__"], "opener"):
-    urllib2.install_opener(sys.modules["__main__"].opener)
-
 
 # This function raises a keyboard for user input
 def getUserInput(title=u"Input", default=u"", hidden=False):
@@ -120,7 +92,7 @@ def getParameters(parameterString):
         if (len(command) > 0):
             splitCommand = command.split('=')
             key = splitCommand[0]
-            try:
+            try: 
                 value = splitCommand[1].encode("utf-8")
             except:
                 log("Error utf-8 encoding argument value: " + repr(splitCommand[1]))
@@ -451,7 +423,7 @@ def fetchPage(params={}):
         ret_obj["status"] = 200
         return ret_obj
 
-    except urllib2.HTTPError as e:
+    except urllib2.HTTPError, e:
         err = str(e)
         log("HTTPError : " + err)
         log("HTTPError - Headers: " + str(e.headers) + " - Content: " + e.fp.read())
@@ -466,7 +438,7 @@ def fetchPage(params={}):
         ret_obj["status"] = 500
         return ret_obj
 
-    except urllib2.URLError as e:
+    except urllib2.URLError, e:
         err = str(e)
         log("URLError : " + err)
 
@@ -529,7 +501,7 @@ def makeUTF8(data):
         s = u""
         for i in data:
             try:
-                i.decode("utf8", "xmlcharrefreplace")
+                i.decode("utf8", "xmlcharrefreplace") 
             except:
                 log("Can't convert character", 4)
                 continue
@@ -555,8 +527,5 @@ def openFile(filepath, options=u"r"):
 
 
 def log(description, level=0):
-    if dbg and dbglevel > level:
-        try:
-            xbmc.log((u"[%s] %s : '%s'" % (plugin, inspect.stack()[1][3], description)).decode("utf-8"), xbmc.LOGNOTICE)
-        except:
-            xbmc.log(u"FALLBACK [%s] %s : '%s'" % (plugin, inspect.stack()[1][3], repr(description)), xbmc.LOGNOTICE)
+    if False:
+        print((u"[%s] %s : '%s'" % (plugin, inspect.stack()[1][3], description)).decode("utf-8"))

@@ -304,7 +304,7 @@ class Main:
 
     def __init__(self, args_map):
         self.args_map = args_map
-        self.get_HTML = Fetcher(plugin.report, xbmc.translatePath).getHTML
+        self.get_HTML = Fetcher(plugin.report).getHTML
         self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML, plugin.report)
 
     def run(self):

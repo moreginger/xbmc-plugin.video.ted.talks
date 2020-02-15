@@ -14,7 +14,6 @@ To run all tests. This may incur TED rate-limiting:
 
 - Run unit tests
 - Run manual tests (ad-hoc at the moment)
-    - Redeploy plugin as zip
 - Bump version number
 - Add to `CHANGELOG.md`
 - Update `<news>` in `addon.xml`

@@ -50,4 +50,4 @@ class TestSpeakersScraper(unittest.TestCase):
         talk = talks[0]
         self.assertEqual("Biomimicry&#39;s surprising lessons from nature&#39;s engineers", talk[0])
         self.assertEqual('http://www.ted.com/talks/janine_benyus_biomimicry_s_surprising_lessons_from_nature_s_engineers', talk[1])
-        self.assertEqual('https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/12_240x180.jpg?cb=20160511&amp;quality=63&amp;u=&amp;w=512', talk[2])
+        self.assertEqual('https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/12_480x360.jpg?cb=20160511&amp;quality=63&amp;u=&amp;w=512', talk[2])

@@ -1,10 +1,6 @@
-from future.standard_library import install_aliases
-install_aliases()
-
 import sys
 import time
 import unittest
-import urllib.request, urllib.parse, urllib.error
 
 from mock import MagicMock
 
@@ -17,6 +13,9 @@ class TestSubtitlesScraper(unittest.TestCase):
 
     def setUp(self):
         self.logger = MagicMock()
+    
+    def tearDown(self):
+        self.logger.assert_not_called()
 
     def test_format_time(self):
         self.assertEqual('00:00:00,000', subtitles_scraper.format_time(0))
@@ -51,11 +50,11 @@ World
         self.assertEqual(expected, result, msg="New translations are likely to appear; please update the test if so :)\n%s" % (sorted(result)))
 
         subs = subtitles_scraper.get_subtitles_for_talk(talk_json, ['banana', 'fr', 'en'], self.logger)
-        self.assertTrue(subs.startswith('''1
-00:00:11,820 --> 00:00:14,820
+        self.assertIn('''1
+00:00:00,000 --> 00:00:03,000
 Vous savez tous que ce que je vais dire est vrai.
 
-2'''))
+2''', subs)
 
     # TODO rewrite avoiding call to TED?
     # def test_get_subtitles_for_newest_talk(self):

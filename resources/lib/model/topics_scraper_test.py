@@ -1,6 +1,8 @@
 import timeit
 import unittest
 
+from mock import MagicMock
+
 from .test_util import skip_ted_rate_limited, CachedHTMLProvider
 from .topics_scraper import Topics
 
@@ -8,7 +10,11 @@ from .topics_scraper import Topics
 class TestTopicsScraper(unittest.TestCase):
 
     def setUp(self):
-        self.sut = Topics(CachedHTMLProvider().get_HTML, None)
+        self.logger = MagicMock()
+        self.sut = Topics(CachedHTMLProvider().get_HTML, self.logger)
+
+    def tearDown(self):
+        self.logger.assert_not_called()
 
     def test_get_topics(self):
         e_topics = list(self.sut.get_topics())
@@ -36,11 +42,10 @@ class TestTopicsScraper(unittest.TestCase):
         Ideally a topic over 2 pages. More means that rate limiting is more likely to occur, less and we aren't testing the loop.
         '''
         e_talks = list(self.sut.get_talks('astronomy'))
-        self.assertLess(0, len(e_talks))
         self.assertLessEqual(47, len(e_talks))
         sample_talk = [t for t in e_talks if t[0] == 'How radio telescopes show us unseen galaxies'][0]
         self.assertEqual('http://www.ted.com/talks/natasha_hurley_walker_how_radio_telescopes_show_us_unseen_galaxies', sample_talk[1])
-        self.assertEqual('https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/6bfb7a5c-288a-4bc2-92e4-5dfb7257c0f5/NatashaHurleyWalker_2016X-embed.jpg?quality=89&amp;w=320', sample_talk[2])
+        self.assertEqual('https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/6bfb7a5c-288a-4bc2-92e4-5dfb7257c0f5/NatashaHurleyWalker_2016X-embed.jpg?quality=89&w=320', sample_talk[2])
         self.assertEqual('Natasha Hurley-Walker', sample_talk[3])
 
     @skip_ted_rate_limited

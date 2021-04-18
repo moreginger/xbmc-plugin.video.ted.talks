@@ -1,3 +1,3 @@
-future
-requests
+html5lib
 mock
+requests

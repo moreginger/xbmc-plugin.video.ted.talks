@@ -1,8 +1,9 @@
-import HTMLParser
+import html
+import html5lib
 
-import CommonFunctions as xbmc_common
+from .url_constants import URLTED
 
-from .url_constants import URLTED, URLTOPICS
+__url_topics__ = URLTED + '/watch/topics'
 
 class Topics:
 
@@ -11,12 +12,14 @@ class Topics:
         self.logger = logger
 
     def get_topics(self):
-        html = self.get_HTML(URLTOPICS)
-        for li in xbmc_common.parseDOM(html, 'li', attrs={'class':'d:b'}):
-            link = xbmc_common.parseDOM(li, 'a', ret='href')
-            if link and link[0].startswith('/topics/'):
-                title = xbmc_common.parseDOM(li, 'span')[0]
-                topic = link[0][len('/topics/'):]
+        topics_content = self.get_HTML(__url_topics__)
+        dom = html5lib.parse(topics_content, namespaceHTMLElements=False)
+        for li in dom.findall(".//li[@class='d:b']"):
+            link = li.find('.//a[@href]')
+            link = link.attrib['href'] if link else None
+            if link and link.startswith('/topics/'):
+                title = li.find('.//span').text.strip()
+                topic = link[len('/topics/'):]
                 yield title, topic
 
 
@@ -25,32 +28,44 @@ class Topics:
         while True:
             page += 1
             url = URLTED + '/talks?page={page}&topics%5B%5D={topic}'.format(page=page, topic=topic)
-            html = self.get_HTML(url)
-            talks = xbmc_common.parseDOM(html, 'div', {'class':'talk-link'})
+            dom = html5lib.parse(self.get_HTML(url), namespaceHTMLElements=False)
+            talks = dom.findall(".//div[@class='talk-link']")
             if not talks:
-                self.logger('Empty page requested? Please report this message.')
-                break
+                msg = "Cannot parse talks for topic '%s'." % (topic)
+                self.logger(msg, friendly_message=msg)
+                return
 
-            html_parser = HTMLParser.HTMLParser()
+            failed_talks = 0
             for talk in talks:
-                link = [href for href in xbmc_common.parseDOM(talk, 'a', ret='href') if '/talks' in href][0]
-                title = img = speaker = None
-                description = xbmc_common.parseDOM(talk, 'div', {'class':'media__message'})
-                if description:
-                    anchors = xbmc_common.parseDOM(description, 'a')
-                    if anchors:
-                        title = html_parser.unescape(anchors[0])
-                    speakers = xbmc_common.parseDOM(description, 'h4', {'class':'[^\'"]*talk-link__speaker[^\'"]*'})
-                    if speakers:
-                        speaker = speakers[0]
-                    imgs = xbmc_common.parseDOM(talk, 'img', ret='src')
-                    if imgs:
-                        img = imgs[0]
+                anchors = [x for x in talk.findall('.//a[@href]') if '/talks/' in x.attrib['href']]
+                media_message = talk.find(".//div[@class='media__message']")
+                title_container = media_message.find('.//a') if media_message else None
+                if not anchors or title_container is None:
+                    failed_talks += 1
+                    continue
+                
+                speaker = img = None
+                link = anchors[0].attrib['href']
+                title = html.unescape(title_container.text.strip())
+                speakers_container = [x for x in talk.findall('.//h4[@class]') if 'talk-link__speaker' in x.attrib['class']]
+                if speakers_container is not None:
+                    speaker = speakers_container[0].text.strip()
+                img = talk.find('.//img[@src]')
+                if img is not None:
+                    img = img.attrib['src']
 
                 yield title, URLTED + link, img, speaker
 
-            next_link = xbmc_common.parseDOM(html, 'span', {'class':'[^\'"]*pagination__next[^\'"]*'}, ret='class')
-            if next_link:
-                if 'disabled' in next_link[0]:
-                    # On last page, stop loop.
-                    return
+            pagination_div = dom.find(".//div[@class='pagination']")
+            pagination_next = [x for x in pagination_div.findall('.//*[@class]') if 'pagination__next' in x.attrib['class']] if pagination_div else None
+            if pagination_next is None:
+                msg = "Cannot page talks for topic '%s'." % (topic)
+                self.logger(msg, friendly_message=msg)
+                return
+
+            if 'disabled' in pagination_next[0].attrib['class']:
+                # On last page, stop loop.
+                if failed_talks:
+                    msg = "Problem parsing {} talks for topic '{}'".format(failed_talks, topic)
+                    self.logger(msg, friendly_message=msg)
+                return

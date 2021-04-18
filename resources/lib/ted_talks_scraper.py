@@ -1,11 +1,6 @@
 from .model import subtitles_scraper
 from .model import talk_scraper
 
-# MAIN URLS
-URLSPEAKERS = 'http://www.ted.com/speakers/atoz/page/'
-URLSEARCH = 'http://www.ted.com/search?q=%s/page/'
-
-
 class TedTalks:
 
     def __init__(self, getHTML, logger):

@@ -1,6 +1,3 @@
-from future.standard_library import install_aliases
-install_aliases()
-
 import urllib.request, urllib.parse, urllib.error
 from . import ted_talks_scraper
 from . import plugin
@@ -304,7 +301,7 @@ class Main:
 
     def __init__(self, args_map):
         self.args_map = args_map
-        self.get_HTML = Fetcher(plugin.report).getHTML
+        self.get_HTML = Fetcher(plugin.report).get_HTML
         self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML, plugin.report)
 
     def run(self):

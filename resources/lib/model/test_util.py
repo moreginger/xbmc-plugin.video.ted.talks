@@ -1,13 +1,10 @@
-from future.standard_library import install_aliases
-install_aliases()
-
 import os
+import requests
 import time
 import unittest
-import urllib.request, urllib.error, urllib.parse
 
 def get_HTML(url):
-    return urllib.request.urlopen(url).read()
+    return requests.get(url).text
 
 EXCLUDE_RATE_LIMITED = os.environ.get('EXCLUDE_RATE_LIMITED') != 'false'
 RATE_LIMIT_WAIT_SECONDS = 10
@@ -23,6 +20,7 @@ class CachedHTMLProvider:
         '''
         Avoid the wrath of TED by caching requests as much as possible.
         '''
+        print('GET {}'.format(url))
         if url not in __cache__:
             # Aggressive TED rate limiting :'(
             now = time.time()

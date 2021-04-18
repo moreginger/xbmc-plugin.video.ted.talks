@@ -17,7 +17,6 @@ rsync -aP\
   --exclude '*.md'\
   --exclude 'requirements.txt'\
   --exclude 'README'\
-  --exclude 'testSupport'\
   --exclude '*_test.py'\
   --exclude 'test_util.py'\
   --exclude '*.pyc'\

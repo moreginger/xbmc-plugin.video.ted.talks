@@ -3,8 +3,6 @@ Grab new talks from RSS feed. Yes we can just add an rss: source in XBMC,
 but this allows us a little more power to tweak things how we want them,
 so keep it for now.
 """
-from future.standard_library import install_aliases
-install_aliases()
 
 from datetime import timedelta
 import time

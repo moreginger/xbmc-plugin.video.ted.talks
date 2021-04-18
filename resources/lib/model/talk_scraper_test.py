@@ -50,7 +50,7 @@ class TestTalkScraper(unittest.TestCase):
         self.assert_custom_quality_url(html, "1500kbps", "/EdithWidder_2013-1500k.mp4")
 
         # Fall back to standard URL when custom URL 404s
-        self.assert_custom_quality_url(html, "42kbps", "/EdithWidder_2013-180k.mp4")
+        self.assert_custom_quality_url(html, "42kbps", "/EdithWidder_2013.mp4", expect_logger_call=True)
 
     def test_get_custom_quality_video_2017(self):
         html = CachedHTMLProvider().get_HTML("https://www.ted.com/talks/dan_bricklin_meet_the_inventor_of_the_electronic_spreadsheet")
@@ -58,14 +58,18 @@ class TestTalkScraper(unittest.TestCase):
         self.assert_custom_quality_url(html, "1500kbps", "/DanBricklin_2016X-1500k.mp4")
 
         # Fall back to standard URL when custom URL 404s
-        self.assert_custom_quality_url(html, "42kbps", "/DanBricklin_2016X-180k.mp4")
+        self.assert_custom_quality_url(html, "42kbps", "/DanBricklin_2016X.mp4", expect_logger_call=True)
 
-    def assert_custom_quality_url(self, talk_html, video_quality, expected_video_url):
+    def assert_custom_quality_url(self, talk_html, video_quality, expected_video_url, expect_logger_call=False):
         logger = mock.MagicMock()
         video_url, title, speaker, plot, talk_json = talk_scraper.get(talk_html, logger, video_quality)
         if not EXCLUDE_RATE_LIMITED:
             self.assertEqual(200, requests.head(video_url, allow_redirects=True).status_code)
         self.assertTrue(video_url.endswith(expected_video_url), msg=video_url)
+        if expect_logger_call:
+            logger.assert_called()
+        else:
+            logger.assert_not_called()
 
     @skip_ted_rate_limited
     def test_performance(self):

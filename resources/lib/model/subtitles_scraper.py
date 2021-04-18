@@ -4,15 +4,9 @@ Inspired by code of Esteban Ordano
 http://estebanordano.com/ted-talks-download-subtitles/
 http://estebanordano.com.ar/wp-content/uploads/2010/01/TEDTalkSubtitles.py_.zip
 '''
-from future.standard_library import install_aliases
-install_aliases()
-
-import json
-import urllib.request, urllib.parse, urllib.error
+import requests
 
 __friendly_message__ = 'Error showing subtitles'
-__talkIdKey__ = 'id'
-__introDurationKey__ = 'introDuration'
 
 def format_time(time):
     millis = time % 1000
@@ -37,7 +31,7 @@ def __get_languages__(talk_json):
 
 def get_subtitles(talk_id, language, logger):
     url = 'http://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)
-    subs = json.loads(urllib.request.urlopen(url).read())
+    subs = requests.get(url).json()
     captions = []
     for caption in subs['captions']:
         captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]
@@ -48,34 +42,28 @@ def get_subtitles_for_talk(talk_json, accepted_languages, logger):
     Return subtitles in srt format, or notify the user and return None if there was a problem.
     '''
     talk_id = talk_json['id']
-    intro_duration = talk_json['player_talks'][0]['introDuration']
-
-    logger('%s = %s' % ('intro_duration', intro_duration), level='debug')
 
     try:
         languages = __get_languages__(talk_json)
 
-        logger('%s = %s' % ('languages', languages), level='debug')
-        logger('%s = %s' % ('accepted_languages', accepted_languages), level='debug')
-
         if len(languages) == 0:
             msg = 'No subtitles found'
-            logger(msg, msg)
+            logger(msg, friendly_message=msg)
             return None
 
         language_matches = [l for l in accepted_languages if l in languages]
         if not language_matches:
-            msg = 'No subtitles in: %s' % (','.join(accepted_languages))
-            logger(msg, msg)
+            msg = 'No subtitles in: {}'.format(','.join(accepted_languages))
+            logger(msg, friendly_message=msg)
             return None
 
         raw_subtitles = get_subtitles(talk_id, language_matches[0], logger)
         if not raw_subtitles:
             return None
 
-        return format_subtitles(raw_subtitles, int(float(intro_duration) * 1000))
+        return format_subtitles(raw_subtitles, 0)
 
     except Exception as e:
         # Must not fail!
-        logger('Could not display subtitles: %s' % (e), __friendly_message__)
+        logger('Could not display subtitles: {}'.format(e), friendly_message=__friendly_message__)
         return None

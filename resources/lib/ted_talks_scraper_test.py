@@ -1,6 +1,3 @@
-from future.standard_library import install_aliases
-install_aliases()
-
 import unittest
 import urllib.request, urllib.error, urllib.parse
 

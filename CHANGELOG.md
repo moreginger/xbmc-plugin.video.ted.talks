@@ -1,3 +1,7 @@
+## [5.0.0]
+### Changed
+- Support Kodi Matrix
+
 ## [4.3.2]
 ### Changed
 - Mostly support Python 3

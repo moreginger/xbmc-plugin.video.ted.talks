@@ -1,23 +1,16 @@
-import CommonFunctions as xbmc_common
+import requests
 
 class Fetcher:
 
     def __init__(self, logger):
         self.logger = logger
 
-    def getHTML(self, url, data=None):
-        """
-        url Might be a real URL object or a String-like thing.
-        """
-        try:
-            url = url.get_full_url()
-        except AttributeError:
-            pass
-        self.logger('%s attempting to open %s with data' % (__name__, url))
+    def get_HTML(self, url, data=None):
+        self.logger('GET {}'.format(url))
 
-        result = xbmc_common.fetchPage({'link': url})
-        if result["status"] == 200:
-            return result["content"]
+        r = requests.get(url)
+        if r.ok:
+            return r.text
         else:
-            self.logger('%s error:\n%s\n%s\n%s' % (__name__, result['status'], result['header'], result['content']))
-            raise Exception('Failed to fetch url "%s": %s' % (url, result['status']))
+            self.logger('%s\n%s\n%s'.format(r.status_code, r.headers, r.text))
+            raise Exception('Failed to GET {}: {}'.format(url, r.status_code))

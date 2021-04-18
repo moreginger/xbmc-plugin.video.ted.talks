@@ -1,14 +1,12 @@
-from future.standard_library import install_aliases
-install_aliases()
-
-import HTMLParser
+import html
+import html5lib
 import re
-import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
-import CommonFunctions as xbmc_common
+from .url_constants import URLTED
 
-from .url_constants import URLTED, URLSEARCH
 
+__url_search__ = URLTED + '/search?cat=videos&q=%s&page=%s'
 __results_count_re__ = re.compile(r'.*?\d+ - (\d+) of (\d+) results.*') # "331 - 360 of 333 results"
 __result_count_re__ = re.compile(r'.*?\d+ +results?.*') # Two spaces at the moment i.e. "1  result"
 
@@ -26,20 +24,20 @@ class Search:
         # TODO yield speakers, topics
 
         search_string = urllib.parse.quote_plus(search_string)
-        html = self.get_HTML(URLSEARCH % (search_string, page_index))
+        search_url = __url_search__ % (search_string, page_index)
+        search_content = self.get_HTML(search_url)
 
-        results = xbmc_common.parseDOM(html, 'article', {'class': 'm1 search__result'})
-        yield self._results_remaining(html, len(results)) 
+        results = html5lib.parse(search_content, namespaceHTMLElements=False).findall(".//article[@class='m1 search__result']")
+        yield self._results_remaining(search_content, len(results)) 
 
-        html_parser = HTMLParser.HTMLParser()
+        import xml.etree.ElementTree as ElementTree
         for result in results:
-            header = xbmc_common.parseDOM(result, 'h3')[0]
-            url = xbmc_common.parseDOM(header, 'a', ret='href')[0]
+            url = result.find('.//a[@href]').attrib['href']
             if not url.startswith('/talks/'):
                 continue
             url = URLTED + url
-            title = html_parser.unescape(xbmc_common.parseDOM(header, 'a')[0].strip())
-            img = xbmc_common.parseDOM(result, 'img', ret='src')[0]
+            title = html.unescape(result.find('.//h3/a').text.strip())
+            img = result.find('.//img[@src]').attrib['src']
             yield title, url, img
 
     def _results_remaining(self, html, results):

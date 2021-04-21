@@ -8,7 +8,7 @@ Run core tests (note some tests skipped at end) with:
 
 To run all tests. This may incur TED rate-limiting:
 
-`EXCLUDE_RATE_LIMITED=false python2 -m "unittest" discover -s ./resources/lib/ -p "*_test.py"`
+`EXCLUDE_RATE_LIMITED=false python3 -m "unittest" discover -s ./resources/ -p "*_test.py"`
 
 ## Releasing
 

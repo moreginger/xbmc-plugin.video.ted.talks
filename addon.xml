@@ -4,6 +4,7 @@
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.22.0"/>
     <import addon="script.module.html5lib" version="1.0.1+matrix.2"/>
+    <import addon="script.module.m3u8" version="0.5.4+matrix.2"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>
@@ -23,7 +24,8 @@
     <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
     <news>
 v5.0.0
-- Support Kodi Matrix
+- Requires Kodi version 19 (Matrix)
+- Playback uses m3u8, which respects the global bandwidth setting
     </news>
     <forum>https://forum.kodi.tv/showthread.php?tid=36866</forum>
     <website>https://github.com/moreginger/xbmc-plugin.video.ted.talks</website>

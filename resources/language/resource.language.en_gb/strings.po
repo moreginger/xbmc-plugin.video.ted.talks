@@ -67,8 +67,3 @@ msgstr ""
 msgctxt "#30113"
 msgid "Custom language codes (optional)"
 msgstr ""
-
-msgctxt "#30114"
-msgid "Video quality"
-msgstr ""
-

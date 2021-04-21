@@ -3,9 +3,6 @@ import requests
 import time
 import unittest
 
-def get_HTML(url):
-    return requests.get(url).text
-
 EXCLUDE_RATE_LIMITED = os.environ.get('EXCLUDE_RATE_LIMITED') != 'false'
 RATE_LIMIT_WAIT_SECONDS = 10
 
@@ -16,11 +13,14 @@ __previous_request__ = 0
 
 class CachedHTMLProvider:
 
+    def get(self, url):
+        print('GET {}'.format(url))
+        return requests.get(url)
+
     def get_HTML(self, url):
         '''
         Avoid the wrath of TED by caching requests as much as possible.
         '''
-        print('GET {}'.format(url))
         if url not in __cache__:
             # Aggressive TED rate limiting :'(
             now = time.time()
@@ -29,5 +29,5 @@ class CachedHTMLProvider:
             if elapsed < RATE_LIMIT_WAIT_SECONDS:
                 time.sleep(max(0, RATE_LIMIT_WAIT_SECONDS - elapsed))
             __previous_request__ = now
-            __cache__[url] = get_HTML(url)
+            __cache__[url] = self.get(url).text
         return __cache__[url]

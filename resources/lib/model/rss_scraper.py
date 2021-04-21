@@ -49,6 +49,8 @@ class NewTalksRss(object):
         plot = item.find('./{http://www.itunes.com/dtds/podcast-1.0.dtd}summary').text
         link = item.find('./link').text
 
+        # TODO: Upgrade link to user's bitrate, looks like can synthesize URL of form https://download.ted.com/talks/{lastPathSegment.mp4}
+
         # Get date as XBMC wants it
         pub_date = item.find('./pubDate').text[:-6]  # strptime can't handle timezone info.
         try:
@@ -61,11 +63,7 @@ class NewTalksRss(object):
         return {'title':title, 'author':author, 'thumb':pic, 'plot':plot, 'duration':duration_seconds, 'date':date, 'link':link, 'mediatype': "video"}
 
     def __total_seconds__(self, delta):
-        try:
-            return delta.total_seconds()
-        except AttributeError:
-            # People still using Python <2.7 201303 :(
-            return float((delta.microseconds + (delta.seconds + delta.days * 24 * 3600) * 10 ** 6)) / 10 ** 6
+        return delta.total_seconds()
 
     def get_new_talks(self):
         """

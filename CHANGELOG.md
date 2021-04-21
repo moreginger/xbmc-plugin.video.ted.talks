@@ -1,6 +1,7 @@
 ## [5.0.0]
 ### Changed
-- Support Kodi Matrix
+- Requires Kodi version 19 (Matrix)
+- Playback uses m3u8, which respects the global bandwidth setting
 
 ## [4.3.2]
 ### Changed

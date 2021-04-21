@@ -1,27 +1,29 @@
-import urllib.request, urllib.parse, urllib.error
-from . import ted_talks_scraper
+import itertools
+import os
+import sys
+import time
+import urllib.parse
+
+import xbmc
+import xbmcaddon
+import xbmcgui
+import xbmcplugin
+import xbmcvfs
+
+from . import menu_util
 from . import plugin
 from . import settings
+from . import ted_talks_scraper
 from .model.fetcher import Fetcher
 from .model.rss_scraper import NewTalksRss
-from .model.speakers_scraper import Speakers
 from .model.search_scraper import Search
+from .model.speakers_scraper import Speakers
 from .model.topics_scraper import Topics
-from . import menu_util
-import os
-import time
-import xbmc
-import xbmcplugin
-import xbmcgui
-import xbmcaddon
-import itertools
-import sys
-
 
 class UI:
 
-    def __init__(self, get_HTML, ted_talks):
-        self.get_HTML = get_HTML
+    def __init__(self, fetcher, ted_talks):
+        self.fetcher = fetcher
         self.ted_talks = ted_talks
 
     def endofdirectory(self, sortMethod='title', updateListing=False):
@@ -68,30 +70,39 @@ class UI:
         plugin.report('%s = %s' % ('url', str(url)), level='debug')
 
         subs_language = settings.get_subtitle_languages()
-        title, url, subs, info_labels = self.ted_talks.getVideoDetails(url=url, video_quality=settings.video_quality, subs_language=subs_language)
-        li = xbmcgui.ListItem(title, path=url)
+        playlist, title, subs, info_labels = self.ted_talks.get_video_details(url=url, subs_language=subs_language)
+
+        playlist_file = os.path.join(xbmcvfs.translatePath("special://temp/"), 'ted_talks.m3u8')
+        with open(playlist_file, 'w', encoding='utf-8') as fh:
+            fh.write(playlist)
+
+        li = xbmcgui.ListItem(title, path=playlist_file)
         li.setArt({'icon': icon, 'thumb': icon})
         li.setInfo(type='Video', infoLabels=info_labels)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)
-        if subs:
-            # If not we either don't want them, or should have displayed a notification.
-            subs_file = os.path.join(xbmc.translatePath("special://temp"), 'ted_talks_subs.srt')
-            fh = open(subs_file, 'w')
-            try:
-                fh.write(subs.encode('utf-8'))
-            finally:
-                fh.close()
-                player = xbmc.Player()
-            # Up to 30s to start
-            start_time = time.time()
-            while not player.isPlaying() and time.time() - start_time < 30:
-                time.sleep(1)
-            if player.isPlaying():
-                xbmc.Player().setSubtitles(subs_file)
-                xbmc.Player().showSubtitles(True)
+
+        subs_file = os.path.join(xbmcvfs.translatePath("special://temp/"), 'ted_talks_subs.srt')
+        with open(subs_file, 'w', encoding='utf-8') as fh:
+            if subs:
+                fh.write(subs)
             else:
+                pass # Write empty file as subs will persist and appear for the next video.
+            
+        # Up to 30s to start
+        start_time = time.time()
+        player = xbmc.Player()
+        while not player.isPlaying() and time.time() - start_time < 30:
+            if not player.isPlaying():
                 # No user message: user was probably already notified of a problem with the stream.
                 plugin.report('Could not show subtitles: timed out waiting for player to start.')
+                break
+
+            time.sleep(1) # Extra fudge still required?
+            if subs:
+                player.setSubtitles(subs_file)
+                player.showSubtitles(True)
+            else:
+                player.showSubtitles(False)
 
     def navItems(self, navItems, mode):
         if navItems['next']:
@@ -301,24 +312,24 @@ class Main:
 
     def __init__(self, args_map):
         self.args_map = args_map
-        self.get_HTML = Fetcher(plugin.report).get_HTML
-        self.ted_talks = ted_talks_scraper.TedTalks(self.get_HTML, plugin.report)
+        self.fetcher = Fetcher(plugin.report)
+        self.ted_talks = ted_talks_scraper.TedTalks(self.fetcher, plugin.report)
 
     def run(self):
-        ui = UI(self.get_HTML, self.ted_talks)
+        ui = UI(self.fetcher.get_HTML, self.ted_talks)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:
             modes = [
-                PlayVideoAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                NewTalksAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                SearchAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                SearchMoreAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                SpeakersAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                SpeakerGroupAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                SpeakerVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                TopicsAction(ui, logger=plugin.report, get_HTML=self.get_HTML),
-                TopicVideosAction(ui, logger=plugin.report, get_HTML=self.get_HTML)
+                PlayVideoAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                NewTalksAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                SearchAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                SearchMoreAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                SpeakersAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                SpeakerGroupAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                SpeakerVideosAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                TopicsAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML),
+                TopicVideosAction(ui, logger=plugin.report, get_HTML=self.fetcher.get_HTML)
             ]
             modes = dict([(m.mode, m) for m in modes])
             mode = self.args_map['mode']

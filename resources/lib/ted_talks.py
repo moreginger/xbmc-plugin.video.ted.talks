@@ -125,7 +125,7 @@ class UI:
         self.endofdirectory(sortMethod='date')
 
     def speakerVids(self, url):
-        talks_generator = Speakers(self.get_HTML).get_talks_for_speaker(url)
+        talks_generator = Speakers(self.fetcher.get_HTML).get_talks_for_speaker(url)
         for title, link, img in talks_generator:
             self.addItem(title, 'playVideo', link, img, isFolder=False)
         xbmcplugin.setContent(int(sys.argv[1]), 'videos')
@@ -187,7 +187,7 @@ class SpeakersAction(Action):
     def run_internal(self, args):
         page_count = Speakers(self.get_HTML).get_speaker_page_count()
         pages_per_group = 4
-        for i in range(1, page_count / pages_per_group + 1):
+        for i in range(1, page_count // pages_per_group + 1):
             label = '%s-%s' % ((i - 1) * pages_per_group + 1, i * pages_per_group)
             self.ui.addItem(label, 'speakerGroup', label, isFolder=True)
         remainder = page_count % pages_per_group
@@ -316,7 +316,7 @@ class Main:
         self.ted_talks = ted_talks_scraper.TedTalks(self.fetcher, plugin.report)
 
     def run(self):
-        ui = UI(self.fetcher.get_HTML, self.ted_talks)
+        ui = UI(self.fetcher, self.ted_talks)
         if 'mode' not in self.args_map:
             ui.showCategories()
         else:

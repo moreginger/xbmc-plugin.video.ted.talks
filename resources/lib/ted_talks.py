@@ -5,7 +5,6 @@ import time
 import urllib.parse
 
 import xbmc
-import xbmcaddon
 import xbmcgui
 import xbmcplugin
 import xbmcvfs

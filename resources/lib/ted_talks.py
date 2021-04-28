@@ -51,8 +51,7 @@ class UI:
         li = xbmcgui.ListItem(label=title)
         li.setArt({'icon': img, 'thumb': img})
         video_info = dict((k, v) for k, v in video_info.items() if k in ['date', 'plot', 'mediatype'])
-        if video_info:
-            li.setInfo('video', video_info)
+        li.setInfo('video', video_info)
         if 'duration' in video_info:
             # To set with second granularity must do this rather than via setInfo
             li.addStreamInfo('video', {'duration' : video_info['duration']})
@@ -215,7 +214,7 @@ class SpeakerGroupAction(Action):
         if pages[-1] < pages_count:
             label = '%s-%s' % (pages[-1] + 1, min(pages_count, pages[-1] * 2 - pages[0]))
             self.ui.addItem(label + '...', 'speakerGroup', label, isFolder=True)
-        xbmcplugin.setContent(int(sys.argv[1]), 'actors')
+        xbmcplugin.setContent(int(sys.argv[1]), 'artists')
         self.ui.endofdirectory(sortMethod='none')
 
 
@@ -239,7 +238,7 @@ class TopicsAction(Action):
         topics = Topics(self.get_HTML, self.logger)
         for title, topic in topics.get_topics():
             self.ui.addItem(title, 'topicVids', args={ 'topic': topic }, isFolder=True)
-        xbmcplugin.setContent(int(sys.argv[1]), 'genres')
+        xbmcplugin.setContent(int(sys.argv[1]), 'artists')
         self.ui.endofdirectory()
 
 

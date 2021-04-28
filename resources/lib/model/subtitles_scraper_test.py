@@ -35,16 +35,30 @@ World
 
 ''', formatted_subs)
 
-    def test_get_languages_and_get_subtitles_for_talk(self):
+    def test_get_languages(self):
         talk_json = self.__get_talk_json__('http://www.ted.com/talks/richard_wilkinson.html')
         expected = set(['ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fr', 'gl', 'he', 'hr', 'hu', 'hy', 'id', 'it', 'ja', 'ka', 'ko', 'mk', 'nb', 'nl', 'pl', 'pt', 'pt-br', 'ro', 'ru', 'sk', 'sq', 'sr', 'sv', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw'])
         result = set(self.sut.__get_languages__(talk_json))
         self.assertEqual(expected, result, msg="New translations are likely to appear; please update the test if so :)\n%s" % (sorted(result)))
 
+
+    def test_get_subtitles_for_talk_domains(self):
+        # hls format 1: "domains"
+        talk_json = self.__get_talk_json__('http://www.ted.com/talks/richard_wilkinson.html')
         subs = self.sut.get_subtitles_for_talk(talk_json, ['banana', 'fr', 'en'])
         self.assertIn('''1
 00:00:02,504 --> 00:00:05,504
 Vous savez tous que ce que je vais dire est vrai.
+
+2''', subs)
+
+    def test_get_subtitles_for_talk_timing(self):
+        # hls format 1: "timing"
+        talk_json = self.__get_talk_json__('https://www.ted.com/talks/michael_levin_the_electrical_blueprints_that_orchestrate_life')
+        subs = self.sut.get_subtitles_for_talk(talk_json, ['banana', 'fr', 'en'])
+        self.assertIn('''1
+00:00:03,370 --> 00:00:04,816
+Chris Anderson: Mike, welcome.
 
 2''', subs)
 

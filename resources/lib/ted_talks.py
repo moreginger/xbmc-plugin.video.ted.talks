@@ -89,13 +89,14 @@ class UI:
         # Up to 30s to start
         start_time = time.time()
         player = xbmc.Player()
-        while not player.isPlaying() and time.time() - start_time < 30:
-            if not player.isPlaying():
-                # No user message: user was probably already notified of a problem with the stream.
-                plugin.report('Could not show subtitles: timed out waiting for player to start.')
-                break
+        while not player.isPlaying() and time.time() - start_time < 10:
+            pass
 
-            time.sleep(1) # Extra fudge still required?
+        if not player.isPlaying():
+            # No user message: user was probably already notified of a problem with the stream.
+            plugin.report('Could not show subtitles: timed out waiting for player to start.')
+            return
+        else:
             if subs:
                 player.setSubtitles(subs_file)
                 player.showSubtitles(True)

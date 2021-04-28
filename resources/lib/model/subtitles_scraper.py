@@ -71,7 +71,14 @@ class Subtitles:
             metadata_json = self.fetcher.get(metadata_url).json()
             # TED hls supports VTT subtitles, which appear to be correctly timed, but Kodi does not.
             # For now continue to use old API, though I expect we'll need to switch to scraping the VTT subtitles at some point.
-            intro_duration = int(metadata_json['domains'][0]['duration'] * 1000)
+            intro_duration = None
+            if 'domains' in metadata_json:
+                intro_duration = int(metadata_json['domains'][0]['duration'] * 1000)
+            elif 'timing' in metadata_json:
+                intro_duration = int(metadata_json['timing']['content']['start'] * 1000)
+            else:
+                raise Exception('Cannot parse hls metadata')
+
             intro_duration -= 1000 # FIXME: subtitles seem to lag video when doing m3u8 playback in matrix
 
             return self.__format_subtitles__(raw_subtitles, intro_duration)

@@ -35,7 +35,7 @@ class Subtitles:
         return [l['languageCode'] for l in talk_json['player_talks'][0]['languages']]
 
     def get_subtitles(self, talk_id, language):
-        url = 'http://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)
+        url = 'https://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)
         subs = self.fetcher.get(url).json()
         captions = []
         for caption in subs['captions']:

@@ -22,7 +22,7 @@ class TestSearchScraper(unittest.TestCase):
         self.assertEqual(talks_per_page, len(talks))
         # Actually no guarantee this talk is in top results. It is today.
         sample_talk = [s for s in talks if s[0] == 'Taylor Wilson: Yup, I built a nuclear fusion reactor'][0]
-        self.assertEqual('http://www.ted.com/talks/taylor_wilson_yup_i_built_a_nuclear_fusion_reactor', sample_talk[1])
+        self.assertEqual('https://www.ted.com/talks/taylor_wilson_yup_i_built_a_nuclear_fusion_reactor', sample_talk[1])
         self.assertEqual('https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/fa41dca52e81265b6e20f7ad9647711c1a58efb7_1600x1200.jpg?h=200', sample_talk[2])
 
         last_page = 1 + int(math.ceil(remaining_talks / talks_per_page))

@@ -1,1 +1,1 @@
-URLTED = 'http://www.ted.com'
+URLTED = 'https://www.ted.com'

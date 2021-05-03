@@ -23,7 +23,7 @@ class TestSpeakersScraper(unittest.TestCase):
         self.assertEqual(30, len(e_speakers))  # 30 per page
 
         sample_speaker = [s for s in e_speakers if s[0] == 'Sandra Aamodt'][0]
-        self.assertEqual('http://www.ted.com/speakers/sandra_aamodt', sample_speaker[1])
+        self.assertEqual('https://www.ted.com/speakers/sandra_aamodt', sample_speaker[1])
         self.assertEqual('https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/4a37c5ed67bf4d4a1cf7aa643607626b44aee0cc_800x600.jpg?h=191&w=254', sample_speaker[2])
 
     @skip_ted_rate_limited
@@ -43,10 +43,10 @@ class TestSpeakersScraper(unittest.TestCase):
         self.assertGreater(1, time)
 
     def test_get_talks_for_speaker(self):
-        talks = list(self.sut.get_talks_for_speaker("http://www.ted.com/speakers/janine_benyus"))
+        talks = list(self.sut.get_talks_for_speaker("https://www.ted.com/speakers/janine_benyus"))
         self.assertLessEqual(2, len(talks))  # 2 at time of writing
 
         talk = talks[0]
         self.assertEqual("Biomimicry's surprising lessons from nature's engineers", talk[0])
-        self.assertEqual('http://www.ted.com/talks/janine_benyus_biomimicry_s_surprising_lessons_from_nature_s_engineers', talk[1])
+        self.assertEqual('https://www.ted.com/talks/janine_benyus_biomimicry_s_surprising_lessons_from_nature_s_engineers', talk[1])
         self.assertEqual('https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/12_480x360.jpg?cb=20160511&quality=63&u=&w=512', talk[2])

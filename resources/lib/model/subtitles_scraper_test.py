@@ -36,7 +36,7 @@ World
 ''', formatted_subs)
 
     def test_get_languages(self):
-        talk_json = self.__get_talk_json__('http://www.ted.com/talks/richard_wilkinson.html')
+        talk_json = self.__get_talk_json__('https://www.ted.com/talks/richard_wilkinson.html')
         expected = set(['ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fr', 'gl', 'he', 'hr', 'hu', 'hy', 'id', 'it', 'ja', 'ka', 'ko', 'mk', 'nb', 'nl', 'pl', 'pt', 'pt-br', 'ro', 'ru', 'sk', 'sq', 'sr', 'sv', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw'])
         result = set(self.sut.__get_languages__(talk_json))
         self.assertEqual(expected, result, msg="New translations are likely to appear; please update the test if so :)\n%s" % (sorted(result)))
@@ -44,7 +44,7 @@ World
 
     def test_get_subtitles_for_talk_domains(self):
         # hls format 1: "domains"
-        talk_json = self.__get_talk_json__('http://www.ted.com/talks/richard_wilkinson.html')
+        talk_json = self.__get_talk_json__('https://www.ted.com/talks/richard_wilkinson.html')
         subs = self.sut.get_subtitles_for_talk(talk_json, ['banana', 'fr', 'en'])
         self.assertIn('''1
 00:00:02,504 --> 00:00:05,504

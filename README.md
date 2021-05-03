@@ -13,14 +13,14 @@ The currently supported browsing options are:
 * Speakers
 * Topics
 
+Playback uses an m3u8 playlist file. Kodi will automatically select the best
+bitrate supported by the bandwidth settings of the installation.
+
 
 Settings
 ========
 
 ![settings screen shot](README/settings.png)
-
-__Video quality__: Set your preferred video bitrate (quality).
-If the video isn't available at that bitrate then the default (320kbps) will be used.
 
 __Enable subtitles__: Check this option to show subtitles.
 By default the subtitles will be shown in the current XBMC language.

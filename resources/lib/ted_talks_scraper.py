@@ -1,5 +1,6 @@
 
 import m3u8
+from urllib.parse import urlparse
 
 from .model.subtitles_scraper import Subtitles
 from .model import talk_scraper
@@ -28,19 +29,29 @@ class TedTalks:
     def __process_m3u8__(self, m3u8_url):
         r = self.fetcher.get(m3u8_url)
         playlist = m3u8.loads(r.text)
-        base_url = r.url.rsplit('/', 1)[0] + '/'
+        parsed_url = urlparse(r.url)
+        root_url = parsed_url.scheme + '://' + parsed_url.netloc       
+        path = parsed_url.path.rsplit('/', 1)[0] + '/'
 
         for x in [x for x in playlist.media]:
             if x.type == 'SUBTITLES':
                 playlist.media.remove(x)
             else:
-                x.uri = base_url+ x.uri
+                x.uri = self.__resolve__(root_url, path, x.uri)
         for x in playlist.playlists:
-            x.uri = base_url+ x.uri
+            x.uri =  self.__resolve__(root_url, path, x.uri)
             for y in [y for y in x.media]:
                 if y.type == 'SUBTITLES':
                     x.media.remove(y)
         for x in playlist.iframe_playlists:
-            x.uri = base_url+ x.uri
+            x.uri =  self.__resolve__(root_url, path, x.uri)
         
         return playlist.dumps()
+
+    def __resolve__(self, root_url, path, url):
+        parsed_url = urlparse(url)
+        if parsed_url.scheme:
+            return url
+        if not url.startswith('/'):
+            root_url = root_url + path
+        return root_url + url

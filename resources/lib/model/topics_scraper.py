@@ -31,6 +31,9 @@ class Topics:
             dom = html5lib.parse(self.get_HTML(url), namespaceHTMLElements=False)
             talks = dom.findall(".//div[@class='talk-link']")
             if not talks:
+                if dom.find(".//div[@class='browse__no-results']") is not None:
+                    # Some topics e.g. "advertising, at the time of writing, have no results.
+                    return
                 msg = "Cannot parse talks for topic '%s'." % (topic)
                 self.logger(msg, friendly_message=msg)
                 return

@@ -48,6 +48,13 @@ class TestTopicsScraper(unittest.TestCase):
         self.assertEqual('https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/6bfb7a5c-288a-4bc2-92e4-5dfb7257c0f5/NatashaHurleyWalker_2016X-embed.jpg?quality=89&w=320', sample_talk[2])
         self.assertEqual('Natasha Hurley-Walker', sample_talk[3])
 
+    def test_get_talks_empty(self):
+        '''
+        At the time of writing 'advertising' has no matches.
+        '''
+        e_talks = list(self.sut.get_talks('advertising'))
+        self.assertEqual(0, len(e_talks))
+
     @skip_ted_rate_limited
     def test_get_talks_performance(self):
         # Run once to cache.

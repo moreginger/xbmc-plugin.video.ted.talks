@@ -21,7 +21,7 @@
     <description lang="hu_HU">TED egy kicsi non-profit szervezet aminek célpontjában az Ötlet áll amit érdemes megosztani. A webhely kezdete 1984-re nyúlik vissza egy konferenciára ami 3 külön világot hozott össze: Technológia, Szórakozás, Tervezés. Azóta a kör csak bővült.</description>
     <description lang="pt_PT">TED é uma organização sem fins lucrativos dedicada a 'Ideias com Valor'. Foi iniciada em 1984 como uma conferência que pretendia juntar pessoas de três mundos: Tecnologia, Entretenimento e Design. Desde ai tornou-se muito mais abrangente.</description>
     <platform>all</platform>
-    <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <license>GPL-2.0-or-later</license>
     <news>
 v5.0.0
 - Requires Kodi version 19 (Matrix)

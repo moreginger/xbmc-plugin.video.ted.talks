@@ -48,7 +48,7 @@ class UI:
         args = [k + '=' + urllib.parse.quote_plus(v.encode('ascii', 'ignore')) for k, v in args.items()]
         action_url = sys.argv[0] + '?' + "&".join(args)
 
-        li = xbmcgui.ListItem(label=title)
+        li = xbmcgui.ListItem(label=title, offscreen=True)
         li.setArt({'icon': img, 'thumb': img})
         video_info = dict((k, v) for k, v in video_info.items() if k in ['date', 'plot', 'mediatype'])
         li.setInfo('video', video_info)
@@ -56,7 +56,7 @@ class UI:
             # To set with second granularity must do this rather than via setInfo
             li.addStreamInfo('video', {'duration' : video_info['duration']})
         if not isFolder:
-            li.setProperty("IsPlayable", "true")  # let xbmc know this can be played, unlike a folder.
+            li.setProperty('IsPlayable', 'true')  # let xbmc know this can be played, unlike a folder.
             context_menu = menu_util.create_context_menu(getLS=plugin.getLS)
             li.addContextMenuItems(context_menu, replaceItems=False)
         else:
@@ -74,7 +74,7 @@ class UI:
         with open(playlist_file, 'w', encoding='utf-8') as fh:
             fh.write(playlist)
 
-        li = xbmcgui.ListItem(title, path=playlist_file)
+        li = xbmcgui.ListItem(title, path=playlist_file, offscreen=True)
         li.setArt({'icon': icon, 'thumb': icon})
         li.setInfo(type='Video', infoLabels=info_labels)
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, li)

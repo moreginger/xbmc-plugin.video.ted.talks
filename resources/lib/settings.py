@@ -5,8 +5,6 @@ Should be usable as a testing shim.
 import pickle
 import os
 
-from .model import language_mapping
-
 __plugin_id__ = 'plugin.video.ted.talks'
 __current_search__ = 'current_search'
 __current_search_results__ = 'current_search_results'
@@ -24,7 +22,7 @@ def init():
     if not os.path.exists(profile_path):
         os.makedirs(profile_path)
     enable_subtitles = addon.getSetting('enable_subtitles')
-    xbmc_language = xbmc.getLanguage()
+    xbmc_language = xbmc.getLanguage(xbmc.ISO_639_1)
     subtitle_language = addon.getSetting('subtitle_language')
 
 def get_subtitle_languages():
@@ -35,11 +33,7 @@ def get_subtitle_languages():
     if enable_subtitles == 'false':
         return None
     if not subtitle_language.strip():
-        try:
-            code = language_mapping.get_language_code(xbmc_language)
-            return [code] if code else None
-        except:
-            return None
+        return [xbmc_language]
     else:
         return [code.strip() for code in subtitle_language.split(',') if code.strip()]
 

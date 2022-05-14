@@ -1,7 +1,7 @@
 ## [5.0.1]
 ### Changed
-- Requireds Kodi 19.x (Matrix) or Kodi 20.x (Nexus)
-- Replaced settings.py, ted_talks_scraper.py, talk_scraper.py and subtitles_scraper.py with fixed versions provided by Kodaksmith
+- Scraper fixes (pull#81 thanks to kevwag and kodaksmith)
+- Fix issue determining active language (issue#79)
 
 ## [5.0.0]
 ### Changed

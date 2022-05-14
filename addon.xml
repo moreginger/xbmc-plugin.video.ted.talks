@@ -25,6 +25,7 @@
     <news>
 v5.0.1
 - Scraper fixes (kevwag, kodaksmith)
+- Fix issue determining active language (issue#79)
 
 v.5.0.0
 - Requires Kodi 19+ (Matrix, Nexus, ...)

@@ -3,6 +3,8 @@ plugin.video.ted.talks
 This is a fork of the project started by rwparris, see
 [here](http://forum.xbmc.org/showthread.php?tid=36866).
 
+Fix for Kodi 19.x Matrix and Kodi 20.x Nexus implemented by [Kevwag-Kodi-Forks](https://githuc.com/Kevwag-Kodi-Forks)
+
 For installation instructions see
 [Installing](https://github.com/moreginger/xbmc-plugin.video.ted.talks/wiki/Installing)
 

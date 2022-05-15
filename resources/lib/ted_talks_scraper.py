@@ -1,4 +1,3 @@
-
 import m3u8
 from urllib.parse import urlparse
 
@@ -14,7 +13,7 @@ class TedTalks:
     def get_video_details(self, url, subs_language=None):
         talk_html = self.fetcher.get_HTML(url)
         try:
-            m3u8_url, title, speaker, plot, talk_json = talk_scraper.get_talk(talk_html, self.logger)
+            m3u8_url, title, speaker, plot, talk_json, player_json = talk_scraper.get_talk(talk_html, self.logger)
         except Exception as e:
             raise type(e)(e.message + "\nfor url '%s'" % (url))
 
@@ -22,7 +21,7 @@ class TedTalks:
 
         subs = None
         if subs_language:
-            subs = Subtitles(self.fetcher, self.logger).get_subtitles_for_talk(talk_json, subs_language)
+            subs = Subtitles(self.fetcher, self.logger).get_subtitles_for_talk(player_json, subs_language)
 
         return playlist, title, subs, {'Director':speaker, 'Genre':'TED', 'Plot':plot, 'PlotOutline':plot}
 

@@ -28,11 +28,11 @@ class Subtitles:
             result += '%d\n%s --> %s\n%s\n\n' % (idx + 1, self.__format_time__(start), self.__format_time__(end), sub['content'])
         return result
 
-    def __get_languages__(self, talk_json):
+    def __get_languages__(self, player_json):
         '''
         Get languages for a talk, or empty array if we fail.
         '''
-        return [l['languageCode'] for l in talk_json['player_talks'][0]['languages']]
+        return [l['languageCode'] for l in player_json['languages']]
 
     def get_subtitles(self, talk_id, language):
         url = 'https://www.ted.com/talks/subtitles/id/%s/lang/%s' % (talk_id, language)
@@ -42,15 +42,15 @@ class Subtitles:
             captions += [{'start': caption['startTime'], 'duration': caption['duration'], 'content': caption['content']}]
         return captions
 
-    def get_subtitles_for_talk(self, talk_json, accepted_languages):
+    def get_subtitles_for_talk(self, player_json, accepted_languages):
         '''
         Return subtitles in srt format, or notify the user and return None if there was a problem.
         '''
         # TODO: Get subtitles using metadata.json reference https://hls.ted.com/project_masters/690/metadata.json?intro_master_id=2346
 
         try:
-            talk_id = talk_json['id']
-            languages = self.__get_languages__(talk_json)
+            talk_id = player_json['id']
+            languages = self.__get_languages__(player_json)
 
             if len(languages) == 0:
                 msg = 'No subtitles found'
@@ -67,19 +67,20 @@ class Subtitles:
             if not raw_subtitles:
                 return None
 
-            metadata_url = talk_json['player_talks'][0]['resources']['hls']['metadata']
-            metadata_json = self.fetcher.get(metadata_url).json()
-            # TED hls supports VTT subtitles, which appear to be correctly timed, but Kodi does not.
-            # For now continue to use old API, though I expect we'll need to switch to scraping the VTT subtitles at some point.
-            intro_duration = None
-            if 'domains' in metadata_json:
-                intro_duration = int(metadata_json['domains'][0]['duration'] * 1000)
-            elif 'timing' in metadata_json:
-                intro_duration = int(metadata_json['timing']['content']['start'] * 1000)
-            else:
-                raise Exception('Cannot parse hls metadata')
-
-            intro_duration -= 1000 # FIXME: subtitles seem to lag video when doing m3u8 playback in matrix
+            #metadata_url = player_json['resources']['hls']['metadata']
+            #metadata_json = self.fetcher.get(metadata_url).json()
+            ## TED hls supports VTT subtitles, which appear to be correctly timed, but Kodi does not.
+            ## For now continue to use old API, though I expect we'll need to switch to scraping the VTT subtitles at some point.
+            #intro_duration = None
+            #if 'domains' in metadata_json:
+            #    intro_duration = int(metadata_json['domains'][0]['duration'] * 1000)
+            #elif 'timing' in metadata_json:
+            #    intro_duration = int(metadata_json['timing']['content']['start'] * 1000)
+            #else:
+            #    raise Exception('Cannot parse hls metadata')
+            #
+            #intro_duration -= 1000 # FIXME: subtitles seem to lag video when doing m3u8 playback in matrix
+            intro_duration = 0  # Set to zero as default intro removed
 
             return self.__format_subtitles__(raw_subtitles, intro_duration)
 

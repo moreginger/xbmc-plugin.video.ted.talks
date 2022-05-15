@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.ted.talks" name="TED Talks" version="5.0.0" provider-name="moreginger, rwparris2">
+<addon id="plugin.video.ted.talks" name="TED Talks" version="5.0.1" provider-name="moreginger, rwparris2, kevwag, kodaksmith">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.22.0"/>
@@ -23,8 +23,8 @@
     <platform>all</platform>
     <license>GPL-2.0-or-later</license>
     <news>
-v5.0.0
-- Requires Kodi version 19 (Matrix)
+v5.0.1
+- Requires Kodi 19.x (Matrix) or Kodi 20.x (Nexus)
 - Playback uses m3u8, which respects the global bandwidth setting
     </news>
     <forum>https://forum.kodi.tv/showthread.php?tid=36866</forum>

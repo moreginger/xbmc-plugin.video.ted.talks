@@ -11,7 +11,7 @@ __plugin_id__ = 'plugin.video.ted.talks'
 __current_search__ = 'current_search'
 __current_search_results__ = 'current_search_results'
 
-profile_path = '~/.xbmc/userdata/addon_data/plugin.video.ted.talks'
+profile_path = '~/.kodi/userdata/addon_data/plugin.video.ted.talks'
 enable_subtitles = True
 xbmc_language = 'English'
 subtitle_language = 'en'
@@ -35,8 +35,11 @@ def get_subtitle_languages():
     if enable_subtitles == 'false':
         return None
     if not subtitle_language.strip():
-        code = language_mapping.get_language_code(xbmc_language)
-        return [code] if code else None
+        try:
+            code = language_mapping.get_language_code(xbmc_language)
+            return [code] if code else None
+        except:
+            return None
     else:
         return [code.strip() for code in subtitle_language.split(',') if code.strip()]
 

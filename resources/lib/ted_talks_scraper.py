@@ -13,7 +13,7 @@ class TedTalks:
     def get_video_details(self, url, subs_language=None):
         talk_html = self.fetcher.get_HTML(url)
         try:
-            m3u8_url, title, speaker, plot, talk_json, player_json = talk_scraper.get_talk(talk_html, self.logger)
+            m3u8_url, title, speaker, plot, player_json = talk_scraper.get_talk(talk_html, self.logger)
         except Exception as e:
             raise type(e)(e.message + "\nfor url '%s'" % (url))
 

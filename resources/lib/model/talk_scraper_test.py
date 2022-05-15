@@ -44,7 +44,7 @@ class TestTalkScraper(unittest.TestCase):
 
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker, expect_plot, expect_json):
         logger = mock.MagicMock()
-        url, title, speaker, plot, talk_json = talk_scraper.get_talk(CachedHTMLProvider().get_HTML(talk_url), logger)
+        url, title, speaker, plot, player_json = talk_scraper.get_talk(CachedHTMLProvider().get_HTML(talk_url), logger)
         self.assertEqual(expected_video_url, url)
         self.assertEqual(expected_title, title)
         self.assertEqual(expected_speaker, speaker)
@@ -55,9 +55,9 @@ class TestTalkScraper(unittest.TestCase):
             self.assertIsNone(plot)
 
         if expect_json:
-            self.assertTrue(talk_json)  # Not None or empty
+            self.assertTrue(player_json)  # Not None or empty
         else:
-            self.assertIsNone(talk_json)
+            self.assertIsNone(player_json)
 
     def test_performance(self):
         html = CachedHTMLProvider().get_HTML("https://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")

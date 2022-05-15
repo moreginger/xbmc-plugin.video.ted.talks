@@ -19,7 +19,8 @@ rsync -aP\
   --exclude 'README'\
   --exclude '*_test.py'\
   --exclude 'test_util.py'\
-  --exclude '*.pyc'\
+  --exclude '__init__.py'\
+  --exclude '__pycache__'\
   ./ $BUILD/
 
 rm $DIST || true

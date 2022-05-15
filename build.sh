@@ -12,7 +12,7 @@ rsync -aP\
   --exclude '.git'\
   --exclude '.gitignore'\
   --exclude '.pylintrc'\
-  --exclude '.travis.yml'\
+  --exclude '.github'\
   --exclude '*.sh'\
   --exclude '*.md'\
   --exclude 'requirements.txt'\

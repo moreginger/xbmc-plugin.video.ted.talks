@@ -30,7 +30,7 @@ class TestSettings(unittest.TestCase):
         settings.enable_subtitles = 'true'
         settings.xbmc_language = 'tlh' # Klingon
         settings.subtitle_language = ''
-        self.assertEqual(None, settings.get_subtitle_languages())
+        self.assertEqual('tlh', settings.get_subtitle_languages())
         
     def test_get_subtitle_languages_enabled_custom(self):
         settings.enable_subtitles = 'true'

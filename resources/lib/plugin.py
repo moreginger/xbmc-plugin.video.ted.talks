@@ -22,12 +22,12 @@ def init():
     import xbmc
     xbmc.log("[ADDON] Initialized %s v%s using Python: %s'" % (__plugin__, __version__, sys.version), level=xbmc.LOGINFO)
 
-def report(gnarly_message, friendly_message=None, level='info'):
+def report(msg, friendly_message=None, level='info'):
     '''
     Log a message with optional onscreen notification.
     '''
     import xbmc
     level = {'info' : xbmc.LOGINFO, 'debug': xbmc.LOGDEBUG}[level]
-    xbmc.log("[ADDON] %s v%s - %s" % (__plugin__, __version__, gnarly_message), level=level)
+    xbmc.log("[ADDON] %s v%s - %s" % (__plugin__, __version__, msg), level=level)
     if friendly_message:
         xbmc.executebuiltin('Notification("%s","%s",)' % (__pluginLS__, friendly_message))

@@ -24,7 +24,11 @@
     <license>GPL-2.0-or-later</license>
     <news>
 v5.0.1
-- Requires Kodi 19.x (Matrix) or Kodi 20.x (Nexus)
+- Scraper fixes (kevwag, kodaksmith)
+- Fix issue determining active language (issue#79)
+
+v.5.0.0
+- Requires Kodi 19+ (Matrix, Nexus, ...)
 - Playback uses m3u8, which respects the global bandwidth setting
     </news>
     <forum>https://forum.kodi.tv/showthread.php?tid=36866</forum>

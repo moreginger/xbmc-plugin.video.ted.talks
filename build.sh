@@ -12,14 +12,15 @@ rsync -aP\
   --exclude '.git'\
   --exclude '.gitignore'\
   --exclude '.pylintrc'\
-  --exclude '.travis.yml'\
+  --exclude '.github'\
   --exclude '*.sh'\
   --exclude '*.md'\
   --exclude 'requirements.txt'\
   --exclude 'README'\
   --exclude '*_test.py'\
   --exclude 'test_util.py'\
-  --exclude '*.pyc'\
+  --exclude '__init__.py'\
+  --exclude '__pycache__'\
   ./ $BUILD/
 
 rm $DIST || true

@@ -11,22 +11,22 @@ from .test_util import skip_ted_rate_limited, CachedHTMLProvider, EXCLUDE_RATE_L
 class TestTalkScraper(unittest.TestCase):
 
     def test_get_ted_video(self):
-        # pre-2017 talk had different page format at some point. Unsure if that still holds?
+        # post-2017 talk
         self.assert_talk_details(
-            "https://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html",
-            "https://hls.ted.com/project_masters/1580/manifest.m3u8?intro_master_id=2346",
-            "Know thyself, with a brain scanner",
-            "Ariel Garten",
+            "https://www.ted.com/talks/dan_bricklin_meet_the_inventor_of_the_electronic_spreadsheet",
+            "https://hls.ted.com/project_masters/2740/manifest.m3u8",
+            "Meet the inventor of the electronic spreadsheet",
+            "Dan Bricklin",
             True,
             True
         )
 
-        # post-2017 talk
+        # pre-2017 talk had different page format at some point. Unsure if that still holds?
         self.assert_talk_details(
-            "https://www.ted.com/talks/dan_bricklin_meet_the_inventor_of_the_electronic_spreadsheet",
-            "https://hls.ted.com/project_masters/2740/manifest.m3u8?intro_master_id=2346",
-            "Meet the inventor of the electronic spreadsheet",
-            "Dan Bricklin",
+            "https://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner",
+            "https://hls.ted.com/project_masters/1580/manifest.m3u8",
+            "Know thyself, with a brain scanner",
+            "Ariel Garten",
             True,
             True
         )
@@ -34,7 +34,7 @@ class TestTalkScraper(unittest.TestCase):
         # Example of a YouTube link. Not currently working.
         # Correct URL might be something like: plugin://plugin.video.youtube/?action=play_video&videoid=aNDiHSHYI_c
         self.assert_talk_details(
-            "https://www.ted.com/talks/seth_godin_this_is_broken_1.html",
+            "https://www.ted.com/talks/seth_godin_this_is_broken",
             None,
             "This is broken",
             "Seth Godin",
@@ -44,7 +44,7 @@ class TestTalkScraper(unittest.TestCase):
 
     def assert_talk_details(self, talk_url, expected_video_url, expected_title, expected_speaker, expect_plot, expect_json):
         logger = mock.MagicMock()
-        url, title, speaker, plot, talk_json = talk_scraper.get_talk(CachedHTMLProvider().get_HTML(talk_url), logger)
+        url, title, speaker, plot, player_json = talk_scraper.get_talk(CachedHTMLProvider().get_HTML(talk_url), logger)
         self.assertEqual(expected_video_url, url)
         self.assertEqual(expected_title, title)
         self.assertEqual(expected_speaker, speaker)
@@ -55,9 +55,9 @@ class TestTalkScraper(unittest.TestCase):
             self.assertIsNone(plot)
 
         if expect_json:
-            self.assertTrue(talk_json)  # Not None or empty
+            self.assertTrue(player_json)  # Not None or empty
         else:
-            self.assertIsNone(talk_json)
+            self.assertIsNone(player_json)
 
     def test_performance(self):
         html = CachedHTMLProvider().get_HTML("https://www.ted.com/talks/ariel_garten_know_thyself_with_a_brain_scanner.html")

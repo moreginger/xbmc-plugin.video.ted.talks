@@ -22,15 +22,15 @@ class TestSettings(unittest.TestCase):
 
     def test_get_subtitle_languages_enabled_standard(self):
         settings.enable_subtitles = 'true'
-        settings.xbmc_language = 'Portuguese'
+        settings.xbmc_language = 'pt'
         settings.subtitle_language = "" # Default is "en", if pref unset then XBMC will replace with "".
         self.assertEqual(['pt'], settings.get_subtitle_languages())
         
-    def test_get_subtitle_languages_enabled_standard_nomatch(self):
+    def test_get_subtitle_languages_enabled_standard_iso_639_3(self):
         settings.enable_subtitles = 'true'
-        settings.xbmc_language = 'Klingon'
+        settings.xbmc_language = 'tlh' # Klingon
         settings.subtitle_language = ''
-        self.assertEqual(None, settings.get_subtitle_languages())
+        self.assertEqual('tlh', settings.get_subtitle_languages())
         
     def test_get_subtitle_languages_enabled_custom(self):
         settings.enable_subtitles = 'true'

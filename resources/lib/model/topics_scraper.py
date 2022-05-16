@@ -3,7 +3,7 @@ import html5lib
 
 from .url_constants import URLTED
 
-__url_topics__ = URLTED + '/watch/topics'
+__url_topics__ = URLTED + '/topics'
 
 class Topics:
 
@@ -14,14 +14,12 @@ class Topics:
     def get_topics(self):
         topics_content = self.get_HTML(__url_topics__)
         dom = html5lib.parse(topics_content, namespaceHTMLElements=False)
-        for li in dom.findall(".//li[@class='d:b']"):
-            link = li.find('.//a[@href]')
-            link = link.attrib['href'] if link else None
+        for li in dom.findall(".//a[@href]/.."):
+            link = li.find('.//a[@href]').attrib['href']
             if link and link.startswith('/topics/'):
-                title = li.find('.//span').text.strip()
+                title = li.find('.//div').text.strip()
                 topic = link[len('/topics/'):]
                 yield title, topic
-
 
     def get_talks(self, topic):
         page = 0

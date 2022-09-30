@@ -2,7 +2,7 @@ import html5lib
 
 from .url_constants import URLTED
 
-__url_speakers__ = URLTED + '/people/speakers?page=%s'
+__url_speakers__ = URLTED + '/speakers?page=%s'
 
 class Speakers:
 

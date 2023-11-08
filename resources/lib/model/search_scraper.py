@@ -1,52 +1,58 @@
 import html
 import html5lib
-import re
 import urllib.parse
+import re
 
-from .url_constants import URLTED
-
-
-__url_search__ = URLTED + '/search?cat=videos&q=%s&page=%s'
-__results_count_re__ = re.compile(r'.*?\d+ - (\d+) of (\d+) results.*') # "331 - 360 of 333 results"
-__result_count_re__ = re.compile(r'.*?\d+ +results?.*') # Two spaces at the moment i.e. "1  result"
+from .. import settings
 
 class Search:
 
-    def __init__(self, get_HTML):
-        self.get_HTML = get_HTML
+    def __init__(self, get_html):
+        self.fetch = get_html  #text
 
-    def get_talks_for_search(self, search_string, page_index):
+    def __AtoBofC__(self, html):
+        # e.g. "331 - 360 of 333 results"
+        m = re.search(r'\D(\d+) - (\d+) of (\d+) results', html, re.I | re.A)
+        if bool(m):
+            return int(m.group(1)), int(m.group(2)), int(m.group(3))
+        # two spaces at the moment i.e. "1  result"
+        m = re.search(r'\D(\d+) +results', html, re.I | re.A)
+        if bool(m):
+            return 1, int(m.group(1)), int(m.group(1))
+        return 1, 1, 1
+
+    def URL(self, search_string, page, category):
+        return '%s/search?cat=%s&q=%s&page=%s' % (
+            settings.__ted_url__,
+            'playlists' if category == 'p' else 'videos',
+            search_string,
+            page)
+
+    def fetch_search(self, search_string, page, category):
         '''
         Yields number of results left to show after this page,
         then tuples of title, link, img for results on this page.
         '''
-
-        # TODO yield speakers, topics
-
+        doublecheck = '/playlists/' if category == 'p' else '/talks/'
         search_string = urllib.parse.quote_plus(search_string)
-        search_url = __url_search__ % (search_string, page_index)
-        search_content = self.get_HTML(search_url)
+        content = self.fetch(self.URL(search_string, page, category))
+        results = html5lib.parse(content, namespaceHTMLElements=False)
+        results = results.findall(".//article[@class='m1 search__result']")
 
-        results = html5lib.parse(search_content, namespaceHTMLElements=False).findall(".//article[@class='m1 search__result']")
-        yield self._results_remaining(search_content, len(results)) 
+        a, b, c = self.__AtoBofC__(content) 
+        yield a, b, c
 
-        import xml.etree.ElementTree as ElementTree
-        for result in results:
-            url = result.find('.//a[@href]').attrib['href']
-            if not url.startswith('/talks/'):
+        for r in results:
+            url = r.find('.//a[@href]').attrib['href']
+            if not url.startswith(doublecheck):
                 continue
-            url = URLTED + url
-            title = html.unescape(result.find('.//h3/a').text.strip())
-            img = result.find('.//img[@src]').attrib['src']
-            yield title, url, img
-
-    def _results_remaining(self, html, results):
-        results_count_matches = __results_count_re__.findall(html)
-        if results_count_matches:
-            match = results_count_matches[0]
-            last_on_page = int(match[0])
-            total_results = int(match[1])
-            return max(0, total_results - last_on_page)
-        if __result_count_re__.findall(html):
-            return 0  # All results on this page
-        return 1 # We don't know so just make sure that it is positive so that we keep paging.
+            title = html.unescape(r.find('.//h3/a').text.strip())
+            thumb = r.find('.//img[@src]').attrib['src']
+            desc = r.findall(".//div[@class='search__result__description m4']")
+            if desc:
+                for br in desc[0].findall('.//br'):
+                    br.tail = '\n' + (br.tail.lstrip() if br.tail else '')
+                for p in desc[0].findall('.//p'):
+                    p.tail = '\n\n' + (p.tail.lstrip() if p.tail else '')
+                desc = ''.join(desc[0].itertext()).strip()
+            yield title, settings.__ted_url__ + url, thumb, desc or ''

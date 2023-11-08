@@ -1,72 +1,59 @@
-import html
-import html5lib
 
-from .url_constants import URLTED
+import re
+import json
+import time
 
-__url_topics__ = URLTED + '/topics'
+from .. import settings
 
 class Topics:
 
-    def __init__(self, get_HTML, logger):
-        self.get_HTML = get_HTML
-        self.logger = logger
+    def __init__(self, get_html):
+        self.fetch = get_html  # text
 
-    def get_topics(self):
-        topics_content = self.get_HTML(__url_topics__)
-        dom = html5lib.parse(topics_content, namespaceHTMLElements=False)
-        for li in dom.findall(".//a[@href]/.."):
-            link = li.find('.//a[@href]').attrib['href']
-            if link and link.startswith('/topics/'):
-                title = li.find('.//div').text.strip()
-                topic = link[len('/topics/'):]
-                yield title, topic
+    def URL(self, *parts):
+        return '/'.join([settings.__ted_url__, *parts]) 
 
-    def get_talks(self, topic):
-        page = 0
-        while True:
-            page += 1
-            url = URLTED + '/talks?page={page}&topics%5B%5D={topic}'.format(page=page, topic=topic)
-            dom = html5lib.parse(self.get_HTML(url), namespaceHTMLElements=False)
-            talks = dom.findall(".//div[@class='talk-link']")
-            if not talks:
-                if dom.find(".//div[@class='browse__no-results']") is not None:
-                    # Some topics e.g. "advertising, at the time of writing, have no results.
-                    return
-                msg = "Cannot parse talks for topic '%s'." % (topic)
-                self.logger(msg, friendly_message=msg)
-                return
+    def fetch_json(self, url):
+        m = '<script id="__NEXT_DATA__"[^>]*>(.+?)<\/script>'
+        m = re.search(m, self.fetch(url), re.S)
+        data = json.loads(m.group(1) if bool(m) else '{}')
+        return data.get('props', {}).get('pageProps', {})
 
-            failed_talks = 0
-            for talk in talks:
-                anchors = [x for x in talk.findall('.//a[@href]') if '/talks/' in x.attrib['href']]
-                media_message = talk.find(".//div[@class='media__message']")
-                title_container = media_message.find('.//a') if media_message else None
-                if not anchors or title_container is None:
-                    failed_talks += 1
-                    continue
-                
-                speaker = img = None
-                link = anchors[0].attrib['href']
-                title = html.unescape(title_container.text.strip())
-                speakers_container = [x for x in talk.findall('.//h4[@class]') if 'talk-link__speaker' in x.attrib['class']]
-                if speakers_container is not None:
-                    speaker = speakers_container[0].text.strip()
-                img = talk.find('.//img[@src]')
-                if img is not None:
-                    img = img.attrib['src']
+    def fetch_topics(self):
+        topics = self.fetch_json(self.URL('topics')).get('list', [])
+        topics = sorted(topics, key=lambda k: k.get('letter', ''))
+        for letter in topics:
+            for topic in letter.get('items',[]):
+                yield topic.get('name', ''), topic.get('slug', '')
 
-                yield title, URLTED + link, img, speaker
-
-            pagination_div = dom.find(".//div[@class='pagination']")
-            pagination_next = [x for x in pagination_div.findall('.//*[@class]') if 'pagination__next' in x.attrib['class']] if pagination_div else None
-            if pagination_next is None:
-                msg = "Cannot page talks for topic '%s'." % (topic)
-                self.logger(msg, friendly_message=msg)
-                return
-
-            if 'disabled' in pagination_next[0].attrib['class']:
-                # On last page, stop loop.
-                if failed_talks:
-                    msg = "Problem parsing {} talks for topic '{}'".format(failed_talks, topic)
-                    self.logger(msg, friendly_message=msg)
-                return
+    def fetch_featured(self, topic_slug):
+        data = self.fetch_json(self.URL('topics', topic_slug))
+        name = data.get('name','')
+        playlists = data.get('playlists', [])
+        for p in playlists:
+            thumb = p.get('primaryImageSet', [])
+            thumb = thumb[0].get('url') if thumb else None
+            yield 'p', {
+                'tag': name,
+                'title': p.get('title'),
+                'thumb': thumb,
+                'plot': p.get('description', ''),
+                'count': int(p.get('videos', {}).get('totalCount', 0)),
+                'mediatype': 'tvshow',
+                'author': p.get('author', ''),
+                'url': self.URL('playlists', p.get('id'), p.get('slug'))
+            }
+        talks = data.get('talks', [])
+        for t in talks:
+            thumb = t.get('primaryImageSet', [])
+            thumb = thumb[0].get('url') if thumb else None
+            yield 't', {
+                'tag': name,
+                'title': t.get('title'),
+                'thumb': thumb,
+                'plot': t.get('description', ''),
+                'duration': int(t.get('duration', 0)),
+                'mediatype': 'video',
+                'author': t.get('presenterDisplayName', ''),
+                'url': t.get('canonicalUrl')
+            }

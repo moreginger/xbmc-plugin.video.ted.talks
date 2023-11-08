@@ -40,8 +40,36 @@ msgctxt "#30034"
 msgid "Search for Talks on TED.com"
 msgstr ""
 
+msgctxt "#30005"
+msgid "Search (Playlists)"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Search for Playlists on TED.com"
+msgstr ""
+
 msgctxt "#30007"
 msgid "Topics"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Browse featured Talks and Playlists for TED topics from A to Z"
+msgstr ""
+
+msgctxt "#30008"
+msgid "TED Series"
+msgstr ""
+
+msgctxt "#30038"
+msgid "Feed your curiosity with new TED series that go deeper into fascinating topics -- from the everyday objects that changed the world, to cutting-edge neuroscience on a shoestring budget."
+msgstr ""
+
+msgctxt "#30009"
+msgid "Other Feeds"
+msgstr ""
+
+msgctxt "#30039"
+msgid "More feeds that feature TEDTalks video."
 msgstr ""
 
 msgctxt "#30020"
@@ -54,6 +82,26 @@ msgstr ""
 
 msgctxt "#30022"
 msgid "More..."
+msgstr ""
+
+msgctxt "#30023"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "#30024"
+msgid "NEW Search"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Search string: %s"
+msgstr ""
+
+msgctxt "#30091"
+msgid "Talk detail"
+msgstr ""
+
+msgctxt "#30094"
+msgid "Search with Topic"
 msgstr ""
 
 msgctxt "#30097"

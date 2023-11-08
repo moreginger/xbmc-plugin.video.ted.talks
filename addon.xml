@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.ted.talks" name="TED Talks" version="5.0.1" provider-name="moreginger, rwparris2, kevwag, kodaksmith">
+<addon id="plugin.video.ted.talks" name="TED Talks" version="5.1.0" provider-name="rwparris2, moreginger, kevwag, kodaksmith, demitrios">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.22.0"/>
     <import addon="script.module.html5lib" version="1.0.1+matrix.2"/>
-    <import addon="script.module.m3u8" version="0.5.4+matrix.2"/>
+    <import addon="script.module.youtube.dl" version="21.303.0+matrix.1"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>
@@ -23,13 +23,15 @@
     <platform>all</platform>
     <license>GPL-2.0-or-later</license>
     <news>
-v5.0.1
-- Scraper fixes (kevwag, kodaksmith)
-- Fix issue determining active language (issue#79)
-
-v.5.0.0
-- Requires Kodi 19+ (Matrix, Nexus, ...)
-- Playback uses m3u8, which respects the global bandwidth setting
+v5.1.0
+- More or less a rewrite of v5.0.1, many fixes
+- Fixed "Search", plus now searches for talks or playlists
+- Added "Other Feeds" to include other RSS feeds for TEDtalks
+- Reworked "Speakers" to provide more detail about a speaker 
+- Reworked "Topics" to show featured talks and playlists of a topic page
+- Reworked playback, improves subtitles selection
+- Playback uses youtube.dl for "external" (missing stream) TED video
+- Requires Kodi v19.x (Matrix) or Kodi v20.x (Nexus)
     </news>
     <forum>https://forum.kodi.tv/showthread.php?tid=36866</forum>
     <website>https://github.com/moreginger/xbmc-plugin.video.ted.talks</website>

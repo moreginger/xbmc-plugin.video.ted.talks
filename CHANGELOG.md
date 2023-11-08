@@ -1,3 +1,19 @@
+## [5.1.0]
+### Changed
+- Reworked [5.0.1], with many fixes to keep up with ted.com changes
+- Fixed "Search", plus now searches for talks or playlists
+- Added "Other Feeds" to include other RSS feeds for TEDtalks
+- Added "TED Series" section to access TED series, seasons, and episodes
+- Reworked "Speakers" to provide more detail about a speaker 
+- Reworked "Topics" to show featured talks and playlists of a topic page
+- Added a context menu to use a topic as the search string, since there
+  seems no longer a good way to access the site's topic search
+- Honors the host's rate limiting responses when fetching urls
+- Reworked playback, improves subtitles selection
+- Playback uses the youtube.dl addon (YDStreamExtractor) when stream data
+  are missing, trying to extract stream urls from the "external" keys info
+- Requires Kodi v19.x (Matrix) or Kodi v20.x (Nexus)
+
 ## [5.0.1]
 ### Changed
 - Scraper fixes (pull#81 thanks to kevwag and kodaksmith)
